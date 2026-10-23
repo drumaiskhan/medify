@@ -1,6 +1,5 @@
-// Edit these public URLs after uploading. Never put secrets here.
 window.MEDIFY_CONFIG = {
-  API_URL: "", // e.g. https://api.example.com/api
-  ADMIN_URL: "", // e.g. https://admin.example.com
-  STUDENT_URL: "" // e.g. https://example.com
+  API_URL: "https://site.medschoolproffs.live/api",
+  STUDENT_URL: "https://med-ify.live",
+  ADMIN_URL: "https://admin.med-ify.live"
 };
