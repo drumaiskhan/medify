@@ -1,0 +1,202 @@
+[
+  {
+    "collection": "years",
+    "id": "1st-year",
+    "data": {
+      "name": "1st Year MBBS",
+      "status": "coming-soon",
+      "order": 1,
+      "published": true
+    }
+  },
+  {
+    "collection": "years",
+    "id": "2nd-year",
+    "data": {
+      "name": "2nd Year MBBS",
+      "status": "available",
+      "order": 2,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "2nd-year-neuroscience-module",
+    "data": {
+      "name": "Neuroscience Module",
+      "yearId": "2nd-year",
+      "order": 1,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "2nd-year-renal-module",
+    "data": {
+      "name": "Renal Module",
+      "yearId": "2nd-year",
+      "order": 2,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "2nd-year-git-hepatobiliary-module",
+    "data": {
+      "name": "GIT & Hepatobiliary Module",
+      "yearId": "2nd-year",
+      "order": 3,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "2nd-year-endocrine-reproduction-module",
+    "data": {
+      "name": "Endocrine & Reproduction Module",
+      "yearId": "2nd-year",
+      "order": 4,
+      "published": true
+    }
+  },
+  {
+    "collection": "years",
+    "id": "3rd-year",
+    "data": {
+      "name": "3rd Year MBBS",
+      "status": "available",
+      "order": 3,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "3rd-year-foundation-ii-module",
+    "data": {
+      "name": "Foundation II Module",
+      "yearId": "3rd-year",
+      "order": 1,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "3rd-year-infection-inflammation-module",
+    "data": {
+      "name": "Infection & Inflammation Module",
+      "yearId": "3rd-year",
+      "order": 2,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "3rd-year-blood-immunology-module",
+    "data": {
+      "name": "Blood & Immunology Module",
+      "yearId": "3rd-year",
+      "order": 3,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "3rd-year-multisystem-module",
+    "data": {
+      "name": "Multisystem Module",
+      "yearId": "3rd-year",
+      "order": 4,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "3rd-year-cardiovascular-respiratory-module",
+    "data": {
+      "name": "Cardiovascular & Respiratory Module",
+      "yearId": "3rd-year",
+      "order": 5,
+      "published": true
+    }
+  },
+  {
+    "collection": "years",
+    "id": "4th-year",
+    "data": {
+      "name": "4th Year MBBS",
+      "status": "available",
+      "order": 4,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-neuroscience-module",
+    "data": {
+      "name": "Neuroscience Module",
+      "yearId": "4th-year",
+      "order": 1,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-git-hepatobiliary-module",
+    "data": {
+      "name": "GIT & Hepatobiliary Module",
+      "yearId": "4th-year",
+      "order": 2,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-renal-module",
+    "data": {
+      "name": "Renal Module",
+      "yearId": "4th-year",
+      "order": 3,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-endocrine-reproduction-module",
+    "data": {
+      "name": "Endocrine & Reproduction Module",
+      "yearId": "4th-year",
+      "order": 4,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-otorhinolaryngology-m1-module",
+    "data": {
+      "name": "Otorhinolaryngology (M1) Module",
+      "yearId": "4th-year",
+      "order": 5,
+      "published": true
+    }
+  },
+  {
+    "collection": "blocks",
+    "id": "4th-year-ophthalmology-m2-module",
+    "data": {
+      "name": "Ophthalmology (M2) Module",
+      "yearId": "4th-year",
+      "order": 6,
+      "published": true
+    }
+  },
+  {
+    "collection": "years",
+    "id": "5th-year",
+    "data": {
+      "name": "Final Year MBBS",
+      "status": "coming-soon",
+      "order": 5,
+      "published": true
+    }
+  }
+]

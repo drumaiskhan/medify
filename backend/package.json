@@ -1,0 +1,27 @@
+{
+  "name": "medify-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "app.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "migrate": "node scripts/migrate.js",
+    "admin": "node scripts/admin.js",
+    "test": "node --test test/*.test.js",
+    "seed": "node scripts/seed.js",
+    "storage:check": "node scripts/storage-check.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.0.6",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14"
+  }
+}

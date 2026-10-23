@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/app.js",
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Student",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/student/node_modules/vite/bin/vite.js",
+      "args": ["--host", "127.0.0.1", "--port", "3000", "--strictPort"],
+      "cwd": "${workspaceFolder}/student",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Admin",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/admin/node_modules/vite/bin/vite.js",
+      "args": ["--host", "127.0.0.1", "--port", "3001", "--strictPort"],
+      "cwd": "${workspaceFolder}/admin",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "MEDIFY: all apps",
+      "configurations": ["API", "Student", "Admin"],
+      "stopAll": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "medify-workspace",
+  "version": "1.2.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "setup": "node scripts/local.cjs setup",
+    "db:start": "docker compose up -d --wait postgres",
+    "db:stop": "docker compose stop postgres",
+    "db:init": "node scripts/local.cjs init",
+    "dev": "node scripts/local.cjs dev",
+    "build": "npm run build --prefix student && npm run build --prefix admin",
+    "test": "npm test --prefix backend",
+    "storage:check": "npm run storage:check --prefix backend",
+    "admin:reset": "npm run admin --prefix backend"
+  }
+}

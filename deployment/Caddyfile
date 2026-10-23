@@ -1,0 +1,15 @@
+{$STUDENT_DOMAIN} {
+    root * /srv/student
+    encode zstd gzip
+    try_files {path} /index.html
+    file_server
+}
+{$ADMIN_DOMAIN} {
+    root * /srv/admin
+    encode zstd gzip
+    try_files {path} /index.html
+    file_server
+}
+{$API_DOMAIN} {
+    reverse_proxy api:3002
+}

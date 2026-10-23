@@ -1,0 +1,20 @@
+# Local development only. Database survives container restarts.
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medify
+      POSTGRES_USER: medify
+      POSTGRES_PASSWORD: ${MEDIFY_DB_PASSWORD:?Run npm run setup first}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - medify_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medify -d medify"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+volumes:
+  medify_postgres:

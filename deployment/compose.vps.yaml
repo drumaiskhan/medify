@@ -1,0 +1,67 @@
+# Run from deployment/: docker compose -f compose.vps.yaml ...
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medify
+      POSTGRES_USER: medify
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure deployment/.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medify -d medify"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  api:
+    build: ../backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: medify
+      PGUSER: medify
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Configure deployment/.env}
+      DB_SSL: "false"
+      FRONTEND_ORIGINS: https://${STUDENT_DOMAIN},https://${ADMIN_DOMAIN}
+      STUDENT_URL: https://${STUDENT_DOMAIN}
+      COOKIE_SECURE: "true"
+      TRUST_PROXY_HOPS: 1
+      UPLOAD_DIR: /data/books
+      REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-false}
+      MAX_DEVICES: ${MAX_DEVICES:-2}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    volumes:
+      - /srv/medify/books:/data/books
+  web:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      STUDENT_DOMAIN: ${STUDENT_DOMAIN:?Configure domain}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:?Configure domain}
+      API_DOMAIN: ${API_DOMAIN:?Configure domain}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../student/dist:/srv/student:ro
+      - ../admin/dist:/srv/admin:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

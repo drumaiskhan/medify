@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MEDIFY: install and configure",
+      "type": "shell",
+      "command": "npm run setup",
+      "problemMatcher": []
+    },
+    {
+      "label": "MEDIFY: start PostgreSQL",
+      "type": "shell",
+      "command": "npm run db:start",
+      "problemMatcher": []
+    },
+    {
+      "label": "MEDIFY: initialize database",
+      "type": "shell",
+      "command": "npm run db:init",
+      "problemMatcher": []
+    },
+    {
+      "label": "MEDIFY: run all apps",
+      "type": "shell",
+      "command": "npm run dev",
+      "problemMatcher": []
+    },
+    {
+      "label": "MEDIFY: build frontends",
+      "type": "shell",
+      "command": "npm run build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "MEDIFY: backend tests",
+      "type": "shell",
+      "command": "npm test",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
