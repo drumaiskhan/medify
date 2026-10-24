@@ -7,8 +7,7 @@ on:
       - main
     paths:
       - "backend/**"
-      - "deployment/scripts/ftp-upload.sh"
-      - "deployment/scripts/ftp-verify-commit.sh"
+      - "deployment/scripts/**"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -54,7 +53,6 @@ jobs:
 
           echo "FTP configuration provided."
 
-      # Diagnose the actual destination used by GitHub.
       - name: Diagnose FTP destination
         shell: bash
         run: |
@@ -64,26 +62,33 @@ jobs:
           echo "MEDIFY FTP DESTINATION DIAGNOSTICS"
           echo "===================================="
 
-          echo "FTP host: $FTP_HOST"
-          echo "FTP port: $FTP_PORT"
-          echo "FTP user: $FTP_USER"
-          echo "FTP directory: $FTP_DIR"
+          EXPECTED_IP="162.55.6.159"
 
-          echo ""
-          echo "DNS resolution:"
-          getent ahostsv4 "$FTP_HOST" | head -3
+          RESOLVED_IP="$(
+            getent ahostsv4 "$FTP_HOST" |
+            awk 'NR==1 {print $1}'
+          )"
 
-          echo ""
-          echo "Expected cPanel FTP IP: 162.55.6.159"
+          if [[ -z "$RESOLVED_IP" ]]; then
+            echo "::error::FTP hostname could not be resolved."
+            exit 1
+          fi
 
-          echo ""
-          echo "FTP connection check:"
+          if [[ "$RESOLVED_IP" == "$EXPECTED_IP" ]]; then
+            echo "PASS: FTP resolves to expected cPanel IP."
+          else
+            echo "::error::FTP hostname resolves to a different IP."
+            echo "Expected cPanel IP does not match."
+            exit 1
+          fi
+
+          echo "Checking FTP port connectivity..."
+
           timeout 15 bash -c \
             'echo > /dev/tcp/"$1"/"$2"' \
             _ "$FTP_HOST" "$FTP_PORT"
 
-          echo "FTP port reachable."
-
+          echo "PASS: FTP port 21 is reachable."
           echo "===================================="
 
       - name: Prepare Medify backend
@@ -107,9 +112,10 @@ jobs:
           printf '%s\n' "$GITHUB_SHA" \
             > "$RUNNER_TEMP/medify-api/deployed-commit.txt"
 
-          echo "Prepared backend for commit $GITHUB_SHA"
+          echo "Backend prepared."
+          echo "Commit: $GITHUB_SHA"
 
-      - name: Deploy backend via explicit FTPS
+      - name: Upload backend through FTPS
         shell: bash
         run: |
           set -euo pipefail
@@ -117,7 +123,7 @@ jobs:
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
-          echo "Backend FTP upload completed."
+          echo "FTPS backend upload completed."
 
       - name: Verify uploaded commit via FTPS
         shell: bash
@@ -126,6 +132,8 @@ jobs:
 
           bash deployment/scripts/ftp-verify-commit.sh \
             "$GITHUB_SHA"
+
+          echo "FTP commit verification passed."
 
       - name: Restart cPanel Passenger Node app
         shell: bash
@@ -160,10 +168,8 @@ jobs:
             "$API_URL/api/healthz"
 
           echo ""
-          echo "API health check passed."
+          echo "Medify API health check passed."
 
-      # The deployment must not show success when
-      # the live API is still serving an old commit.
       - name: Verify live deployed commit
         shell: bash
         run: |
@@ -205,7 +211,7 @@ jobs:
               echo "Live commit: $ACTUAL_SHA"
 
               if [[ "$ACTUAL_SHA" == "$EXPECTED_SHA" ]]; then
-                echo "Live deployment verified successfully."
+                echo "PASS: Live API runs the expected commit."
                 exit 0
               fi
             fi
@@ -215,8 +221,8 @@ jobs:
             fi
           done
 
-          echo "::error::Live API commit does not match GitHub commit."
-          echo "::error::FTP upload succeeded but the live application is outdated."
+          echo "::error::Live API commit mismatch."
+          echo "::error::FTP deployment completed, but live API is outdated."
           exit 1
 
       - name: Deployment completed
