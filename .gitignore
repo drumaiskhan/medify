@@ -8,3 +8,11 @@ private-uploads/
 !.env.*.example
 .local-data/
 *.zip
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+build/
+.local-data/
+*.log

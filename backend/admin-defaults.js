@@ -1,5 +1,2 @@
-// Requested initial administrator credentials. Backend setup only, never sent to browsers.
-module.exports = Object.freeze({
-  email: 'syednangyal@gmail.com',
-  password: 'Syed123456',
-});
+// Initial administrator settings are supplied through private cPanel environment variables.
+module.exports = Object.freeze({ email: '', password: '' });
