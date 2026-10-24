@@ -81,6 +81,9 @@ jobs:
           echo "FTP server port 21 is reachable."
 
       # 6. Upload backend
+      - name: Write deployed commit stamp
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/medify-api/deployed-commit.txt"
       - name: Deploy backend via explicit FTPS
         run: |
           bash deployment/scripts/ftp-upload.sh \
@@ -116,6 +119,22 @@ jobs:
             https://site.med-ify.live/api/healthz
 
       # 9. Deployment completed
+      - name: Verify exact deployed commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            response="$(curl --insecure --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
+            if echo "$response" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("commit")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
+              echo "Verified live API is running commit $EXPECTED_SHA"
+              exit 0
+            fi
+            echo "Attempt $attempt/18: live API has not reported the expected commit yet"
+            sleep 10
+          done
+          echo "ERROR: Live Medify API did not serve commit $EXPECTED_SHA"
+          exit 1
       - name: Deployment completed
         run: |
           echo "===================================="

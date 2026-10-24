@@ -429,6 +429,17 @@ function createApp(pool, { sendMail } = {}) {
     }),
   );
   require("./admin-content").installAdminContent(app, pool);
+  app.get("/api/deployed-commit", (req, res) => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    try {
+      const commit = fs.readFileSync(path.join(__dirname, "deployed-commit.txt"), "utf8").trim();
+      if (!/^[0-9a-f]{40}$/.test(commit)) return res.status(503).json({ error: "Deployment stamp invalid" });
+      res.json({ commit });
+    } catch (_) {
+      res.status(503).json({ error: "Deployment stamp unavailable" });
+    }
+  });
   console.log("[MEDIFY] Admin content deletion routes installed");
   app.get("/api/deployment-check", (req, res) => {
     res.json({

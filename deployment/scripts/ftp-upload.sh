@@ -55,7 +55,7 @@ set ssl:verify-certificate no
 
 open -p $FTP_PORT -u "$username","$password" "ftp://$host"
 
-mirror --reverse --verbose=0 --parallel=2 "$local_dir" "$remote_dir"
+mirror --reverse --transfer-all --verbose=0 --parallel=2 "$local_dir" "$remote_dir"
 
 bye
 EOF
