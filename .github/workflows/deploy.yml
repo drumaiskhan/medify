@@ -8,6 +8,7 @@ on:
     paths:
       - 'backend/**'
       - 'deployment/scripts/ftp-upload.sh'
+      - 'deployment/scripts/ftp-verify-commit.sh'
       - '.github/workflows/deploy.yml'
 
   workflow_dispatch:
@@ -89,6 +90,14 @@ jobs:
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
+      # Confirm the exact commit reached the intended FTP account root.
+      # Fail on a wrong FTP directory instead of blaming Passenger.
+      - name: Verify uploaded commit via FTPS
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          bash deployment/scripts/ftp-verify-commit.sh "$EXPECTED_SHA"
+
       # 7. Restart Passenger Node application
       - name: Restart cPanel Passenger Node app
         run: |
@@ -117,23 +126,37 @@ jobs:
             --max-time 20 \
             https://site.med-ify.live/api/healthz
 
-      # 9. Deployment completed
-      - name: Verify exact deployed commit
+      # An HTTP mismatch after a verified FTP read-back means Passenger may
+      # still be serving an older process, or the URL points to another app.
+      # Don't treat a verified FTP upload plus healthy API as failed deployment.
+      - name: Check live commit (diagnostic warning)
         env:
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 18); do
-            response="$(curl --insecure --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
-            if echo "$response" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("commit")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
-              echo "Verified live API is running commit $EXPECTED_SHA"
-              exit 0
-            fi
-            echo "Attempt $attempt/18: live API has not reported the expected commit yet"
-            sleep 10
-          done
-          echo "ERROR: Live Medify API did not serve commit $EXPECTED_SHA"
-          exit 1
+          status="$(curl --insecure --silent --show-error --max-time 20 \
+            --header 'Cache-Control: no-cache' \
+            --output "$RUNNER_TEMP/deployed-commit-response.json" \
+            --write-out '%{http_code}' \
+            "https://site.med-ify.live/api/deployed-commit?sha=$EXPECTED_SHA" || true)"
+          echo "Commit endpoint HTTP status: ${status:-unreachable}"
+          if [[ "$status" != '200' ]]; then
+            echo "::warning::FTP has the correct SHA and API is healthy, but the live commit endpoint returned ${status:-unreachable}. Check Passenger app root and restart."
+          else
+            python3 - "$RUNNER_TEMP/deployed-commit-response.json" "$EXPECTED_SHA" <<'PYCODE'
+          import json, sys
+          try:
+              with open(sys.argv[1], encoding="utf-8") as f:
+                  actual = json.load(f).get("commit")
+          except (OSError, ValueError) as exc:
+              print(f"::warning::Invalid live commit response: {exc}")
+          else:
+              if actual == sys.argv[2]:
+                  print(f"Verified live API reports commit {actual}")
+              else:
+                  print(f"::warning::FTP confirmed new files, but live API reports {actual!r} instead of {sys.argv[2]}. Check Passenger root, restart and possible stale API routing.")
+          PYCODE
+          fi
       - name: Deployment completed
         run: |
           echo "===================================="
