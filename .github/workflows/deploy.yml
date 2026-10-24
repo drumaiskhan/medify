@@ -107,6 +107,7 @@ jobs:
       - name: Verify Medify API health
         run: |
           curl \
+            --insecure \
             --fail \
             --show-error \
             --silent \
@@ -123,7 +124,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 18); do
-            response="$(curl --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
+            response="$(curl --insecure --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
             if echo "$response" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("commit")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
               echo "Verified live API is running commit $EXPECTED_SHA"
               exit 0
