@@ -429,6 +429,14 @@ function createApp(pool, { sendMail } = {}) {
     }),
   );
   require("./admin-content").installAdminContent(app, pool);
+  console.log("[MEDIFY] Admin content deletion routes installed");
+  app.get("/api/deployment-check", (req, res) => {
+    res.json({
+      app: "medify",
+      adminContentRoutes: true,
+      deployment: "admin-delete-fix-20261024"
+    });
+  });
   require("./library").installLibrary(app, pool);
   require("./notes").installNotes(app, pool);
   require("./coupons").installCoupons(app, pool);
