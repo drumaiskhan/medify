@@ -27,7 +27,7 @@ jobs:
     env:
       FTP_HOST: ${{ secrets.API_FTP_SERVER }}
       FTP_PORT: "21"
-      FTP_USER: "medifydeploy@site.med-ify.live"
+      FTP_USER: "medifygithub@site.med-ify.live"
       FTP_DIR: "/"
       FTP_PASSWORD: ${{ secrets.API_FTP_PASSWORD }}
       API_URL: "https://site.med-ify.live"
