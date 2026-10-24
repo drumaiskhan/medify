@@ -126,25 +126,15 @@ jobs:
             --max-time 20 \
             https://site.med-ify.live/api/healthz
 
-<<<<<<< HEAD
       # An HTTP mismatch after a verified FTP read-back means Passenger may
       # still be serving an older process, or the URL points to another app.
       # Don't treat a verified FTP upload plus healthy API as failed deployment.
       - name: Check live commit (diagnostic warning)
-=======
-      # 9. Deployment completed
-      # The health check above is the deployment availability gate.
-      # An unchanged Passenger process or FTP-root mismatch can make the
-      # commit stamp stale; surface its response for troubleshooting.
-      - name: Inspect deployed commit (diagnostic)
-        continue-on-error: true
->>>>>>> 863d8441cab2b9a3568b42dd6aa56023d6c15913
         env:
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           status="$(curl --insecure --silent --show-error --max-time 20 \
-<<<<<<< HEAD
             --header 'Cache-Control: no-cache' \
             --output "$RUNNER_TEMP/deployed-commit-response.json" \
             --write-out '%{http_code}' \
@@ -154,25 +144,10 @@ jobs:
             echo "::warning::FTP has the correct SHA and API is healthy, but the live commit endpoint returned ${status:-unreachable}. Check Passenger app root and restart."
           else
             python3 - "$RUNNER_TEMP/deployed-commit-response.json" "$EXPECTED_SHA" <<'PYCODE'
-=======
-            --output "$RUNNER_TEMP/deployed-commit-response.json" \
-            --write-out '%{http_code}' \
-            https://site.med-ify.live/api/deployed-commit)"
-          echo "Commit endpoint HTTP status: $status"
-          echo "Commit endpoint response:"
-          head -c 500 "$RUNNER_TEMP/deployed-commit-response.json"
-          echo
-          if [[ "$status" != "200" ]]; then
-            echo "::warning::API is healthy, but the commit endpoint returned HTTP $status. Check Passenger restart and FTPS remote root."
-            exit 1
-          fi
-          python3 - "$RUNNER_TEMP/deployed-commit-response.json" "$EXPECTED_SHA" <<'PYCODE'
->>>>>>> 863d8441cab2b9a3568b42dd6aa56023d6c15913
           import json, sys
           try:
               with open(sys.argv[1], encoding="utf-8") as f:
                   actual = json.load(f).get("commit")
-<<<<<<< HEAD
           except (OSError, ValueError) as exc:
               print(f"::warning::Invalid live commit response: {exc}")
           else:
@@ -182,16 +157,6 @@ jobs:
                   print(f"::warning::FTP confirmed new files, but live API reports {actual!r} instead of {sys.argv[2]}. Check Passenger root, restart and possible stale API routing.")
           PYCODE
           fi
-=======
-          except (ValueError, OSError) as exc:
-              print(f"::warning::Invalid commit response: {exc}")
-              sys.exit(1)
-          if actual != sys.argv[2]:
-              print(f"::warning::Deployed commit mismatch: expected {sys.argv[2]}, received {actual!r}. Check FTP_DIR and Passenger restart.")
-              sys.exit(1)
-          print("Verified live API reports the expected commit.")
-          PYCODE
->>>>>>> 863d8441cab2b9a3568b42dd6aa56023d6c15913
       - name: Deployment completed
         run: |
           echo "===================================="
