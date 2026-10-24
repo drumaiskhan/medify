@@ -1,6 +1,8 @@
 
 #!/usr/bin/env bash
 set -euo pipefail
+set +x
+umask 077
 
 source_dir="${1:?Usage: ftp-upload.sh SOURCE_DIR}"
 
@@ -14,21 +16,17 @@ if [[ ! -d "$source_dir" ]]; then
   exit 1
 fi
 
-set +x
-umask 077
-
+# Private temporary directory for credentials.
 temp_dir="$(mktemp -d)"
 trap 'rm -rf "$temp_dir"' EXIT
 
-# Store credentials in a temporary private .netrc file.
-printf 'machine %s login %s password %s\n' \
-  "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD" \
-  > "$temp_dir/.netrc"
+# Configure lftp to authenticate using the supplied credentials.
+# The password is not printed to GitHub Actions logs.
+export LFTP_PASSWORD="$FTP_PASSWORD"
 
-chmod 600 "$temp_dir/.netrc"
-
-# Explicit FTPS with certificate verification.
-HOME="$temp_dir" lftp -f /dev/stdin <<EOF
+lftp -u "$FTP_USER","$FTP_PASSWORD" \
+  -p "${FTP_PORT:-21}" \
+  "ftp://$FTP_HOST" <<EOF
 set cmd:fail-exit yes
 set net:timeout 20
 set net:max-retries 2
@@ -36,8 +34,6 @@ set ftp:ssl-force yes
 set ftp:ssl-protect-data yes
 set ssl:verify-certificate yes
 set ftp:passive-mode yes
-
-open -p ${FTP_PORT:-21} ftp://$FTP_HOST
 
 mirror --reverse --verbose=0 --parallel=2 "$source_dir" "$FTP_DIR"
 
