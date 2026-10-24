@@ -53,10 +53,12 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
   const site=useSite();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const isBookReader=/^\/books\/[^/]+\/read/.test(location.pathname);
   const isReaderView = location.pathname.startsWith('/read/')||isBookReader;
   const isWorkspace = Boolean(user) && !isReaderView && (/^\/(dashboard|books|year|block|visualizer|feedback|notifications)(\/|$)/.test(location.pathname));
+  // After login, the student homepage is the redesigned workspace, not the public landing page.
+  if (!loading && user && location.pathname === '/') return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#6366F1] selection:text-white w-full max-w-full overflow-x-hidden">
