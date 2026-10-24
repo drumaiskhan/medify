@@ -6,11 +6,10 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'
-      - 'deployment/scripts/ftp-upload.sh'
-      - 'deployment/scripts/ftp-verify-commit.sh'
-      - '.github/workflows/deploy.yml'
-
+      - "backend/**"
+      - "deployment/scripts/ftp-upload.sh"
+      - "deployment/scripts/ftp-verify-commit.sh"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -27,37 +26,71 @@ jobs:
     timeout-minutes: 20
 
     env:
-      FTP_HOST: "${{ secrets.API_FTP_SERVER }}"
+      FTP_HOST: ${{ secrets.API_FTP_SERVER }}
       FTP_PORT: "21"
       FTP_USER: "medifydeploy@site.med-ify.live"
       FTP_DIR: "/"
       FTP_PASSWORD: ${{ secrets.API_FTP_PASSWORD }}
+      API_URL: "https://site.med-ify.live"
 
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install FTPS client
       - name: Install FTPS client
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-      # 3. Validate deployment configuration
       - name: Validate FTP configuration
+        shell: bash
         run: |
+          set -euo pipefail
+
           test -n "$FTP_HOST"
           test -n "$FTP_USER"
           test -n "$FTP_PASSWORD"
           test -n "$FTP_DIR"
 
           echo "FTP configuration provided."
-          echo "Target: Medify API"
 
-      # 4. Prepare backend files
-      - name: Prepare Medify backend
+      # Diagnose the actual destination used by GitHub.
+      - name: Diagnose FTP destination
+        shell: bash
         run: |
+          set -euo pipefail
+
+          echo "===================================="
+          echo "MEDIFY FTP DESTINATION DIAGNOSTICS"
+          echo "===================================="
+
+          echo "FTP host: $FTP_HOST"
+          echo "FTP port: $FTP_PORT"
+          echo "FTP user: $FTP_USER"
+          echo "FTP directory: $FTP_DIR"
+
+          echo ""
+          echo "DNS resolution:"
+          getent ahostsv4 "$FTP_HOST" | head -3
+
+          echo ""
+          echo "Expected cPanel FTP IP: 162.55.6.159"
+
+          echo ""
+          echo "FTP connection check:"
+          timeout 15 bash -c \
+            'echo > /dev/tcp/"$1"/"$2"' \
+            _ "$FTP_HOST" "$FTP_PORT"
+
+          echo "FTP port reachable."
+
+          echo "===================================="
+
+      - name: Prepare Medify backend
+        shell: bash
+        run: |
+          set -euo pipefail
+
           mkdir -p "$RUNNER_TEMP/medify-api"
 
           cp -a backend/. "$RUNNER_TEMP/medify-api/"
@@ -71,36 +104,34 @@ jobs:
             "$RUNNER_TEMP/medify-api/medify-storage" \
             "$RUNNER_TEMP/medify-api/tmp"
 
-          echo "Medify backend prepared."
+          printf '%s\n' "$GITHUB_SHA" \
+            > "$RUNNER_TEMP/medify-api/deployed-commit.txt"
 
-      # 5. Check FTP connectivity
-      - name: Check FTP port connectivity
-        run: |
-          timeout 15 bash -c \
-            'echo > /dev/tcp/162.55.6.159/21'
+          echo "Prepared backend for commit $GITHUB_SHA"
 
-          echo "FTP server port 21 is reachable."
-
-      # 6. Upload backend
-      - name: Write deployed commit stamp
-        run: |
-          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/medify-api/deployed-commit.txt"
       - name: Deploy backend via explicit FTPS
+        shell: bash
         run: |
+          set -euo pipefail
+
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
-      # Confirm the exact commit reached the intended FTP account root.
-      # Fail on a wrong FTP directory instead of blaming Passenger.
-      - name: Verify uploaded commit via FTPS
-        env:
-          EXPECTED_SHA: ${{ github.sha }}
-        run: |
-          bash deployment/scripts/ftp-verify-commit.sh "$EXPECTED_SHA"
+          echo "Backend FTP upload completed."
 
-      # 7. Restart Passenger Node application
-      - name: Restart cPanel Passenger Node app
+      - name: Verify uploaded commit via FTPS
+        shell: bash
         run: |
+          set -euo pipefail
+
+          bash deployment/scripts/ftp-verify-commit.sh \
+            "$GITHUB_SHA"
+
+      - name: Restart cPanel Passenger Node app
+        shell: bash
+        run: |
+          set -euo pipefail
+
           mkdir -p "$RUNNER_TEMP/passenger-restart"
 
           date -u +%FT%TZ \
@@ -112,9 +143,11 @@ jobs:
 
           echo "Passenger restart requested."
 
-      # 8. Verify API health
       - name: Verify Medify API health
+        shell: bash
         run: |
+          set -euo pipefail
+
           curl \
             --insecure \
             --fail \
@@ -124,44 +157,77 @@ jobs:
             --retry-delay 8 \
             --retry-connrefused \
             --max-time 20 \
-            https://site.med-ify.live/api/healthz
+            "$API_URL/api/healthz"
 
-      # An HTTP mismatch after a verified FTP read-back means Passenger may
-      # still be serving an older process, or the URL points to another app.
-      # Don't treat a verified FTP upload plus healthy API as failed deployment.
-      - name: Check live commit (diagnostic warning)
-        env:
-          EXPECTED_SHA: ${{ github.sha }}
+          echo ""
+          echo "API health check passed."
+
+      # The deployment must not show success when
+      # the live API is still serving an old commit.
+      - name: Verify live deployed commit
+        shell: bash
         run: |
           set -euo pipefail
-          status="$(curl --insecure --silent --show-error --max-time 20 \
-            --header 'Cache-Control: no-cache' \
-            --output "$RUNNER_TEMP/deployed-commit-response.json" \
-            --write-out '%{http_code}' \
-            "https://site.med-ify.live/api/deployed-commit?sha=$EXPECTED_SHA" || true)"
-          echo "Commit endpoint HTTP status: ${status:-unreachable}"
-          if [[ "$status" != '200' ]]; then
-            echo "::warning::FTP has the correct SHA and API is healthy, but the live commit endpoint returned ${status:-unreachable}. Check Passenger app root and restart."
-          else
-            python3 - "$RUNNER_TEMP/deployed-commit-response.json" "$EXPECTED_SHA" <<'PYCODE'
-          import json, sys
+
+          EXPECTED_SHA="$GITHUB_SHA"
+
+          echo "Expected commit: $EXPECTED_SHA"
+
+          for attempt in 1 2 3 4 5 6; do
+            echo "Live commit check $attempt/6"
+
+            HTTP_STATUS="$(curl \
+              --insecure \
+              --silent \
+              --show-error \
+              --max-time 20 \
+              --header 'Cache-Control: no-cache' \
+              --output "$RUNNER_TEMP/live-commit.json" \
+              --write-out '%{http_code}' \
+              "$API_URL/api/deployed-commit?check=$EXPECTED_SHA" \
+              || true)"
+
+            echo "HTTP status: $HTTP_STATUS"
+
+            if [[ "$HTTP_STATUS" == "200" ]]; then
+              ACTUAL_SHA="$(python3 - "$RUNNER_TEMP/live-commit.json" <<'PY'
+          import json
+          import sys
+
           try:
               with open(sys.argv[1], encoding="utf-8") as f:
-                  actual = json.load(f).get("commit")
-          except (OSError, ValueError) as exc:
-              print(f"::warning::Invalid live commit response: {exc}")
-          else:
-              if actual == sys.argv[2]:
-                  print(f"Verified live API reports commit {actual}")
-              else:
-                  print(f"::warning::FTP confirmed new files, but live API reports {actual!r} instead of {sys.argv[2]}. Check Passenger root, restart and possible stale API routing.")
-          PYCODE
-          fi
+                  print(json.load(f).get("commit", ""))
+          except (OSError, ValueError):
+              print("")
+          PY
+              )"
+
+              echo "Live commit: $ACTUAL_SHA"
+
+              if [[ "$ACTUAL_SHA" == "$EXPECTED_SHA" ]]; then
+                echo "Live deployment verified successfully."
+                exit 0
+              fi
+            fi
+
+            if [[ "$attempt" -lt 6 ]]; then
+              sleep 10
+            fi
+          done
+
+          echo "::error::Live API commit does not match GitHub commit."
+          echo "::error::FTP upload succeeded but the live application is outdated."
+          exit 1
+
       - name: Deployment completed
+        shell: bash
         run: |
           echo "===================================="
-          echo "Medify API deployment successful!"
-          echo "Backend uploaded to cPanel."
+          echo "MEDIFY API DEPLOYMENT SUCCESSFUL"
+          echo "===================================="
+          echo "GitHub commit: $GITHUB_SHA"
+          echo "FTP upload verified."
           echo "Passenger restart requested."
-          echo "API health check passed."
+          echo "API health passed."
+          echo "Live commit verified."
           echo "===================================="
