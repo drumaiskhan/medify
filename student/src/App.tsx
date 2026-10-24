@@ -56,7 +56,7 @@ function AppContent() {
   const { user, loading } = useAuth();
   const isBookReader=/^\/books\/[^/]+\/read/.test(location.pathname);
   const isReaderView = location.pathname.startsWith('/read/')||isBookReader;
-  const isWorkspace = Boolean(user) && !isReaderView && (/^\/(dashboard|books|year|block|visualizer|feedback|notifications)(\/|$)/.test(location.pathname));
+  const isWorkspace = Boolean(user) && !isReaderView && (/^\/(dashboard|books|year|block|visualizer|feedback|notifications|faq|about|contact)(\/|$)/.test(location.pathname));
   // After login, the student homepage is the redesigned workspace, not the public landing page.
   if (!loading && user && location.pathname === '/') return <Navigate to="/dashboard" replace />;
 
@@ -76,6 +76,9 @@ function AppContent() {
             <Route path="/visualizer" element={<ProtectedRoute><StudyVisualizerPage/></ProtectedRoute>}/>
             <Route path="/feedback" element={<ProtectedRoute><FeedbackPage/></ProtectedRoute>}/>
             <Route path="/notifications" element={<ProtectedRoute><NotificationsPage/></ProtectedRoute>}/>
+            <Route path="/faq" element={<FaqPage/>}/>
+            <Route path="/about" element={<AboutPage/>}/>
+            <Route path="/contact" element={<ContactPage/>}/>
           </Routes>
         </Suspense>
       </StudentWorkspace> : <main className="flex-1 flex flex-col w-full max-w-full min-w-0">

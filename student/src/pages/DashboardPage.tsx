@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc } from '../lib/data';
 import { sendEmailVerification } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
@@ -81,6 +81,8 @@ interface UserProfile {
 export function DashboardPage() {
   const { user, isAdmin, logout, reloadUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectedPanel = location.hash === '#membership' ? 'membership' : location.hash === '#my-notes' ? 'notes' : location.hash === '#account' ? 'account' : 'overview';
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -257,6 +259,7 @@ export function DashboardPage() {
 
   return (
     <div className="sw-dashboard min-h-screen w-full space-y-7 pb-12">
+      {selectedPanel === 'overview' && <>
       <section className="sw-dashboard-intro">
         <div>
           <div className="sw-eyebrow"><span className="sw-eyebrow-dot" /> YOUR PERSONAL WORKSPACE</div>
@@ -287,7 +290,9 @@ export function DashboardPage() {
           <Link to="/dashboard#membership" className="sw-quick-card"><span className="sw-quick-icon sw-quick-green"><ShieldCheck size={23}/></span><span className="sw-quick-title">Membership</span><span className="sw-quick-copy">Check your access and subscription status.</span><span className="sw-quick-go">View membership <ArrowRight size={15}/></span></Link>
         </div>
       </section>
-      <div className="sw-section-heading sw-account-section-heading"><div><span className="sw-eyebrow">ACCOUNT & LEARNING</span><h2>Your membership and notes</h2></div></div>
+      </>}
+      {selectedPanel === 'membership' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR SUBSCRIPTION</span><h2>Membership & access</h2></div></div>
 
       {/* Email Verification Banner */}
       {user && user.emailVerificationRequired && !user.emailVerified && (
@@ -577,6 +582,9 @@ export function DashboardPage() {
       {/* =========================================================
           ADMIN VIEW: all uploaded notes, by year and module
           ========================================================= */}
+      </>}
+      {selectedPanel === 'notes' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR LEARNING</span><h2>My notes library</h2></div></div>
       {isAdmin && (
         <div id="my-notes" className="bg-white rounded-xl border border-[#6366F1]/40 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="border-b border-[#F0F1FA] pb-4">
@@ -727,6 +735,10 @@ export function DashboardPage() {
         );
       })()}
 
+      {!isAdmin && !loadingProfile && !(profile?.approvalStatus === 'APPROVED' || paymentRequests.some((r) => r.status === 'VERIFIED')) && <div className="rounded-xl bg-white border border-indigo-100 p-5 text-sm text-slate-600">Your subscribed-year notes will appear here after your membership is approved.</div>}
+      </>}
+      {selectedPanel === 'account' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR PROFILE</span><h2>Account details</h2></div></div>
       <div id="account" className="scroll-mt-28" />
       {/* Profile Details Card */}
       <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-8 shadow-xs">
@@ -830,18 +842,7 @@ export function DashboardPage() {
         )}
       </div>
 
-      {/* Navigation Footer */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#DDE1F2]">
-        <Link
-          to="/#years"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#6366F1] hover:underline"
-        >
-          ← Browse MBBS Curriculum Blocks
-        </Link>
-        <span className="text-xs text-slate-400">
-          User ID: <span className="font-mono text-[11px]">{user?.uid}</span>
-        </span>
-      </div>
+      </>}
 
       {/* Payment Checkout Modal */}
       <PaymentModal
