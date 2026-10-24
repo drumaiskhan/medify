@@ -3,11 +3,13 @@ name: Deploy Medify API to cPanel
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - 'backend/**'
       - 'deployment/scripts/ftp-upload.sh'
       - '.github/workflows/deploy.yml'
+
   workflow_dispatch:
 
 permissions:
@@ -19,26 +21,41 @@ concurrency:
 
 jobs:
   deploy-api:
+    name: Deploy Medify Backend
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     env:
-      FTP_HOST: business900.mypowerfulserver.com
+      FTP_HOST: ftp.site.medschoolproffs.live
       FTP_PORT: "21"
       FTP_USER: medifydeploy@site.med-ify.live
       FTP_DIR: /
       FTP_PASSWORD: ${{ secrets.API_FTP_PASSWORD }}
 
     steps:
+      # 1. Download repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Install FTP client
       - name: Install FTPS client
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-      - name: Prepare API files
+      # 3. Verify deployment configuration
+      - name: Validate FTP configuration
+        run: |
+          test -n "$FTP_HOST"
+          test -n "$FTP_USER"
+          test -n "$FTP_PASSWORD"
+          test -n "$FTP_DIR"
+
+          echo "FTP configuration provided."
+          echo "Target: Medify API"
+
+      # 4. Prepare backend files
+      - name: Prepare Medify backend
         run: |
           mkdir -p "$RUNNER_TEMP/medify-api"
 
@@ -49,15 +66,19 @@ jobs:
             "$RUNNER_TEMP/medify-api/.env" \
             "$RUNNER_TEMP/medify-api/.local-data" \
             "$RUNNER_TEMP/medify-api/private-uploads" \
-            "$RUNNER_TEMP/medify-api/tmp" \
             "$RUNNER_TEMP/medify-api/uploads" \
-            "$RUNNER_TEMP/medify-api/medify-storage"
+            "$RUNNER_TEMP/medify-api/medify-storage" \
+            "$RUNNER_TEMP/medify-api/tmp"
 
-      - name: Deploy backend via FTPS
+          echo "Backend files prepared."
+
+      # 5. Upload backend to cPanel
+      - name: Deploy backend via explicit FTPS
         run: |
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
+      # 6. Restart Passenger application
       - name: Restart cPanel Passenger Node app
         run: |
           mkdir -p "$RUNNER_TEMP/passenger-restart"
@@ -69,6 +90,9 @@ jobs:
             bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/passenger-restart"
 
+          echo "Passenger restart requested."
+
+      # 7. Verify API is online
       - name: Verify Medify API health
         run: |
           curl \
@@ -80,3 +104,8 @@ jobs:
             --retry-connrefused \
             --max-time 20 \
             https://site.med-ify.live/api/healthz
+
+      # 8. Deployment completed
+      - name: Deployment completed
+        run: |
+          echo "Medify API deployment completed successfully."
