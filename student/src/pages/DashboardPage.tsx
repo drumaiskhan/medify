@@ -20,7 +20,10 @@ import {
   Clock,
   Layers,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  FileText,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   PaymentRequestDoc,
@@ -253,41 +256,38 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-7 lg:px-10 max-w-5xl mx-auto w-full space-y-8">
-      <Link to="/books" className="library-resume" style={{margin:'24px 0'}}><div><div className="library-kicker">YOUR PERSONAL LIBRARY</div><h2>Pick up your next chapter</h2><p style={{fontSize:12}}>Books, bookmarks, and your saved reading progress.</p></div><span className="library-btn primary">Open library →</span></Link>
-
-      
-      {/* Top Welcome Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#DDE1F2]">
+    <div className="sw-dashboard min-h-screen w-full space-y-7 pb-12">
+      <section className="sw-dashboard-intro">
         <div>
-          <span className="text-xs font-bold text-[#6366F1] uppercase tracking-wider">
-            Student Portal
-          </span>
-          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35] mt-1">
-            Welcome, {profile?.fullName || user?.displayName || 'Student'}
-          </h1>
+          <div className="sw-eyebrow"><span className="sw-eyebrow-dot" /> YOUR PERSONAL WORKSPACE</div>
+          <h1>Good to see you, <span>{(profile?.fullName || user?.displayName || 'Student').split(' ')[0]}</span></h1>
+          <p>Everything you need to stay focused and make progress, all in one place.</p>
         </div>
+        <button className="sw-primary-action" type="button" onClick={() => setIsPaymentModalOpen(true)}>
+          <CreditCard size={17} /> Manage membership <ArrowUpRight size={16} />
+        </button>
+      </section>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsPaymentModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-2xs cursor-pointer"
-          >
-            <CreditCard className="w-3.5 h-3.5" />
-            <span>Subscribe / Pay</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#DDE1F2] hover:bg-slate-50 hover:text-red-600 transition-colors shadow-2xs cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Log out</span>
-          </button>
+      <section className="sw-dashboard-highlight" aria-label="My learning library">
+        <div className="sw-highlight-content">
+          <div className="sw-highlight-kicker"><Sparkles size={15}/> YOUR LEARNING HUB</div>
+          <h2>Your next chapter starts here.</h2>
+          <p>Jump back into your books, explore curated notes, and keep your learning moving forward.</p>
+          <Link to="/books" className="sw-highlight-button">Explore your library <ArrowRight size={17}/></Link>
         </div>
-      </div>
+        <div className="sw-highlight-art" aria-hidden="true"><div className="sw-art-orbit"><BookOpen size={67} strokeWidth={1.25} /></div><span className="sw-art-star sw-art-star-one">✦</span><span className="sw-art-star sw-art-star-two">✧</span></div>
+      </section>
+
+      <section className="sw-dashboard-quicklinks" aria-label="Quick access">
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">QUICK ACCESS</span><h2>Your essentials</h2></div><span>Pick up where you left off</span></div>
+        <div className="sw-quicklink-grid">
+          <Link to="/books" className="sw-quick-card"><span className="sw-quick-icon sw-quick-purple"><BookOpen size={23}/></span><span className="sw-quick-title">My Library</span><span className="sw-quick-copy">Books, bookmarks and your reading progress.</span><span className="sw-quick-go">Open library <ArrowRight size={15}/></span></Link>
+          <Link to="/dashboard#my-notes" className="sw-quick-card"><span className="sw-quick-icon sw-quick-blue"><FileText size={23}/></span><span className="sw-quick-title">My Notes</span><span className="sw-quick-copy">Explore modules for your subscribed year.</span><span className="sw-quick-go">Browse notes <ArrowRight size={15}/></span></Link>
+          <Link to="/visualizer" className="sw-quick-card"><span className="sw-quick-icon sw-quick-pink"><Sparkles size={23}/></span><span className="sw-quick-title">Study Visualizer</span><span className="sw-quick-copy">Turn complex topics into connected concepts.</span><span className="sw-quick-go">Start visualizing <ArrowRight size={15}/></span></Link>
+          <Link to="/dashboard#membership" className="sw-quick-card"><span className="sw-quick-icon sw-quick-green"><ShieldCheck size={23}/></span><span className="sw-quick-title">Membership</span><span className="sw-quick-copy">Check your access and subscription status.</span><span className="sw-quick-go">View membership <ArrowRight size={15}/></span></Link>
+        </div>
+      </section>
+      <div className="sw-section-heading sw-account-section-heading"><div><span className="sw-eyebrow">ACCOUNT & LEARNING</span><h2>Your membership and notes</h2></div></div>
 
       {/* Email Verification Banner */}
       {user && user.emailVerificationRequired && !user.emailVerified && (
