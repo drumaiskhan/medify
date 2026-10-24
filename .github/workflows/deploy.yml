@@ -43,7 +43,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-      # 3. Validate FTP settings
+      # 3. Validate deployment configuration
       - name: Validate FTP configuration
         run: |
           test -n "$FTP_HOST"
@@ -70,9 +70,9 @@ jobs:
             "$RUNNER_TEMP/medify-api/medify-storage" \
             "$RUNNER_TEMP/medify-api/tmp"
 
-          echo "Backend files prepared."
+          echo "Medify backend prepared."
 
-      # 5. Test FTP server connectivity
+      # 5. Check FTP connectivity
       - name: Check FTP port connectivity
         run: |
           timeout 15 bash -c \
@@ -80,13 +80,13 @@ jobs:
 
           echo "FTP server port 21 is reachable."
 
-      # 6. Deploy backend files
+      # 6. Upload backend
       - name: Deploy backend via explicit FTPS
         run: |
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
-      # 7. Restart cPanel Passenger
+      # 7. Restart Passenger Node application
       - name: Restart cPanel Passenger Node app
         run: |
           mkdir -p "$RUNNER_TEMP/passenger-restart"
@@ -101,9 +101,11 @@ jobs:
           echo "Passenger restart requested."
 
       # 8. Verify API health
+      # TEMPORARY: --insecure bypasses self-signed SSL certificate
       - name: Verify Medify API health
         run: |
           curl \
+            --insecure \
             --fail \
             --show-error \
             --silent \
@@ -113,7 +115,12 @@ jobs:
             --max-time 20 \
             https://site.med-ify.live/api/healthz
 
-      # 9. Deployment success
+      # 9. Deployment completed
       - name: Deployment completed
         run: |
-          echo "Medify API deployment completed successfully."
+          echo "===================================="
+          echo "Medify API deployment successful!"
+          echo "Backend uploaded to cPanel."
+          echo "Passenger restart requested."
+          echo "API health check passed."
+          echo "===================================="
