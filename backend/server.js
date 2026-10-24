@@ -173,7 +173,7 @@ function createApp(pool, { sendMail } = {}) {
   );
   const proofs=require('./payment-proof').proofTools();
   require('./payment-proof').installProofRoutes(app,pool,proofs,tx);
-  app.get('/api/registration/options',asyncRoute(async(req,res)=>res.json({planPrices:require('./coupons').planPrices()})));
+  app.get('/api/registration/options',asyncRoute(async(req,res)=>res.json({planPrices:await require('./coupons').planPrices(pool)})));
   app.post('/api/registration/quote',asyncRoute(async(req,res)=>{
     await throttle('signup-coupon:'+req.ip,20);
     const r=await require('./coupons').evaluate(pool,{code:req.body.code,planId:req.body.planId,yearId:req.body.yearId,userId:'signup-preview'});
@@ -428,6 +428,7 @@ function createApp(pool, { sendMail } = {}) {
       res.json({ ok: true });
     }),
   );
+  require("./admin-content").installAdminContent(app, pool);
   require("./library").installLibrary(app, pool);
   require("./notes").installNotes(app, pool);
   require("./coupons").installCoupons(app, pool);

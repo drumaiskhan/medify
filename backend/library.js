@@ -10,12 +10,18 @@ const { get, hasYearAccess } = require("./data");
 const DEFAULTS = {
   siteName: "MEDIFY",
   tagline: "Your space to learn medicine.",
+  logoUrl: "/assets/aistudio/logo_d0f8a6a4.png",
   accent: "#137c72",
   announcement: "",
   registrationOpen: true,
   booksEnabled: true,
   readerTheme: "light",
   supportEmail: "",
+  contactLocation: "",
+  founderName: "",
+  footerDescription: "",
+  footerCopyright: "",
+  planPrices: { quarterly: 1000, "half-yearly": 2000, annual: 3500 },
 };
 async function settings(db) {
   return {
@@ -193,6 +199,11 @@ function installLibrary(app, pool) {
       const b = req.body;
       const data = {
         siteName: clean(b.siteName, 60) || "MEDIFY",
+        logoUrl: (() => {
+          const url = clean(b.logoUrl, 500);
+          return /^\/[A-Za-z0-9/_-]+\.(?:png|jpe?g|webp|svg)$/i.test(url) || /^https:\/\/[A-Za-z0-9.-]+\/[A-Za-z0-9/_%.?=&-]+$/i.test(url)
+            ? url : DEFAULTS.logoUrl;
+        })(),
         tagline: clean(b.tagline, 160),
         accent: /^#[0-9a-f]{6}$/i.test(b.accent) ? b.accent : DEFAULTS.accent,
         announcement: clean(b.announcement, 500),
@@ -202,6 +213,14 @@ function installLibrary(app, pool) {
           ? b.readerTheme
           : "light",
         supportEmail: clean(b.supportEmail, 254),
+        contactLocation: clean(b.contactLocation, 180),
+        founderName: clean(b.founderName, 120),
+        footerDescription: clean(b.footerDescription, 450),
+        footerCopyright: clean(b.footerCopyright, 180),
+        planPrices: Object.fromEntries(Object.entries(DEFAULTS.planPrices).map(([key, fallback]) => {
+          const value = Number(b.planPrices?.[key]);
+          return [key, Number.isInteger(value) && value >= 0 && value <= 1000000 ? value : fallback];
+        })),
       };
       await pool.query(
         "INSERT INTO site_settings(id,data) VALUES(1,$1) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data",

@@ -1,8 +1,10 @@
+import { useSite } from '../context/SiteContext';
 import { Link } from 'react-router-dom';
 import { BookOpen, UserCheck, Award, HeartHandshake, ArrowRight } from 'lucide-react';
 import { DemoBadge } from '../components/DemoBadge';
 
 export function AboutPage() {
+  const site = useSite();
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
       
@@ -21,7 +23,7 @@ export function AboutPage() {
             Our Mission & Origin
           </span>
           <h1 className="font-serif-heading text-3xl sm:text-4xl font-bold tracking-tight text-white">
-            About MEDIFY
+            About {site.siteName}
           </h1>
           <p className="text-base sm:text-lg text-[#E8EEF3]/80 leading-relaxed">
             Smart notes engineered specifically for medical undergraduates navigating the integrated modular curriculum at Khyber Medical University (KMU).
@@ -30,8 +32,8 @@ export function AboutPage() {
 
         <div className="shrink-0 self-start md:self-center">
           <img
-            src="/assets/aistudio/logo_d0f8a6a4.png"
-            alt="MEDIFY — Smart Notes for Med Students"
+            src={site.logoUrl}
+            alt={`${site.siteName} — ${site.tagline}`}
             className="h-24 sm:h-28 w-auto object-contain drop-shadow-md"
           />
         </div>
@@ -60,7 +62,7 @@ export function AboutPage() {
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                MEDIFY was conceptualized by <strong className="text-[#0F2837]">Syed Nangyal</strong> after observing firsthand the friction faced by Pakistani MBBS students during the transition to modular system assessments. Traditional textbooks often fragment integrated topics across separate anatomy, physiology, and pathology volumes, leaving students with fragmented knowledge.
+                {site.siteName} was conceptualized by <strong className="text-[#0F2837]">{site.founderName || 'the Medify team'}</strong> after observing firsthand the friction faced by Pakistani MBBS students during the transition to modular system assessments. Traditional textbooks often fragment integrated topics across separate anatomy, physiology, and pathology volumes, leaving students with fragmented knowledge.
               </p>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 By consolidating high-yield clinical pearls, anatomical schematics, and pharmacology comparison tables strictly aligned with KMU exam blueprints, MEDIFY bridges the gap between voluminous slides and high-scoring exam revisions.

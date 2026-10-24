@@ -83,8 +83,8 @@ export function Navbar() {
             className="flex items-center gap-2.5 text-white hover:opacity-90 transition-opacity shrink-0 py-1"
           >
             <img
-              src="/assets/aistudio/logo_d0f8a6a4.png"
-              alt="MEDIFY — Smart Notes for Med Students"
+              src={site.logoUrl}
+              alt={`${site.siteName} — ${site.tagline}`}
               className="h-9 sm:h-10 w-auto object-contain"
             />
             <div className="flex flex-col">
@@ -266,7 +266,7 @@ export function Navbar() {
                   onClick={closeMenu}
                   className="w-full text-center px-4 py-2.5 text-sm font-medium text-white border border-white/20 rounded hover:bg-white/5 transition-colors"
                 >
-                  Log in to MEDIFY
+                  Log in to {site.siteName}
                 </Link>
                 <Link
                   to="/register"

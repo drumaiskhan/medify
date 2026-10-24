@@ -106,6 +106,22 @@ export function SettingsPage() {
                     onChange={(e) => set("supportEmail", e.target.value)}
                   />
                 </label>
+                <label className="studio-field">
+                  Contact location
+                  <input maxLength={180} value={form.contactLocation || ''} onChange={(e) => set('contactLocation', e.target.value)} placeholder="City, province, country" />
+                </label>
+                <label className="studio-field">
+                  Founder / organization
+                  <input maxLength={120} value={form.founderName || ''} onChange={(e) => set('founderName', e.target.value)} />
+                </label>
+                <label className="studio-field full">
+                  Footer description
+                  <textarea maxLength={450} rows={3} value={form.footerDescription || ''} onChange={(e) => set('footerDescription', e.target.value)} />
+                </label>
+                <label className="studio-field full">
+                  Copyright / footer location
+                  <input maxLength={180} value={form.footerCopyright || ''} onChange={(e) => set('footerCopyright', e.target.value)} placeholder="All rights reserved." />
+                </label>
                 <label className="studio-field full">
                   Library tagline
                   <input
@@ -131,6 +147,11 @@ export function SettingsPage() {
             )}
             {tab === "branding" && (
               <div className="studio-form">
+                <label className="studio-field full">
+                  Site logo (HTTPS URL or site asset path)
+                  <input maxLength={500} value={form.logoUrl || ''} onChange={(e) => set('logoUrl', e.target.value)} placeholder="/assets/logo.png or https://..." />
+                  <span className="studio-small">For an uploaded logo, host the image at a trusted HTTPS URL; it is displayed in the student navigation, homepage and footer.</span>
+                </label>
                 <label className="studio-field">
                   Accent colour
                   <input
@@ -221,7 +242,17 @@ export function SettingsPage() {
               </div>
             )}
             {tab === "communication" && <div><h2>Student communication</h2><p className="studio-muted">Announcements below navigation are managed in Platform. Use notifications for targeted updates and feedback for private support conversations.</p><div className="studio-actions" style={{marginTop:20}}><Link className="studio-btn" to="/notifications" onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>Manage notifications</Link><Link className="studio-btn" to="/feedback" onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>Feedback inbox</Link></div></div>}
-            {tab === "payments" && <div><h2>Payments & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
+            {tab === "payments" && <div>
+              <h2>Subscription prices (PKR)</h2>
+              <p className="studio-muted">Prices are stored in PostgreSQL and used by checkout, coupon validation and student plan cards. Existing payments are not repriced.</p>
+              <div className="studio-form" style={{marginTop:18, marginBottom:22}}>
+                {([['quarterly','Quarterly · 3 months'],['half-yearly','Half-yearly · 6 months'],['annual','Annual · 12 months']] as const).map(([key,label]) => (
+                  <label className="studio-field" key={key}>{label}
+                    <input type="number" min={0} max={1000000} step={1} required value={form.planPrices?.[key] ?? 0} onChange={e=>set('planPrices',{...(form.planPrices || {}),[key]:Number(e.target.value)})}/>
+                  </label>
+                ))}
+              </div>
+              <h2>Payment details & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
             {tab === "system" && (
               <>
                 <h2 style={{ fontWeight: 750, marginBottom: 18 }}>

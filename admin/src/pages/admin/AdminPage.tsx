@@ -1,6 +1,7 @@
 import {PaymentProof} from '../../components/PaymentProof';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../../lib/client';
 import {
   FolderPlus,
   Upload,
@@ -305,6 +306,36 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     } finally {
       setIsSavingModule(false);
     }
+  };
+
+  // Delete through the server, which removes associated note parts and reader state
+  // transactionally. Never erase payment history when removing curriculum content.
+  const [deletingContent, setDeletingContent] = useState(false);
+  const deleteCurriculumContent = async (kind: 'year' | 'block' | 'subject' | 'note', id: string, name: string) => {
+    if (deletingContent) return;
+    const scope = kind === 'year' ? 'this year, its modules, subjects and notes' :
+      kind === 'block' ? 'this module and all its notes' :
+      kind === 'subject' ? 'this subject and its uploaded notes' : 'the uploaded notes only (keeping the subject)';
+    if (!window.confirm(`Permanently delete ${scope} for "${name}"? This cannot be undone.`)) return;
+    // Require a second confirmation for large, cascading deletions.
+    if ((kind === 'year' || kind === 'block') && window.prompt(`Type DELETE to confirm deleting ${name}:`) !== 'DELETE') return;
+    setDeletingContent(true);
+    try {
+      await api('/admin/content/delete', { kind, id });
+      if (kind === 'year' && selectedYearId === id) {
+        setSelectedYearId(''); setSelectedBlockId(''); setSelectedSubjectId('');
+      } else if (kind === 'block' && selectedBlockId === id) {
+        setSelectedBlockId(''); setSelectedSubjectId('');
+      } else if (kind === 'subject' && selectedSubjectId === id) {
+        setSelectedSubjectId('__new__');
+      } else if (kind === 'note' && selectedSubjectId === id) {
+        setExistingContent(null); setProcessedDocx(null); setFileName('');
+      }
+      await loadCurriculum();
+      addToast('success', `${kind === 'note' ? 'Uploaded notes' : name} deleted successfully.`);
+    } catch (err: any) {
+      addToast('error', err.message || 'Could not delete content.');
+    } finally { setDeletingContent(false); }
   };
 
   // Subjects filtered by selected block
@@ -790,6 +821,31 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     }
   };
 
+  const handleDeleteStudent = async (student: StudentSignupDoc) => {
+    if (processingStudentId) return;
+    if (window.prompt(`Permanently delete ${student.fullName || student.email}, including their account, payment requests, and reading data? Type DELETE to confirm:`) !== 'DELETE') return;
+    setProcessingStudentId(student.uid);
+    try {
+      await api('/admin/student/delete', {id:student.uid});
+      await Promise.all([loadStudentSignups(), loadAdminPayments()]);
+      window.dispatchEvent(new Event('registrations-updated'));
+      addToast('success', `Student ${student.fullName || student.email} deleted.`);
+    } catch (err: any) {addToast('error', err.message || 'Cannot delete student.');}
+    finally {setProcessingStudentId(null);}
+  };
+
+  const handleDeletePayment = async (payment: PaymentRequestDoc) => {
+    if (payment.status === 'VERIFIED') return;
+    if (!window.confirm(`Delete ${payment.status.toLowerCase()} payment request ${payment.transactionId}? This removes its proof and releases any unused coupon redemption.`)) return;
+    setUpdatingPaymentId(payment.id);
+    try {
+      await api('/admin/payment/delete', {id:payment.id});
+      await Promise.all([loadAdminPayments(), loadStudentSignups()]);
+      addToast('success','Payment request deleted.');
+    } catch (err: any) {addToast('error', err.message || 'Could not delete payment.');}
+    finally {setUpdatingPaymentId(null);}
+  };
+
   // Confirm rejection for student account
   const handleConfirmRejectStudent = async () => {
     if (!rejectingStudent) return;
@@ -1032,7 +1088,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                   <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Current Years ({years.length})
                   </h3>
-                  <span className="text-[11px] text-slate-400">Read-only list (no edit/delete)</span>
+                  <span className="text-[11px] text-slate-400">Manage years — deletions are permanent</span>
                 </div>
 
                 {loadingCurriculum ? (
@@ -1054,6 +1110,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                           <th className="py-2.5 px-3">ID (Slug)</th>
                           <th className="py-2.5 px-3">Status</th>
                           <th className="py-2.5 px-3 text-right">Visibility</th>
+                          <th className="py-2.5 px-3 text-right">Manage</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 bg-white">
@@ -1083,6 +1140,9 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                                   Hidden
                                 </span>
                               )}
+                            </td>
+                            <td className="py-2.5 px-3 text-right">
+                              <button type="button" disabled={deletingContent} onClick={() => void deleteCurriculumContent('year', y.id, y.name)} className="rounded border border-rose-300 px-2 py-1 text-rose-700 hover:bg-rose-50 disabled:opacity-50">Delete year</button>
                             </td>
                           </tr>
                         ))}
@@ -1318,6 +1378,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                       className="w-4 h-4 text-[#1B8E8E] rounded border-slate-300 focus:ring-[#1B8E8E] cursor-pointer"
                     />
                   </label>
+                  <button type="button" disabled={deletingContent} onClick={() => void deleteCurriculumContent('block', currentBlock.id, currentBlock.name)} className="rounded-lg border border-rose-300 bg-white px-3 py-3 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50">Delete module + notes</button>
                 </div>
               )}
 
@@ -1334,6 +1395,14 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
                   </select>
+                </div>
+              )}
+
+              {currentSubject && (
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
+                  <span className="mr-auto text-xs text-slate-700">Manage <strong>{currentSubject.name}</strong>{existingContent ? ' (uploaded notes)' : ' (no uploaded notes)'}</span>
+                  {existingContent && <button type="button" disabled={deletingContent} onClick={() => void deleteCurriculumContent('note', currentSubject.id, currentSubject.name)} className="rounded border border-rose-300 bg-white px-3 py-2 text-xs font-semibold text-rose-700 disabled:opacity-50">Delete uploaded notes</button>}
+                  <button type="button" disabled={deletingContent} onClick={() => void deleteCurriculumContent('subject', currentSubject.id, currentSubject.name)} className="rounded bg-rose-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">Delete subject</button>
                 </div>
               )}
 
@@ -2161,6 +2230,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                                     </button>
                                   )}
 
+                                  <button type="button" disabled={isProcessing} onClick={() => void handleDeleteStudent(s)} className="rounded border border-rose-300 px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50" title="Permanently delete this student and their records">Delete</button>
+
                                   {isApproved && (
                                     <span className="text-[11px] text-slate-400 font-medium">
                                       Curriculum Active
@@ -2309,6 +2380,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                                       Verify
                                     </button>
                                   )}
+
+                                  {!isVerified && <button type="button" disabled={isUpdating} onClick={() => void handleDeletePayment(p)} className="rounded border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50" title="Delete pending/rejected request">Delete</button>}
 
                                   {!isRejected && (
                                     <button

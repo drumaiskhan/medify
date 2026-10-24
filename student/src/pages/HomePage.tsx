@@ -1,3 +1,4 @@
+import { useSite } from '../context/SiteContext';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, BookOpen, AlertCircle, RefreshCw, ShieldCheck } from 'lucide-react';
@@ -25,6 +26,7 @@ import {
 } from '../services/curriculum';
 
 export function HomePage() {
+  const site = useSite();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [years, setYears] = useState<YearDoc[]>([]);
@@ -135,8 +137,8 @@ export function HomePage() {
           {/* Official Medify Logo Showcase */}
           <div className="flex justify-center pt-2">
             <img
-              src="/assets/aistudio/logo_d0f8a6a4.png"
-              alt="MEDIFY — Smart Notes for Med Students"
+              src={site.logoUrl}
+              alt={`${site.siteName} — ${site.tagline}`}
               className="h-28 sm:h-36 w-auto object-contain drop-shadow-md transform hover:scale-105 transition-transform"
             />
           </div>
@@ -147,7 +149,7 @@ export function HomePage() {
           </div>
 
           <h1 className="sr-only">
-            MEDIFY — Smart Notes for Med Students
+            {site.siteName} — {site.tagline}
           </h1>
 
           <p className="text-base sm:text-lg lg:text-xl text-[#E8EEF3]/85 max-w-3xl mx-auto font-sans leading-relaxed">

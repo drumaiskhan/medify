@@ -241,7 +241,7 @@ async function write(db, user, op) {
         fields.filter((k) => data[k] !== undefined).map((k) => [k, data[k]]),
       );
       // The amount is always computed here; any coupon is checked and consumed in this transaction.
-      const listPrice = coupons.priceFor(data.planId);
+      const listPrice = await coupons.priceFor(db, data.planId);
       let pricing = { amountPKR: listPrice };
       if (typeof couponInput === "string" && couponInput.trim()) {
         const r = await coupons.redeem(db, {

@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Send, MessageSquare, AlertCircle } from 'lucide-react';
 import { DemoBadge } from '../components/DemoBadge';
+import { useSite } from '../context/SiteContext';
 
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const site = useSite();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,7 @@ export function ContactPage() {
             Student Support & Inquiries
           </span>
           <h1 className="font-serif-heading text-3xl sm:text-4xl font-bold tracking-tight text-white">
-            Contact MEDIFY
+            Contact {site.siteName}
           </h1>
           <p className="text-base sm:text-lg text-[#E8EEF3]/80 leading-relaxed">
             Have questions about your MBBS year package, syllabus alignment, or institutional access? Reach out to our team.
@@ -51,8 +53,7 @@ export function ContactPage() {
                 <Mail className="w-4 h-4 text-[#1B8E8E] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-[#0F2837] block">Email Support</span>
-                  <span>support@medify.pk</span>
-                  <p className="text-[10px] text-slate-400 mt-0.5">(Sample inbox)</p>
+                  <span>{site.supportEmail || 'Support email not configured'}</span>
                 </div>
               </div>
 
@@ -60,7 +61,7 @@ export function ContactPage() {
                 <MapPin className="w-4 h-4 text-[#1B8E8E] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-[#0F2837] block">Location</span>
-                  <span>Peshawar, Khyber Pakhtunkhwa, Pakistan</span>
+                  <span>{site.contactLocation || 'Location not configured'}</span>
                 </div>
               </div>
 
@@ -68,7 +69,7 @@ export function ContactPage() {
                 <MessageSquare className="w-4 h-4 text-[#1B8E8E] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-[#0F2837] block">Founder</span>
-                  <span>Syed Nangyal</span>
+                  <span>{site.founderName || 'Not specified'}</span>
                 </div>
               </div>
             </div>
