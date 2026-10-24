@@ -26,24 +26,24 @@ jobs:
     timeout-minutes: 20
 
     env:
-      FTP_HOST: ftp.site.medschoolproffs.live
+      FTP_HOST: "162.55.6.159"
       FTP_PORT: "21"
-      FTP_USER: medifydeploy@site.med-ify.live
-      FTP_DIR: /
+      FTP_USER: "medifydeploy@site.med-ify.live"
+      FTP_DIR: "/"
       FTP_PASSWORD: ${{ secrets.API_FTP_PASSWORD }}
 
     steps:
-      # 1. Download repository
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install FTP client
+      # 2. Install FTPS client
       - name: Install FTPS client
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-      # 3. Verify deployment configuration
+      # 3. Validate FTP settings
       - name: Validate FTP configuration
         run: |
           test -n "$FTP_HOST"
@@ -72,13 +72,21 @@ jobs:
 
           echo "Backend files prepared."
 
-      # 5. Upload backend to cPanel
+      # 5. Test FTP server connectivity
+      - name: Check FTP port connectivity
+        run: |
+          timeout 15 bash -c \
+            'echo > /dev/tcp/162.55.6.159/21'
+
+          echo "FTP server port 21 is reachable."
+
+      # 6. Deploy backend files
       - name: Deploy backend via explicit FTPS
         run: |
           bash deployment/scripts/ftp-upload.sh \
             "$RUNNER_TEMP/medify-api"
 
-      # 6. Restart Passenger application
+      # 7. Restart cPanel Passenger
       - name: Restart cPanel Passenger Node app
         run: |
           mkdir -p "$RUNNER_TEMP/passenger-restart"
@@ -92,7 +100,7 @@ jobs:
 
           echo "Passenger restart requested."
 
-      # 7. Verify API is online
+      # 8. Verify API health
       - name: Verify Medify API health
         run: |
           curl \
@@ -105,7 +113,7 @@ jobs:
             --max-time 20 \
             https://site.med-ify.live/api/healthz
 
-      # 8. Deployment completed
+      # 9. Deployment success
       - name: Deployment completed
         run: |
           echo "Medify API deployment completed successfully."
