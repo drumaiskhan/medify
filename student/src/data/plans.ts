@@ -70,7 +70,7 @@ export function applyPlanSettings(prices?: Record<string, number>, details?: Rec
       if (typeof detail.recommended === 'boolean') plan.recommended = detail.recommended;
     }
     const price = prices?.[plan.id];
-    if (Number.isInteger(price) && price >= 0 && price <= 1000000)
+    if (typeof price === 'number' && Number.isInteger(price) && price >= 0 && price <= 1000000)
       plan.price = `PKR ${Number(price).toLocaleString('en-US')}`;
   }
 }

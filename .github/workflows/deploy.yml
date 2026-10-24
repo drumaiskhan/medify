@@ -93,3 +93,52 @@ jobs:
       - name: Restart cPanel Passenger Node app
         run: |
           mkdir -p "$RUNNER_TEMP/passenger-restart"
+
+          date -u +%FT%TZ \
+            > "$RUNNER_TEMP/passenger-restart/restart.txt"
+
+          FTP_DIR="${FTP_DIR%/}/tmp" \
+            bash deployment/scripts/ftp-upload.sh \
+            "$RUNNER_TEMP/passenger-restart"
+
+          echo "Passenger restart requested."
+
+      # 8. Verify API health
+      - name: Verify Medify API health
+        run: |
+          curl \
+            --insecure \
+            --fail \
+            --show-error \
+            --silent \
+            --retry 5 \
+            --retry-delay 8 \
+            --retry-connrefused \
+            --max-time 20 \
+            https://site.med-ify.live/api/healthz
+
+      # 9. Deployment completed
+      - name: Verify exact deployed commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            response="$(curl --insecure --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
+            if echo "$response" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("commit")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
+              echo "Verified live API is running commit $EXPECTED_SHA"
+              exit 0
+            fi
+            echo "Attempt $attempt/18: live API has not reported the expected commit yet"
+            sleep 10
+          done
+          echo "ERROR: Live Medify API did not serve commit $EXPECTED_SHA"
+          exit 1
+      - name: Deployment completed
+        run: |
+          echo "===================================="
+          echo "Medify API deployment successful!"
+          echo "Backend uploaded to cPanel."
+          echo "Passenger restart requested."
+          echo "API health check passed."
+          echo "===================================="
