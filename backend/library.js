@@ -18,10 +18,18 @@ const DEFAULTS = {
   readerTheme: "light",
   supportEmail: "",
   contactLocation: "",
+  contactPhone: "",
+  contactWhatsApp: "",
+  contactWebsite: "",
   founderName: "",
   footerDescription: "",
   footerCopyright: "",
   planPrices: { quarterly: 1000, "half-yearly": 2000, annual: 3500 },
+  planDetails: {
+    quarterly: {name: 'Quarterly Access',billingText:'One-time payment · 3 months of access',recommended:false,features:['Full access to all published blocks in your selected year','KMU modular objective alignment','High-yield clinical tables & diagrams','Highlight, search and resume where you stopped','Save subjects for offline reading','Mobile & desktop study reader']},
+    'half-yearly': {name: 'Half-Yearly Access',billingText:'One-time payment · 6 months of access',recommended:true,features:['Full access to all published blocks in your selected year','KMU modular objective alignment','High-yield clinical tables & diagrams','Highlight, search and resume where you stopped','Save subjects for offline reading','Ideal for mid-term modular assessments']},
+    annual: {name: 'Annual Pass',billingText:'One-time payment · 12 months (Best Value)',recommended:false,features:['Full 12 months of access for your academic year','All published blocks of the year','KMU modular objective alignment','High-yield clinical tables & diagrams','Highlight, search and resume where you stopped','Save subjects for offline reading']}
+  },
 };
 async function settings(db) {
   return {
@@ -214,9 +222,19 @@ function installLibrary(app, pool) {
           : "light",
         supportEmail: clean(b.supportEmail, 254),
         contactLocation: clean(b.contactLocation, 180),
+        contactPhone: clean(b.contactPhone, 35),
+        contactWhatsApp: clean(b.contactWhatsApp, 35),
+        contactWebsite: (() => { const v = clean(b.contactWebsite, 350); return !v || /^https:\/\/[a-z0-9.-]+(?:[:/][^\s]*)?$/i.test(v) ? v : ''; })(),
         founderName: clean(b.founderName, 120),
         footerDescription: clean(b.footerDescription, 450),
         footerCopyright: clean(b.footerCopyright, 180),
+        planDetails: Object.fromEntries(Object.keys(DEFAULTS.planPrices).map(key => {
+          const plan = { ...DEFAULTS.planDetails[key], ...b.planDetails?.[key] };
+          const name = clean(plan.name, 90);
+          const billingText = clean(plan.billingText, 180);
+          const features = Array.isArray(plan.features) ? plan.features.map(x => clean(x, 200)).filter(Boolean).slice(0, 12) : [];
+          return [key, { name, billingText, features, recommended: plan.recommended === true }];
+        })),
         planPrices: Object.fromEntries(Object.entries(DEFAULTS.planPrices).map(([key, fallback]) => {
           const value = Number(b.planPrices?.[key]);
           return [key, Number.isInteger(value) && value >= 0 && value <= 1000000 ? value : fallback];

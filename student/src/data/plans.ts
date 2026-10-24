@@ -59,11 +59,18 @@ export const PLANS: Plan[] = [
 
 // SiteProvider hydrates these defaults from the server-backed Admin Settings.
 // Keep the same objects so existing checkout selections reflect current prices.
-export function applyPlanPrices(prices?: Record<string, number>) {
-  if (!prices || typeof prices !== 'object') return;
+export function applyPlanSettings(prices?: Record<string, number>, details?: Record<string, Partial<Plan>>) {
+  if ((!prices || typeof prices !== 'object') && (!details || typeof details !== 'object')) return;
   for (const plan of PLANS) {
-    const price = prices[plan.id];
+    const detail = details?.[plan.id];
+    if (detail) {
+      if (typeof detail.name === 'string' && detail.name.trim()) plan.name = detail.name;
+      if (typeof detail.billingText === 'string' && detail.billingText.trim()) plan.billingText = detail.billingText;
+      if (Array.isArray(detail.features) && detail.features.length) plan.features = detail.features.filter((x): x is string => typeof x === 'string');
+      if (typeof detail.recommended === 'boolean') plan.recommended = detail.recommended;
+    }
+    const price = prices?.[plan.id];
     if (Number.isInteger(price) && price >= 0 && price <= 1000000)
-      plan.price = `PKR ${price.toLocaleString('en-US')}`;
+      plan.price = `PKR ${Number(price).toLocaleString('en-US')}`;
   }
 }

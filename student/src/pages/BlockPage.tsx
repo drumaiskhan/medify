@@ -120,14 +120,14 @@ export function BlockPage() {
         <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837] mb-2">
+        <h1 className="font-serif-heading text-2xl font-bold text-[#171B35] mb-2">
           Unable to Load Module
         </h1>
         <p className="text-sm text-slate-600 mb-6">{error}</p>
         <button
           type="button"
           onClick={fetchBlockDetails}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           <span>Retry</span>
@@ -142,7 +142,7 @@ export function BlockPage() {
         <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837] mb-2">
+        <h1 className="font-serif-heading text-2xl font-bold text-[#171B35] mb-2">
           Module Not Found
         </h1>
         <p className="text-sm text-slate-600 mb-6">
@@ -150,7 +150,7 @@ export function BlockPage() {
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Curriculum Hub</span>
@@ -178,26 +178,26 @@ export function BlockPage() {
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider inline-block mb-2">
               Package Restricted
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               {block.name} Notes Not in Your Package
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              This module belongs to <strong className="text-[#0F2837]">{year.name}</strong>.
-              Your active MEDIFY package is for <strong className="text-[#0F2837]">{studentAccess?.purchasedYearName}</strong>.
+              This module belongs to <strong className="text-[#171B35]">{year.name}</strong>.
+              Your active MEDIFY package is for <strong className="text-[#171B35]">{studentAccess?.purchasedYearName}</strong>.
               Only notes for your purchased academic year are available in your library.
             </p>
           </div>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to={studentAccess?.purchasedYearId ? `/year/${studentAccess.purchasedYearId}` : '/#years'}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-xs w-full sm:w-auto"
             >
               <BookOpen className="w-4 h-4" />
               <span>Open My Notes ({studentAccess?.purchasedYearName || 'My Year'})</span>
             </Link>
             <Link
               to="/dashboard"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#CFDBE5] hover:bg-slate-50 transition-colors w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#DDE1F2] hover:bg-slate-50 transition-colors w-full sm:w-auto"
             >
               <span>Go to Dashboard</span>
             </Link>
@@ -214,32 +214,32 @@ export function BlockPage() {
       {/* Navigation Breadcrumbs */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-slate-500">
-          <Link to="/" className="text-[#1B8E8E] hover:underline">
+          <Link to="/" className="text-[#6366F1] hover:underline">
             Home
           </Link>
           <span>/</span>
           {year ? (
-            <Link to={`/year/${year.id}`} className="text-[#1B8E8E] hover:underline">
+            <Link to={`/year/${year.id}`} className="text-[#6366F1] hover:underline">
               {year.name}
             </Link>
           ) : (
             <span>Year</span>
           )}
           <span>/</span>
-          <span className="text-[#0F2837] font-medium">{block.name}</span>
+          <span className="text-[#171B35] font-medium">{block.name}</span>
         </div>
         <DemoBadge subtext="Live notes" />
       </div>
 
       {/* Block Header Banner */}
-      <div className="bg-[#0F2837] text-white rounded-xl p-6 sm:p-10 mb-8 shadow-sm">
+      <div className="bg-[#171B35] text-white rounded-xl p-6 sm:p-10 mb-8 shadow-sm">
         <div className="max-w-3xl space-y-3">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#1B8E8E] text-white">
+            <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#6366F1] text-white">
               Order #{block.order}
             </span>
             {year && (
-              <span className="text-xs text-[#E8EEF3]/80">
+              <span className="text-xs text-[#F0F1FA]/80">
                 {year.name}
               </span>
             )}
@@ -249,7 +249,7 @@ export function BlockPage() {
             {block.name}
           </h1>
 
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-[#E8EEF3]/60">
+          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-[#F0F1FA]/60">
             <span>{subjects.length} High-Yield Subject Notes</span>
             <span aria-hidden="true">·</span>
             <span>KMU Modular Syllabus</span>
@@ -259,11 +259,11 @@ export function BlockPage() {
 
       {/* Free Sample Callout */}
       {freeSampleSubject && (
-        <div className="mb-10 bg-white rounded-xl border border-[#1B8E8E]/40 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mb-10 bg-white rounded-xl border border-[#6366F1]/40 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#1B8E8E]" />
-              <h3 className="font-serif-heading text-base font-bold text-[#0F2837]">
+              <span className="w-2 h-2 rounded-full bg-[#6366F1]" />
+              <h3 className="font-serif-heading text-base font-bold text-[#171B35]">
                 Free Sample Note Available: {freeSampleSubject.name}
               </h3>
             </div>
@@ -273,7 +273,7 @@ export function BlockPage() {
           </div>
           <Link
             to={`/read/subject/${freeSampleSubject.id}`}
-            className="shrink-0 px-4 py-2.5 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors flex items-center gap-2 shadow-xs"
+            className="shrink-0 px-4 py-2.5 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors flex items-center gap-2 shadow-xs"
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Read Free Sample</span>
@@ -284,7 +284,7 @@ export function BlockPage() {
       {/* Constituent Subjects (The Notes Students Read) */}
       <div className="space-y-6">
         <div>
-          <h2 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-2xl font-bold text-[#171B35]">
             Notes in this Module
           </h2>
           <p className="text-xs text-slate-600 mt-1">
@@ -293,9 +293,9 @@ export function BlockPage() {
         </div>
 
         {subjects.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-[#CFDBE5] p-10 text-center text-slate-500">
+          <div className="bg-white rounded-xl border border-dashed border-[#DDE1F2] p-10 text-center text-slate-500">
             <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="font-medium text-sm text-[#0F2837]">Nothing published yet</p>
+            <p className="font-medium text-sm text-[#171B35]">Nothing published yet</p>
             <p className="text-xs text-slate-500 mt-1">
               Notes for this module will appear here once they are published.
             </p>
@@ -306,20 +306,20 @@ export function BlockPage() {
               <Link
                 key={subject.id}
                 to={`/read/subject/${subject.id}`}
-                className="group bg-white rounded-xl border border-[#CFDBE5] p-5 sm:px-6 hover:border-[#1B8E8E] hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="group bg-white rounded-xl border border-[#DDE1F2] p-5 sm:px-6 hover:border-[#6366F1] hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="space-y-1.5 flex items-start sm:items-center gap-3.5">
-                  <span className="w-8 h-8 rounded-lg bg-[#E8EEF3] text-[#0F2837] group-hover:bg-[#0F2837] group-hover:text-white transition-colors flex items-center justify-center text-xs font-bold font-serif-heading shrink-0 mt-0.5 sm:mt-0">
+                  <span className="w-8 h-8 rounded-lg bg-[#F0F1FA] text-[#171B35] group-hover:bg-[#171B35] group-hover:text-white transition-colors flex items-center justify-center text-xs font-bold font-serif-heading shrink-0 mt-0.5 sm:mt-0">
                     {idx + 1}
                   </span>
 
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-serif-heading text-base font-bold text-[#0F2837] group-hover:text-[#1B8E8E] transition-colors">
+                      <h3 className="font-serif-heading text-base font-bold text-[#171B35] group-hover:text-[#6366F1] transition-colors">
                         {subject.name}
                       </h3>
                       {subject.isFreeSample && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#1B8E8E]/10 text-[#1B8E8E] border border-[#1B8E8E]/20">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#6366F1]/10 text-[#6366F1] border border-[#6366F1]/20">
                           Free Sample Available
                         </span>
                       )}
@@ -332,13 +332,13 @@ export function BlockPage() {
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   {subject.isFreeSample ? (
-                    <span className="px-3.5 py-1.5 rounded text-xs font-semibold text-white bg-[#1B8E8E] group-hover:bg-[#147273] transition-colors flex items-center gap-1.5 shadow-xs">
+                    <span className="px-3.5 py-1.5 rounded text-xs font-semibold text-white bg-[#6366F1] group-hover:bg-[#4F46E5] transition-colors flex items-center gap-1.5 shadow-xs">
                       <BookOpen className="w-3.5 h-3.5" />
                       <span>Read Free Sample</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   ) : (
-                    <span className="px-3.5 py-1.5 rounded text-xs font-semibold text-[#0F2837] bg-[#E8EEF3] group-hover:bg-[#1B8E8E] group-hover:text-white transition-colors flex items-center gap-1.5">
+                    <span className="px-3.5 py-1.5 rounded text-xs font-semibold text-[#171B35] bg-[#F0F1FA] group-hover:bg-[#6366F1] group-hover:text-white transition-colors flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5" />
                       <span>Read Subject</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -352,11 +352,11 @@ export function BlockPage() {
       </div>
 
       {/* Back to Year */}
-      <div className="mt-12 pt-8 border-t border-[#CFDBE5] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mt-12 pt-8 border-t border-[#DDE1F2] flex flex-col sm:flex-row items-center justify-between gap-4">
         {year && (
           <Link
             to={`/year/${year.id}`}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#1B8E8E] hover:underline"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#6366F1] hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>View other modules in {year.name}</span>

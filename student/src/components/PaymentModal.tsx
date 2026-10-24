@@ -298,9 +298,9 @@ export function PaymentModal({
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
         
         {/* Top Header */}
-        <div className="bg-[#0F2837] text-white px-5 sm:px-6 py-4 flex items-center justify-between border-b border-white/10">
+        <div className="bg-[#171B35] text-white px-5 sm:px-6 py-4 flex items-center justify-between border-b border-white/10">
           <div>
-            <span className="text-[11px] font-bold text-teal-300 uppercase tracking-wider block">
+            <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider block">
               MEDIFY Subscription Checkout
             </span>
             <h2 className="font-serif-heading text-lg sm:text-xl font-bold text-white">
@@ -321,7 +321,7 @@ export function PaymentModal({
         <div className="p-5 sm:p-6 max-h-[80vh] overflow-y-auto">
           {loadingDetails ? (
             <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-              <Loader2 className="w-7 h-7 animate-spin text-[#1B8E8E] mb-2" />
+              <Loader2 className="w-7 h-7 animate-spin text-[#6366F1] mb-2" />
               <p className="text-xs">Loading payment account information...</p>
             </div>
           ) : submittedRequest ? (
@@ -342,34 +342,34 @@ export function PaymentModal({
               </div>
 
               {/* Submitted Details Summary */}
-              <div className="bg-[#F8FAFC] rounded-xl p-4 border border-[#CFDBE5] text-xs space-y-2">
-                <div className="flex justify-between py-1 border-b border-[#CFDBE5]/60">
+              <div className="bg-[#F8FAFC] rounded-xl p-4 border border-[#DDE1F2] text-xs space-y-2">
+                <div className="flex justify-between py-1 border-b border-[#DDE1F2]/60">
                   <span className="text-slate-500">Student:</span>
                   <span className="font-semibold text-slate-800">{submittedRequest.userName} ({submittedRequest.userEmail})</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#CFDBE5]/60">
+                <div className="flex justify-between py-1 border-b border-[#DDE1F2]/60">
                   <span className="text-slate-500">Academic Year:</span>
                   <span className="font-semibold text-slate-800">{submittedRequest.yearName}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#CFDBE5]/60">
+                <div className="flex justify-between py-1 border-b border-[#DDE1F2]/60">
                   <span className="text-slate-500">Selected Plan:</span>
                   <span className="font-semibold text-slate-800">
                     {submittedRequest.planName} ({submittedRequest.durationMonths} months)
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#CFDBE5]/60">
+                <div className="flex justify-between py-1 border-b border-[#DDE1F2]/60">
                   <span className="text-slate-500">Amount:</span>
                   <span className="font-bold text-slate-900 font-mono">PKR {submittedRequest.amountPKR}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#CFDBE5]/60">
+                <div className="flex justify-between py-1 border-b border-[#DDE1F2]/60">
                   <span className="text-slate-500">Payment Method:</span>
-                  <span className="font-semibold text-[#0F2837]">
+                  <span className="font-semibold text-[#171B35]">
                     {getPaymentMethodLabel(submittedRequest.method)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-500">Transaction ID:</span>
-                  <span className="font-mono font-bold text-[#1B8E8E]">{submittedRequest.transactionId}</span>
+                  <span className="font-mono font-bold text-[#6366F1]">{submittedRequest.transactionId}</span>
                 </div>
               </div>
 
@@ -390,7 +390,7 @@ export function PaymentModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[#0F2837] hover:bg-[#15345d] transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[#171B35] hover:bg-[#373777] transition-colors cursor-pointer"
                 >
                   Done & Return
                 </button>
@@ -419,7 +419,7 @@ export function PaymentModal({
                   <select
                     value={selectedYearId}
                     onChange={(e) => handleYearChange(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden"
                   >
                     {years.map((y) => (
                       <option key={y.id} value={y.id}>
@@ -439,7 +439,7 @@ export function PaymentModal({
                       const p = PLANS.find((item) => item.id === e.target.value);
                       if (p) setSelectedPlan(p);
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden"
                   >
                     {PLANS.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -481,13 +481,13 @@ export function PaymentModal({
                           applyCoupon();
                         }
                       }}
-                      className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono bg-white focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden"
+                      className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono bg-white focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden"
                     />
                     <button
                       type="button"
                       onClick={applyCoupon}
                       disabled={couponBusy || !selectedYearId}
-                      className="px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#0F2837] hover:bg-[#143a4f] disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#171B35] hover:bg-[#373777] disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                     >
                       {couponBusy && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                       Apply
@@ -512,7 +512,7 @@ export function PaymentModal({
                   <label
                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                       method === 'jazzcash'
-                        ? 'border-[#1B8E8E] bg-teal-50/50 ring-1 ring-[#1B8E8E]'
+                        ? 'border-[#6366F1] bg-indigo-50/50 ring-1 ring-[#6366F1]'
                         : 'border-slate-200 bg-white hover:bg-slate-50'
                     }`}
                   >
@@ -522,10 +522,10 @@ export function PaymentModal({
                       value="jazzcash"
                       checked={method === 'jazzcash'}
                       onChange={() => setMethod('jazzcash')}
-                      className="accent-[#1B8E8E] w-4 h-4 cursor-pointer"
+                      className="accent-[#6366F1] w-4 h-4 cursor-pointer"
                     />
                     <div className="flex items-center gap-2">
-                      <Smartphone className={`w-4 h-4 ${method === 'jazzcash' ? 'text-[#1B8E8E]' : 'text-slate-500'}`} />
+                      <Smartphone className={`w-4 h-4 ${method === 'jazzcash' ? 'text-[#6366F1]' : 'text-slate-500'}`} />
                       <span className="text-xs font-bold text-slate-900">JazzCash</span>
                     </div>
                   </label>
@@ -534,7 +534,7 @@ export function PaymentModal({
                   <label
                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                       method === 'meezan'
-                        ? 'border-[#1B8E8E] bg-teal-50/50 ring-1 ring-[#1B8E8E]'
+                        ? 'border-[#6366F1] bg-indigo-50/50 ring-1 ring-[#6366F1]'
                         : 'border-slate-200 bg-white hover:bg-slate-50'
                     }`}
                   >
@@ -544,10 +544,10 @@ export function PaymentModal({
                       value="meezan"
                       checked={method === 'meezan'}
                       onChange={() => setMethod('meezan')}
-                      className="accent-[#1B8E8E] w-4 h-4 cursor-pointer"
+                      className="accent-[#6366F1] w-4 h-4 cursor-pointer"
                     />
                     <div className="flex items-center gap-2">
-                      <Building2 className={`w-4 h-4 ${method === 'meezan' ? 'text-[#1B8E8E]' : 'text-slate-500'}`} />
+                      <Building2 className={`w-4 h-4 ${method === 'meezan' ? 'text-[#6366F1]' : 'text-slate-500'}`} />
                       <span className="text-xs font-bold text-slate-900">Meezan Bank</span>
                     </div>
                   </label>
@@ -558,7 +558,7 @@ export function PaymentModal({
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#0F2837]">
+                    <span className="text-xs font-bold text-[#171B35]">
                       {method === 'jazzcash' ? 'JazzCash Account Details' : 'Meezan Bank Account Details'}
                     </span>
                   </div>
@@ -589,7 +589,7 @@ export function PaymentModal({
                     <div className="flex items-center justify-between gap-2 p-2 bg-white rounded border border-slate-200">
                       <div>
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Mobile / Account Number</span>
-                        <span className="font-mono font-bold text-base text-[#1B8E8E]">
+                        <span className="font-mono font-bold text-base text-[#6366F1]">
                           {paymentDetails?.jazzcash.number || 'Configured in Admin'}
                         </span>
                       </div>
@@ -643,7 +643,7 @@ export function PaymentModal({
                     <div className="flex items-center justify-between gap-2 p-2 bg-white rounded border border-slate-200">
                       <div>
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Account Number</span>
-                        <span className="font-mono font-bold text-base text-[#1B8E8E]">
+                        <span className="font-mono font-bold text-base text-[#6366F1]">
                           {paymentDetails?.meezan.accountNumber || 'Configured in Admin'}
                         </span>
                       </div>
@@ -748,7 +748,7 @@ export function PaymentModal({
                     placeholder="e.g. TID123456789 or Bank Ref"
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden bg-white"
                   />
                   <p className="text-[11px] text-slate-500 mt-1">
                     Enter the exact transaction ID shown on your payment receipt or SMS notification.
@@ -768,7 +768,7 @@ export function PaymentModal({
                       placeholder="e.g. 4567"
                       value={last4Digits}
                       onChange={(e) => setLast4Digits(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden bg-white"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden bg-white"
                     />
                   </div>
 
@@ -782,7 +782,7 @@ export function PaymentModal({
                       required
                       value={paymentTime}
                       onChange={(e) => setPaymentTime(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-[#1B8E8E] focus:border-transparent outline-hidden bg-white"
+                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-hidden bg-white"
                     />
                   </div>
                 </div>
@@ -826,7 +826,7 @@ export function PaymentModal({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 sm:px-5 py-2 rounded-lg text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    className="px-4 sm:px-5 py-2 rounded-lg text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                   >
                     {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     <span>Submit Verification</span>

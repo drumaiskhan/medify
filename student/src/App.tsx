@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { StudentWorkspace } from './components/StudentWorkspace';
+import { useAuth } from './context/AuthContext';
 
 import {AuthActionPage} from './pages/AuthActionPage';
 import {SiteProvider,useSite} from './context/SiteContext';
@@ -20,6 +22,7 @@ import { ReaderPage } from './pages/ReaderPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { FaqPage } from './pages/FaqPage';
+import { StudyVisualizerPage } from './pages/StudyVisualizerPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { RefundPage } from './pages/RefundPage';
@@ -50,18 +53,33 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
   const site=useSite();
+  const { user } = useAuth();
   const isBookReader=/^\/books\/[^/]+\/read/.test(location.pathname);
   const isReaderView = location.pathname.startsWith('/read/')||isBookReader;
+  const isWorkspace = Boolean(user) && !isReaderView && (/^\/(dashboard|books|year|block|visualizer|feedback|notifications)(\/|$)/.test(location.pathname));
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#1B8E8E] selection:text-white w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#6366F1] selection:text-white w-full max-w-full overflow-x-hidden">
       <ScrollToTop />
-      {!isBookReader&&<Navbar />}
-      {!isReaderView&&site.announcement&&<div className="library-announcement">{site.announcement}</div>}
+      {!isBookReader&&!isWorkspace&&<Navbar />}
+      {!isReaderView&&!isWorkspace&&site.announcement&&<div className="library-announcement">{site.announcement}</div>}
 
-      <main className="flex-1 flex flex-col w-full max-w-full min-w-0">
+      {isWorkspace ? <StudentWorkspace>
+        <Suspense fallback={<div className="library-empty">Opening your study space…</div>}>
+          <Routes>
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
+            <Route path="/books" element={<BooksPage/>}/>
+            <Route path="/year/:yearId" element={<YearPage/>}/>
+            <Route path="/block/:blockId" element={<BlockPage/>}/>
+            <Route path="/visualizer" element={<ProtectedRoute><StudyVisualizerPage/></ProtectedRoute>}/>
+            <Route path="/feedback" element={<ProtectedRoute><FeedbackPage/></ProtectedRoute>}/>
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage/></ProtectedRoute>}/>
+          </Routes>
+        </Suspense>
+      </StudentWorkspace> : <main className="flex-1 flex flex-col w-full max-w-full min-w-0">
 <Suspense fallback={<div className="library-empty">Opening your study space…</div>}>
         <Routes>
+<Route path="/visualizer" element={<ProtectedRoute><StudyVisualizerPage/></ProtectedRoute>}/>
 <Route path="/feedback" element={<ProtectedRoute><FeedbackPage/></ProtectedRoute>}/>
 <Route path="/notifications" element={<ProtectedRoute><NotificationsPage/></ProtectedRoute>}/>
           <Route path="/books" element={<BooksPage/>}/>
@@ -91,10 +109,10 @@ function AppContent() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
         </Suspense>
-      </main>
+      </main>}
 
       {/* Footer rendered on all pages except the immersive Reader */}
-      {!isReaderView && <Footer />}
+      {!isReaderView && !isWorkspace && <Footer />}
     </div>
   );
 }

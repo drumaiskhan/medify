@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --color-navy: #0F2837;
-    --color-teal: #1B8E8E;
-    --color-teal-dark: #147273;
-    --color-teal-light: #25A8A8;
+    --color-navy: #171B35;
+    --color-teal: #6366F1;
+    --color-teal-dark: #4F46E5;
+    --color-teal-light: #818CF8;
     --color-slate-blue: #50768E;
     --color-ivory: #F8FAFC;
-    --color-blue-grey: #E8EEF3;
-    --color-blue-grey-border: #CFDBE5;
+    --color-blue-grey: #F0F1FA;
+    --color-blue-grey-border: #DDE1F2;
   }
 
   body {
@@ -36,7 +36,7 @@
 
 /* Accessibility focus styles */
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #1B8E8E;
+  outline: 2px solid #6366F1;
   outline-offset: 2px;
 }
 
@@ -165,11 +165,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .medify-reader-content th {
-  background-color: #E8EEF3;
-  color: #0F2837;
+  background-color: #F0F1FA;
+  color: #171B35;
   font-weight: 600;
   padding: 0.75rem 1rem;
-  border-bottom: 2px solid #CFDBE5;
+  border-bottom: 2px solid #DDE1F2;
   white-space: nowrap;
 }
 
@@ -181,7 +181,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .medify-reader-content td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #E8EEF3;
+  border-bottom: 1px solid #F0F1FA;
   vertical-align: top;
 }
 

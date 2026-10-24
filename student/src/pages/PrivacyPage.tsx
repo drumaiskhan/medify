@@ -8,7 +8,7 @@ export function PrivacyPage() {
       
       {/* Top Breadcrumb & Tag */}
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-xs text-[#1B8E8E] hover:underline">
+        <Link to="/" className="text-xs text-[#6366F1] hover:underline">
           ← Home
         </Link>
         <DemoBadge subtext="Legal Document" />
@@ -28,9 +28,9 @@ export function PrivacyPage() {
       </div>
 
       {/* Title */}
-      <div className="bg-white rounded-xl border border-[#CFDBE5] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
-        <div className="border-b border-[#E8EEF3] pb-4">
-          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837]">
+      <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
+        <div className="border-b border-[#F0F1FA] pb-4">
+          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
             Privacy Policy
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -39,7 +39,7 @@ export function PrivacyPage() {
         </div>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             1. Information Collected (Placeholder)
           </h2>
           <p>
@@ -48,7 +48,7 @@ export function PrivacyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             2. Educational Data Usage
           </h2>
           <p>
@@ -57,7 +57,7 @@ export function PrivacyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             3. Local Payment Processing & Manual Transfers
           </h2>
           <p>
@@ -66,7 +66,7 @@ export function PrivacyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             4. Data Retention & Student Rights
           </h2>
           <p>
@@ -75,12 +75,12 @@ export function PrivacyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             5. Contact Legal Officer
           </h2>
           <p>
             For privacy inquiries regarding MEDIFY, reach out to Syed Nangyal at{' '}
-            <span className="font-semibold text-[#0F2837]">privacy@medify.pk</span> (sample address).
+            <span className="font-semibold text-[#171B35]">privacy@medify.pk</span> (sample address).
           </p>
         </section>
       </div>

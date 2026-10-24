@@ -141,14 +141,14 @@ export function YearPage() {
         <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837] mb-2">
+        <h1 className="font-serif-heading text-2xl font-bold text-[#171B35] mb-2">
           Unable to Load Year
         </h1>
         <p className="text-sm text-slate-600 mb-6">{error}</p>
         <button
           type="button"
           onClick={fetchYearData}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           <span>Retry</span>
@@ -163,7 +163,7 @@ export function YearPage() {
         <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837] mb-2">
+        <h1 className="font-serif-heading text-2xl font-bold text-[#171B35] mb-2">
           Year Not Found
         </h1>
         <p className="text-sm text-slate-600 mb-6">
@@ -171,7 +171,7 @@ export function YearPage() {
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Years</span>
@@ -198,25 +198,25 @@ export function YearPage() {
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider inline-block mb-2">
               Package Restricted
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               {year.name} Notes Not in Your Package
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Your active MEDIFY package is for <strong className="text-[#0F2837]">{studentAccess?.purchasedYearName}</strong>.
+              Your active MEDIFY package is for <strong className="text-[#171B35]">{studentAccess?.purchasedYearName}</strong>.
               In accordance with your subscription, only notes for your purchased academic year are available in your library.
             </p>
           </div>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to={studentAccess?.purchasedYearId ? `/year/${studentAccess.purchasedYearId}` : '/#years'}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-xs w-full sm:w-auto"
             >
               <BookOpen className="w-4 h-4" />
               <span>Open My Notes ({studentAccess?.purchasedYearName || 'My Year'})</span>
             </Link>
             <Link
               to="/dashboard"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#CFDBE5] hover:bg-slate-50 transition-colors w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#DDE1F2] hover:bg-slate-50 transition-colors w-full sm:w-auto"
             >
               <span>Go to Dashboard</span>
             </Link>
@@ -235,7 +235,7 @@ export function YearPage() {
       <div className="mb-6 flex items-center justify-between">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1B8E8E] hover:text-[#147273] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6366F1] hover:text-[#4F46E5] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Years</span>
@@ -244,10 +244,10 @@ export function YearPage() {
       </div>
 
       {/* Header Banner */}
-      <div className="rounded-xl bg-[#0F2837] text-white p-6 sm:p-10 mb-10 shadow-sm">
+      <div className="rounded-xl bg-[#171B35] text-white p-6 sm:p-10 mb-10 shadow-sm">
         <div className="max-w-3xl space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#1B8E8E] text-white">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#6366F1] text-white">
               KMU MBBS Package
             </span>
             {isSubscribedToThisYear && (
@@ -265,9 +265,9 @@ export function YearPage() {
 
       {/* Blocks List */}
       <section className="mb-16">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-3 border-b border-[#CFDBE5]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-3 border-b border-[#DDE1F2]">
           <div>
-            <h2 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h2 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               Modules Included in {year.name}
             </h2>
             <p className="text-xs text-slate-600 mt-1">
@@ -280,9 +280,9 @@ export function YearPage() {
         </div>
 
         {blocks.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-[#CFDBE5] p-10 text-center text-slate-500">
+          <div className="bg-white rounded-xl border border-dashed border-[#DDE1F2] p-10 text-center text-slate-500">
             <Layers className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <p className="font-medium text-sm text-[#0F2837]">Nothing published yet</p>
+            <p className="font-medium text-sm text-[#171B35]">Nothing published yet</p>
             <p className="text-xs text-slate-500 mt-1">
               Modules for this academic year are being prepared and will appear here soon.
             </p>
@@ -293,31 +293,31 @@ export function YearPage() {
               <Link
                 key={block.id}
                 to={`/block/${block.id}`}
-                className="group bg-white rounded-xl border border-[#CFDBE5] p-6 shadow-xs hover:border-[#1B8E8E] hover:shadow-md transition-all flex flex-col justify-between"
+                className="group bg-white rounded-xl border border-[#DDE1F2] p-6 shadow-xs hover:border-[#6366F1] hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#1B8E8E] tracking-wider uppercase">
+                    <span className="text-xs font-bold text-[#6366F1] tracking-wider uppercase">
                       Order #{block.order}
                     </span>
-                    <span className="text-[11px] text-slate-500 bg-[#E8EEF3] px-2 py-0.5 rounded font-medium">
+                    <span className="text-[11px] text-slate-500 bg-[#F0F1FA] px-2 py-0.5 rounded font-medium">
                       {block.subjects.length} {block.subjects.length === 1 ? 'Note' : 'Notes'}
                     </span>
                   </div>
 
-                  <h3 className="font-serif-heading text-lg font-bold text-[#0F2837] group-hover:text-[#1B8E8E] transition-colors">
+                  <h3 className="font-serif-heading text-lg font-bold text-[#171B35] group-hover:text-[#6366F1] transition-colors">
                     {block.name}
                   </h3>
 
                   {block.subjects.length > 0 && (
-                    <div className="pt-3 border-t border-[#E8EEF3] space-y-1">
+                    <div className="pt-3 border-t border-[#F0F1FA] space-y-1">
                       <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                         Notes in this module:
                       </span>
                       <ul className="text-xs text-slate-700 space-y-1">
                         {block.subjects.map((subj) => (
                           <li key={subj.id} className="flex items-center gap-1.5 truncate">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#1B8E8E]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1]" />
                             <span className="truncate">{subj.name}</span>
                           </li>
                         ))}
@@ -327,7 +327,7 @@ export function YearPage() {
                 </div>
 
                 <div className="pt-6">
-                  <div className="w-full py-2 px-3 rounded text-xs font-semibold text-[#0F2837] bg-[#E8EEF3] group-hover:bg-[#1B8E8E] group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                  <div className="w-full py-2 px-3 rounded text-xs font-semibold text-[#171B35] bg-[#F0F1FA] group-hover:bg-[#6366F1] group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
                     <span>View Subject Notes</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </div>
@@ -340,13 +340,13 @@ export function YearPage() {
 
       {/* Subscription Plans Section or Active Status */}
       {isSubscribedToThisYear ? (
-        <section className="pt-8 border-t border-[#CFDBE5]">
+        <section className="pt-8 border-t border-[#DDE1F2]">
           <div className="bg-emerald-50/70 border border-emerald-300 rounded-2xl p-6 sm:p-8 text-center max-w-2xl mx-auto space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Full Package Unlocked</span>
             </div>
-            <h3 className="font-serif-heading text-xl font-bold text-[#0F2837]">
+            <h3 className="font-serif-heading text-xl font-bold text-[#171B35]">
               You have active subscriber access to {year.name}
             </h3>
             <p className="text-xs text-slate-600 max-w-lg mx-auto">
@@ -355,12 +355,12 @@ export function YearPage() {
           </div>
         </section>
       ) : (
-        <section className="pt-6 border-t border-[#CFDBE5]">
+        <section className="pt-6 border-t border-[#DDE1F2]">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold text-[#1B8E8E] tracking-wider uppercase">Subscription Pass</span>
+              <span className="text-xs font-bold text-[#6366F1] tracking-wider uppercase">Subscription Pass</span>
             </div>
-            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837] mb-2">
+            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35] mb-2">
               Choose Your Access Duration
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">

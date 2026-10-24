@@ -138,6 +138,6 @@ export function filterYearsForStudent(
     return matching;
   }
 
-  // Fallback if no exact string match was found: return all to avoid blank screen
-  return years;
+  // Never expose other years when an entitlement cannot be matched.
+  return [];
 }

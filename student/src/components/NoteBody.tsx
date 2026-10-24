@@ -294,8 +294,8 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
     setOffline({ busy: false, done: r.done, total: r.done + r.failed, saved: r.failed === 0, failed: r.failed });
   };
 
-  const bar = isDark ? 'bg-[#0F1E36] border-slate-700 text-slate-200' : 'bg-white border-[#CFDBE5] text-[#0F2837]';
-  const btn = isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-100' : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]';
+  const bar = isDark ? 'bg-[#12152E] border-slate-700 text-slate-200' : 'bg-white border-[#DDE1F2] text-[#171B35]';
+  const btn = isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-100' : 'bg-[#F0F1FA] hover:bg-[#DDE1F2] text-[#171B35]';
 
   return (
     <div className="note-body-wrap">
@@ -309,7 +309,7 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
               autoFocus value={query} onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') goToHit(hitIndex + (e.shiftKey ? -1 : 1)); }}
               placeholder="Find in this subject…" aria-label="Search within this subject"
-              className={`flex-1 min-w-0 px-2 py-1.5 rounded border text-xs ${isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-[#CFDBE5]'}`}
+              className={`flex-1 min-w-0 px-2 py-1.5 rounded border text-xs ${isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-[#DDE1F2]'}`}
             />
             <span className="tabular-nums opacity-70 w-14 text-center">{query.trim().length >= 2 ? `${hitCount ? hitIndex : 0}/${hitCount}` : ''}</span>
             <button type="button" aria-label="Previous match" onClick={() => goToHit(hitIndex - 1)} className={`p-1.5 rounded ${btn}`}><ChevronUp className="w-3.5 h-3.5" /></button>
@@ -318,7 +318,7 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
           </div>
         )}
         {resume && (
-          <button type="button" onClick={jumpToResume} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-semibold bg-[#1B8E8E] text-white hover:bg-[#147273]">
+          <button type="button" onClick={jumpToResume} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-semibold bg-[#6366F1] text-white hover:bg-[#4F46E5]">
             <Bookmark className="w-3.5 h-3.5" /> <span>Continue where you left off</span>
           </button>
         )}
@@ -338,14 +338,14 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
       </div>
 
       {selBox && (
-        <div role="toolbar" aria-label="Highlight colours" className="fixed z-[70] flex items-center gap-2 px-3 py-2 rounded-full bg-[#0F2837] shadow-xl" style={{ left: selBox.x, top: selBox.y, transform: 'translateX(-50%)' }} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.stopPropagation()}>
+        <div role="toolbar" aria-label="Highlight colours" className="fixed z-[70] flex items-center gap-2 px-3 py-2 rounded-full bg-[#171B35] shadow-xl" style={{ left: selBox.x, top: selBox.y, transform: 'translateX(-50%)' }} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.stopPropagation()}>
           {(Object.keys(SWATCH) as Color[]).map((c) => (
             <button key={c} type="button" aria-label={`Highlight ${c}`} onClick={() => addHighlight(c)} className="w-7 h-7 rounded-full border-2 border-white/70" style={{ background: SWATCH[c] }} />
           ))}
         </div>
       )}
       {activeHl && !selBox && (
-        <button type="button" onClick={() => removeHighlight(activeHl.id)} className="fixed z-[70] inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0F2837] text-white text-xs font-semibold shadow-xl" style={{ left: activeHl.x, top: activeHl.y, transform: 'translateX(-50%)' }}>
+        <button type="button" onClick={() => removeHighlight(activeHl.id)} className="fixed z-[70] inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#171B35] text-white text-xs font-semibold shadow-xl" style={{ left: activeHl.x, top: activeHl.y, transform: 'translateX(-50%)' }}>
           <Trash2 className="w-3.5 h-3.5" /> Remove highlight
         </button>
       )}

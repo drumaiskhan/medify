@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 20
 
     env:
-      FTP_HOST: "162.55.6.159"
+      FTP_HOST: "${{ secrets.API_FTP_SERVER }}"
       FTP_PORT: "21"
       FTP_USER: "medifydeploy@site.med-ify.live"
       FTP_DIR: "/"
@@ -104,11 +104,9 @@ jobs:
           echo "Passenger restart requested."
 
       # 8. Verify API health
-      # TEMPORARY: --insecure bypasses self-signed SSL certificate
       - name: Verify Medify API health
         run: |
           curl \
-            --insecure \
             --fail \
             --show-error \
             --silent \
@@ -125,7 +123,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 18); do
-            response="$(curl --insecure --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
+            response="$(curl --silent --show-error --max-time 15 https://site.med-ify.live/api/deployed-commit || true)"
             if echo "$response" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("commit")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
               echo "Verified live API is running commit $EXPECTED_SHA"
               exit 0

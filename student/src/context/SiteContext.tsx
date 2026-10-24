@@ -6,22 +6,26 @@ import {
   ReactNode,
 } from "react";
 import { api } from "../lib/client";
-import { applyPlanPrices } from "../data/plans";
+import { applyPlanSettings } from "../data/plans";
 const defaults = {
   siteName: "MEDIFY",
   tagline: "Your space to learn medicine.",
   logoUrl: "/assets/aistudio/logo_d0f8a6a4.png",
-  accent: "#137c72",
+  accent: "#4F46E5",
   announcement: "",
   booksEnabled: true,
   registrationOpen: true,
   readerTheme: "light",
   supportEmail: "",
   contactLocation: "",
+  contactPhone: "",
+  contactWhatsApp: "",
+  contactWebsite: "",
   founderName: "",
   footerDescription: "",
   footerCopyright: "",
   planPrices: { quarterly: 1000, "half-yearly": 2000, annual: 3500 } as Record<string,number>,
+  planDetails: {} as Record<string, {name: string; billingText: string; features: string[]; recommended: boolean}>,
 };
 const SiteContext = createContext(defaults);
 export function SiteProvider({ children }: { children: ReactNode }) {
@@ -29,7 +33,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     api("/site-settings")
       .then((s) => {
-        applyPlanPrices(s.planPrices);
+        applyPlanSettings(s.planPrices, s.planDetails);
         setSettings({ ...defaults, ...s });
         document.documentElement.style.setProperty("--brand", s.accent);
         document.title = s.siteName + " — Your study space";

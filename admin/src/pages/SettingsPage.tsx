@@ -106,6 +106,15 @@ export function SettingsPage() {
                     onChange={(e) => set("supportEmail", e.target.value)}
                   />
                 </label>
+                <label className="studio-field">Contact phone
+                  <input type="tel" maxLength={35} value={form.contactPhone || ''} onChange={e=>set('contactPhone',e.target.value)} placeholder="+92..." />
+                </label>
+                <label className="studio-field">WhatsApp number
+                  <input type="tel" maxLength={35} value={form.contactWhatsApp || ''} onChange={e=>set('contactWhatsApp',e.target.value)} placeholder="+92..." />
+                </label>
+                <label className="studio-field">Public website
+                  <input type="url" maxLength={350} value={form.contactWebsite || ''} onChange={e=>set('contactWebsite',e.target.value)} placeholder="https://med-ify.live" />
+                </label>
                 <label className="studio-field">
                   Contact location
                   <input maxLength={180} value={form.contactLocation || ''} onChange={(e) => set('contactLocation', e.target.value)} placeholder="City, province, country" />
@@ -252,7 +261,24 @@ export function SettingsPage() {
                   </label>
                 ))}
               </div>
-              <h2>Payment details & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
+              <h2>Plan card content</h2>
+              <p className="studio-muted">Edit the names and benefits students see on the homepage, registration and checkout. Plan IDs and billing durations stay fixed to preserve existing subscriptions.</p>
+              {([['quarterly','Quarterly · 3 months'],['half-yearly','Half-yearly · 6 months'],['annual','Annual · 12 months']] as const).map(([key,label]) => {
+                const detail = form.planDetails?.[key] || {};
+                const update = (field: string, value: any) => set('planDetails',{...form.planDetails,[key]:{...detail,[field]:value}});
+                return <div className="studio-card" key={key} style={{marginTop:18,padding:18}}>
+                  <h3>{label}</h3>
+                  <div className="studio-form" style={{marginTop:12}}>
+                    <label className="studio-field">Display name<input maxLength={90} value={detail.name || ''} onChange={e=>update('name',e.target.value)} placeholder={label}/></label>
+                    <label className="studio-field">Billing description<input maxLength={180} value={detail.billingText || ''} onChange={e=>update('billingText',e.target.value)} placeholder="One-time payment"/></label>
+                    <label className="studio-field full">Plan benefits (one per line, max 12)
+                      <textarea rows={6} maxLength={2400} value={(detail.features||[]).join('\n')} onChange={e=>update('features',e.target.value.split('\n').slice(0,12))}/>
+                    </label>
+                    <label className="studio-check"><input type="checkbox" checked={detail.recommended === true} onChange={e=>update('recommended',e.target.checked)}/>Highlight as recommended</label>
+                  </div>
+                </div>;
+              })}
+              <h2 style={{marginTop:22}}>Payment details & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
             {tab === "system" && (
               <>
                 <h2 style={{ fontWeight: 750, marginBottom: 18 }}>

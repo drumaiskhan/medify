@@ -55,6 +55,7 @@ import {
 } from '../../services/notes';
 import {
   convertAndProcessSubjectDocx,
+  convertAndProcessAdditionalNotes,
   ProcessedSubjectDocx,
   prepareHtmlForReader
 } from '../../utils/docxProcessor';
@@ -428,8 +429,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.toLowerCase().endsWith('.docx')) {
-      addToast('error', 'Please select a valid Word document (.docx).');
+    if (!/\.(docx|pdf|txt|md|html|htm)$/i.test(file.name)) {
+      addToast('error', 'Use DOCX, PDF, TXT, Markdown or HTML for notes.');
       return;
     }
 
@@ -443,7 +444,9 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
       const targetName=(currentBlock?.name || newBlockName).trim();
       const targetSubjectId=currentSubject?.id || (targetBlockId && targetName ? `${targetBlockId}-${slugify(targetName)}` : '');
       if(!targetSubjectId)throw new Error('Select the academic year and module before uploading a Word file.');
-      const result = await convertAndProcessSubjectDocx(file, targetSubjectId);
+      const result = /\.docx$/i.test(file.name)
+        ? await convertAndProcessSubjectDocx(file, targetSubjectId)
+        : await convertAndProcessAdditionalNotes(file);
       setProcessedDocx(result);
       setConvertedSubjectId(targetSubjectId);
       addToast(
@@ -508,7 +511,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     }
 
     if (!processedDocx || processedDocx.parts.length === 0) {
-      addToast('error', 'Please select and convert a Word (.docx) file first.');
+      addToast('error', 'Please select and convert a supported notes file first.');
       return;
     }
 
@@ -529,7 +532,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     const finalBlockId = isNewBlock ? `${selectedYearId}-${slugify(newBlockName.trim())}` : selectedBlockId;
     const finalSubjectId = isNewSubject ? `${finalBlockId}-${slugify(noteTitle)}` : selectedSubjectId;
     if (convertedSubjectId !== finalSubjectId) {
-      addToast('error', 'The destination changed. Please upload the Word file again for this module.');
+      addToast('error', 'The destination changed. Please upload the notes file again for this module.');
       return;
     }
     setIsSavingSubject(true);
@@ -1454,7 +1457,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                   ref={fileInputRef}
                   type="file"
                   id="docx-file-input"
-                  accept=".docx"
+                  accept=".docx,.pdf,.txt,.md,.html,.htm"
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -1470,7 +1473,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
 
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
-                      {fileName ? fileName : 'Choose the note&apos;s Word (.docx) file'}
+                      {fileName ? fileName : 'Choose notes: DOCX, PDF, TXT, MD or HTML'}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
                       Converts Word Heading 1 &rarr; h2, Heading 2 &rarr; h3, Heading 3 &rarr; h4. Keeps tables and formatting.
@@ -1484,7 +1487,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                       disabled={isConverting}
                       className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[#0F2837] hover:bg-[#1E293B] transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      {fileName ? 'Select a different .docx file' : 'Browse .docx File'}
+                      {fileName ? 'Select a different file' : 'Browse Notes File'}
                     </button>
                   </div>
 

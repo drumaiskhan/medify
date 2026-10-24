@@ -131,7 +131,7 @@ export function HomePage() {
     <div className="flex flex-col min-h-screen">
       
       {/* 1. Petrol Navy Hero Section */}
-      <section className="bg-[#0F2837] text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b border-[#0F2837]/80">
+      <section className="bg-[#171B35] text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b border-[#171B35]/80">
         <div className="max-w-5xl mx-auto text-center space-y-6">
           
           {/* Official Medify Logo Showcase */}
@@ -143,8 +143,8 @@ export function HomePage() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-xs text-[#E8EEF3] border border-white/15">
-            <span className="w-2 h-2 rounded-full bg-[#1B8E8E]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-xs text-[#F0F1FA] border border-white/15">
+            <span className="w-2 h-2 rounded-full bg-[#6366F1]" />
             <span>Khyber Medical University (KMU) Modular Curriculum</span>
           </div>
 
@@ -152,7 +152,7 @@ export function HomePage() {
             {site.siteName} — {site.tagline}
           </h1>
 
-          <p className="text-base sm:text-lg lg:text-xl text-[#E8EEF3]/85 max-w-3xl mx-auto font-sans leading-relaxed">
+          <p className="text-base sm:text-lg lg:text-xl text-[#F0F1FA]/85 max-w-3xl mx-auto font-sans leading-relaxed">
             High-yield, integrated study notes built exclusively for MBBS undergraduates in Pakistan. Stop drowning in hundreds of unorganized slides—revise modular blocks with clinical clarity.
           </p>
 
@@ -160,7 +160,7 @@ export function HomePage() {
             <button
               type="button"
               onClick={scrollToYears}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-lg text-sm font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-lg text-sm font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Browse Notes</span>
               <ArrowRight className="w-4 h-4" />
@@ -170,21 +170,21 @@ export function HomePage() {
                 to={`/read/subject/${freeSampleSubject.id}`}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-lg text-sm font-medium text-white/90 border border-white/20 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
               >
-                <BookOpen className="w-4 h-4 text-[#1B8E8E]" />
+                <BookOpen className="w-4 h-4 text-[#6366F1]" />
                 <span>Preview Sample</span>
               </Link>
             )}
           </div>
 
-          <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-[#E8EEF3]/70">
+          <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-[#F0F1FA]/70">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#1B8E8E]" /> Modular Block Integration
+              <CheckCircle2 className="w-4 h-4 text-[#6366F1]" /> Modular Block Integration
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#1B8E8E]" /> High-Yield Tables & Schematics
+              <CheckCircle2 className="w-4 h-4 text-[#6366F1]" /> High-Yield Tables & Schematics
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#1B8E8E]" /> Aligned with the KMU Modular Syllabus
+              <CheckCircle2 className="w-4 h-4 text-[#6366F1]" /> Aligned with the KMU Modular Syllabus
             </span>
           </div>
         </div>
@@ -193,10 +193,10 @@ export function HomePage() {
       {/* 2. Choose Your Year / Student Notes Library Panel */}
       <section id="years" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {studentAccess?.isSubscribed && !isAdmin ? (
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-4 border-b border-[#CFDBE5]">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-4 border-b border-[#DDE1F2]">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837]">
+                <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
                   Your Notes Library
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wider flex items-center gap-1">
@@ -206,7 +206,7 @@ export function HomePage() {
               </div>
               <p className="text-sm text-slate-600 max-w-2xl">
                 Showing modular blocks and high-yield notes for your purchased class package (
-                <strong className="text-[#0F2837]">{studentAccess.purchasedYearName || visibleYears[0]?.name || 'MBBS'}</strong>
+                <strong className="text-[#171B35]">{studentAccess.purchasedYearName || visibleYears[0]?.name || 'MBBS'}</strong>
                 ). Only your enrolled year's notes are unlocked and displayed in your library.
               </p>
             </div>
@@ -215,10 +215,10 @@ export function HomePage() {
             </span>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-4 border-b border-[#CFDBE5]">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-4 border-b border-[#DDE1F2]">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837]">
+                <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
                   Choose Your Year
                 </h2>
                 <DemoBadge subtext="Live notes" />
@@ -239,7 +239,7 @@ export function HomePage() {
             {[1, 2, 3, 4, 5].map((idx) => (
               <div
                 key={idx}
-                className="rounded-xl border border-[#CFDBE5] bg-white p-6 h-64 flex flex-col justify-between"
+                className="rounded-xl border border-[#DDE1F2] bg-white p-6 h-64 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -279,11 +279,11 @@ export function HomePage() {
 
         {/* Empty state: Nothing published yet */}
         {!loading && !error && visibleYears.length === 0 && (
-          <div className="bg-white rounded-xl border border-dashed border-[#CFDBE5] p-12 text-center max-w-lg mx-auto">
-            <div className="w-12 h-12 rounded-full bg-[#E8EEF3] text-[#1B8E8E] flex items-center justify-center mx-auto mb-3">
+          <div className="bg-white rounded-xl border border-dashed border-[#DDE1F2] p-12 text-center max-w-lg mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#F0F1FA] text-[#6366F1] flex items-center justify-center mx-auto mb-3">
               <BookOpen className="w-6 h-6" />
             </div>
-            <h3 className="font-serif-heading text-lg font-bold text-[#0F2837] mb-1">
+            <h3 className="font-serif-heading text-lg font-bold text-[#171B35] mb-1">
               Nothing published yet
             </h3>
             <p className="text-xs text-slate-600 mb-4">
@@ -303,7 +303,7 @@ export function HomePage() {
                 return (
                   <div
                     key={year.id}
-                    className="rounded-xl border border-dashed border-[#CFDBE5] bg-white/60 p-6 flex flex-col justify-between opacity-80 select-none"
+                    className="rounded-xl border border-dashed border-[#DDE1F2] bg-white/60 p-6 flex flex-col justify-between opacity-80 select-none"
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -333,23 +333,23 @@ export function HomePage() {
                 <Link
                   key={year.id}
                   to={`/year/${year.id}`}
-                  className="group rounded-xl border border-[#CFDBE5] bg-white p-6 shadow-xs hover:shadow-md hover:border-[#1B8E8E] transition-all flex flex-col justify-between"
+                  className="group rounded-xl border border-[#DDE1F2] bg-white p-6 shadow-xs hover:shadow-md hover:border-[#6366F1] transition-all flex flex-col justify-between"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-serif-heading text-xl font-bold text-[#0F2837] group-hover:text-[#1B8E8E] transition-colors">
+                      <h3 className="font-serif-heading text-xl font-bold text-[#171B35] group-hover:text-[#6366F1] transition-colors">
                         {year.name}
                       </h3>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#E8EEF3] text-[#0F2837]">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F0F1FA] text-[#171B35]">
                         Active
                       </span>
                     </div>
 
-                    <ul className="text-xs text-slate-700 space-y-2 pt-3 border-t border-[#E8EEF3]">
+                    <ul className="text-xs text-slate-700 space-y-2 pt-3 border-t border-[#F0F1FA]">
                       {yearBlocks.map((block) => (
                         <li key={block.id} className="flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#1B8E8E] mt-1.5 shrink-0" />
-                          <span className="font-medium text-[#0F2837]">{block.name}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] mt-1.5 shrink-0" />
+                          <span className="font-medium text-[#171B35]">{block.name}</span>
                           {(notesByBlock[block.id]?.length || 0) > 0 && (
                             <span className="ml-auto shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                               Notes ready
@@ -361,7 +361,7 @@ export function HomePage() {
                   </div>
 
                   <div className="pt-6">
-                    <div className="w-full py-2.5 px-4 rounded text-xs font-semibold text-white bg-[#0F2837] group-hover:bg-[#1B8E8E] transition-colors flex items-center justify-center gap-2">
+                    <div className="w-full py-2.5 px-4 rounded text-xs font-semibold text-white bg-[#171B35] group-hover:bg-[#6366F1] transition-colors flex items-center justify-center gap-2">
                       <span>View Blocks</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -384,8 +384,8 @@ export function HomePage() {
         if (rows.length === 0) return null;
         return (
           <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-            <div className="mb-6 pb-3 border-b border-[#CFDBE5]">
-              <h2 className="font-serif-heading text-2xl font-bold text-[#0F2837]">Notes Available Now</h2>
+            <div className="mb-6 pb-3 border-b border-[#DDE1F2]">
+              <h2 className="font-serif-heading text-2xl font-bold text-[#171B35]">Notes Available Now</h2>
               <p className="text-sm text-slate-600 mt-1">Open a module to read its notes.</p>
             </div>
             <div className="space-y-8">
@@ -397,15 +397,15 @@ export function HomePage() {
                       <Link
                         key={b.id}
                         to={`/block/${b.id}`}
-                        className="group p-4 rounded-xl border border-[#CFDBE5] bg-white hover:border-[#1B8E8E] hover:shadow-md transition-all flex items-center justify-between gap-3"
+                        className="group p-4 rounded-xl border border-[#DDE1F2] bg-white hover:border-[#6366F1] hover:shadow-md transition-all flex items-center justify-between gap-3"
                       >
                         <div>
-                          <span className="block font-serif-heading text-sm font-bold text-[#0F2837] group-hover:text-[#1B8E8E] transition-colors">{b.name}</span>
+                          <span className="block font-serif-heading text-sm font-bold text-[#171B35] group-hover:text-[#6366F1] transition-colors">{b.name}</span>
                           <span className="block text-[11px] text-slate-500 mt-0.5">
                             {notesByBlock[b.id].length} {notesByBlock[b.id].length === 1 ? 'note' : 'notes'} uploaded
                           </span>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-[#1B8E8E] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="w-4 h-4 text-[#6366F1] shrink-0 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     ))}
                   </div>
@@ -417,10 +417,10 @@ export function HomePage() {
       })()}
 
       {/* 3. How MEDIFY Works Section */}
-      <section className="bg-[#E8EEF3]/60 py-16 px-4 sm:px-6 lg:px-8 border-y border-[#CFDBE5]">
+      <section className="bg-[#F0F1FA]/60 py-16 px-4 sm:px-6 lg:px-8 border-y border-[#DDE1F2]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837] mb-3">
+            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35] mb-3">
               How MEDIFY Works
             </h2>
             <p className="text-sm text-slate-600">
@@ -431,11 +431,11 @@ export function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Step 1: Subscribe */}
-            <div className="bg-white rounded-xl p-6 border border-[#CFDBE5] shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-[#0F2837] text-white flex items-center justify-center font-serif-heading font-bold text-base">
+            <div className="bg-white rounded-xl p-6 border border-[#DDE1F2] shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-[#171B35] text-white flex items-center justify-center font-serif-heading font-bold text-base">
                 1
               </div>
-              <h3 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+              <h3 className="font-serif-heading text-lg font-bold text-[#171B35]">
                 Subscribe
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -444,11 +444,11 @@ export function HomePage() {
             </div>
 
             {/* Step 2: Read */}
-            <div className="bg-white rounded-xl p-6 border border-[#CFDBE5] shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-[#1B8E8E] text-white flex items-center justify-center font-serif-heading font-bold text-base">
+            <div className="bg-white rounded-xl p-6 border border-[#DDE1F2] shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-[#6366F1] text-white flex items-center justify-center font-serif-heading font-bold text-base">
                 2
               </div>
-              <h3 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+              <h3 className="font-serif-heading text-lg font-bold text-[#171B35]">
                 Read
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -457,11 +457,11 @@ export function HomePage() {
             </div>
 
             {/* Step 3: Highlight */}
-            <div className="bg-white rounded-xl p-6 border border-[#CFDBE5] shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-[#0F2837] text-white flex items-center justify-center font-serif-heading font-bold text-base">
+            <div className="bg-white rounded-xl p-6 border border-[#DDE1F2] shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-[#171B35] text-white flex items-center justify-center font-serif-heading font-bold text-base">
                 3
               </div>
-              <h3 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+              <h3 className="font-serif-heading text-lg font-bold text-[#171B35]">
                 Highlight
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -470,11 +470,11 @@ export function HomePage() {
             </div>
 
             {/* Step 4: Revise */}
-            <div className="bg-white rounded-xl p-6 border border-[#CFDBE5] shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-[#1B8E8E] text-white flex items-center justify-center font-serif-heading font-bold text-base">
+            <div className="bg-white rounded-xl p-6 border border-[#DDE1F2] shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-[#6366F1] text-white flex items-center justify-center font-serif-heading font-bold text-base">
                 4
               </div>
-              <h3 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+              <h3 className="font-serif-heading text-lg font-bold text-[#171B35]">
                 Revise
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -490,7 +490,7 @@ export function HomePage() {
       <section id="plans" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837]">
+            <h2 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
               Simple, Transparent Plans
             </h2>
             <DemoBadge subtext="Editable Data" />

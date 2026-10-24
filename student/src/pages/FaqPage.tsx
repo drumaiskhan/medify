@@ -51,22 +51,22 @@ export function FaqPage() {
       
       {/* Top Breadcrumb & Tag */}
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-xs text-[#1B8E8E] hover:underline">
+        <Link to="/" className="text-xs text-[#6366F1] hover:underline">
           ← Home
         </Link>
         <DemoBadge subtext="Placeholder FAQ" />
       </div>
 
       {/* Hero Header */}
-      <div className="bg-[#0F2837] text-white rounded-xl p-8 sm:p-12 mb-10 shadow-sm">
+      <div className="bg-[#171B35] text-white rounded-xl p-8 sm:p-12 mb-10 shadow-sm">
         <div className="max-w-2xl space-y-3">
-          <span className="text-xs font-bold text-[#1B8E8E] uppercase tracking-wider">
+          <span className="text-xs font-bold text-[#6366F1] uppercase tracking-wider">
             Help & Knowledge Base
           </span>
           <h1 className="font-serif-heading text-3xl sm:text-4xl font-bold tracking-tight text-white">
             Frequently Asked Questions
           </h1>
-          <p className="text-base sm:text-lg text-[#E8EEF3]/80 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#F0F1FA]/80 leading-relaxed">
             Everything you need to know about MEDIFY subscriptions, KMU curriculum packages, and study resources.
           </p>
         </div>
@@ -80,7 +80,7 @@ export function FaqPage() {
           return (
             <div
               key={idx}
-              className="bg-white rounded-xl border border-[#CFDBE5] overflow-hidden shadow-xs transition-colors"
+              className="bg-white rounded-xl border border-[#DDE1F2] overflow-hidden shadow-xs transition-colors"
             >
               <button
                 type="button"
@@ -88,16 +88,16 @@ export function FaqPage() {
                 className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors cursor-pointer"
                 aria-expanded={isOpen}
               >
-                <span className="font-serif-heading text-sm sm:text-base font-bold text-[#0F2837]">
+                <span className="font-serif-heading text-sm sm:text-base font-bold text-[#171B35]">
                   {item.question}
                 </span>
-                <span className="text-[#1B8E8E] shrink-0">
+                <span className="text-[#6366F1] shrink-0">
                   {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                 </span>
               </button>
 
               {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 border-t border-[#E8EEF3] leading-relaxed">
+                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 border-t border-[#F0F1FA] leading-relaxed">
                   {item.answer}
                 </div>
               )}
@@ -108,16 +108,16 @@ export function FaqPage() {
 
       {/* Notice & Support Strip */}
       <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs mb-8">
-        <span className="font-bold">Placeholder FAQ Notice:</span> These frequently asked questions represent draft editorial entries for the MEDIFY front-end demo. Final subscription pricing and payment gateway FAQs will be updated when user accounts are activated.
+        <span className="font-bold">Information:</span> Subscriptions and available content are subject to the current listings on MEDIFY. Contact support for account or payment questions.
       </div>
 
-      <div className="pt-6 border-t border-[#CFDBE5] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[#DDE1F2] flex flex-col sm:flex-row items-center justify-between gap-4">
         <span className="text-xs text-slate-500">
           Still have questions not answered here?
         </span>
         <Link
           to="/contact"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors"
         >
           <span>Contact Student Support</span>
           <ArrowRight className="w-4 h-4" />

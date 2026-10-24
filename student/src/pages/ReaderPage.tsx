@@ -408,7 +408,7 @@ export function ReaderPage() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col">
         {/* Skeleton Toolbar */}
-        <div className="h-14 bg-white border-b border-[#CFDBE5] px-6 flex items-center justify-between">
+        <div className="h-14 bg-white border-b border-[#DDE1F2] px-6 flex items-center justify-between">
           <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
           <div className="h-6 w-40 bg-slate-200 rounded animate-pulse" />
           <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
@@ -448,15 +448,15 @@ export function ReaderPage() {
           </div>
 
           <div className="space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B8E8E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6366F1]">
               Package Restricted
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               Note Not in Your Package
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Your active MEDIFY package is for <strong className="text-[#0F2837]">{studentAccess?.purchasedYearName}</strong>.
-              This note ({subject.name}) belongs to <strong className="text-[#0F2837]">{year?.name || 'another academic year'}</strong>.
+              Your active MEDIFY package is for <strong className="text-[#171B35]">{studentAccess?.purchasedYearName}</strong>.
+              This note ({subject.name}) belongs to <strong className="text-[#171B35]">{year?.name || 'another academic year'}</strong>.
               Only notes for your purchased academic year are unlocked in your library.
             </p>
           </div>
@@ -464,7 +464,7 @@ export function ReaderPage() {
           <div className="pt-4 space-y-2.5">
             <Link
               to={studentAccess?.purchasedYearId ? `/year/${studentAccess.purchasedYearId}` : '/#years'}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-xs w-full"
             >
               <BookOpen className="w-4 h-4" />
               <span>Open My Notes ({studentAccess?.purchasedYearName || 'My Year'})</span>
@@ -488,7 +488,7 @@ export function ReaderPage() {
 
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#CFDBE5] shadow-lg p-8 sm:p-10 space-y-5">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[#DDE1F2] shadow-lg p-8 sm:p-10 space-y-5">
           <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-300 text-amber-700 flex items-center justify-center mx-auto">
             {isRejectedApproval ? (
               <ShieldAlert className="w-8 h-8 text-rose-600" />
@@ -500,14 +500,14 @@ export function ReaderPage() {
           </div>
 
           <div className="space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B8E8E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6366F1]">
               {isRejectedApproval
                 ? 'Approval Declined'
                 : isPendingApproval
                 ? 'Approval Pending'
                 : 'Subscriber Access Required'}
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               {isRejectedApproval
                 ? 'Account Not Approved'
                 : isPendingApproval
@@ -532,7 +532,7 @@ export function ReaderPage() {
               <>
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-xs w-full"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>Register & Choose Plan</span>
@@ -548,7 +548,7 @@ export function ReaderPage() {
             ) : (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors shadow-xs w-full"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Go to Student Dashboard</span>
@@ -572,13 +572,13 @@ export function ReaderPage() {
   if (notFound || !subject) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#CFDBE5] shadow-lg p-8 sm:p-10 space-y-5">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[#DDE1F2] shadow-lg p-8 sm:p-10 space-y-5">
           <div className="w-16 h-16 rounded-full bg-slate-100 border border-slate-300 text-slate-500 flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
               Subject not found
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed">
@@ -589,7 +589,7 @@ export function ReaderPage() {
           <div className="pt-4">
             <Link
               to="/"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#0F2837] hover:bg-[#1E293B] transition-colors shadow-xs w-full"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#171B35] hover:bg-[#1E293B] transition-colors shadow-xs w-full"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Curriculum</span>
@@ -603,7 +603,7 @@ export function ReaderPage() {
   return (
     <div
       className={`min-h-screen flex flex-col transition-colors duration-200 max-w-full overflow-x-hidden ${
-        isDarkMode ? 'dark bg-[#0B1526] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'
+        isDarkMode ? 'dark bg-[#111329] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'
       }`}
     >
       {/* 1. Reader Top Toolbar (Sticky, 360px mobile safe, zero horizontal scroll) */}
@@ -611,8 +611,8 @@ export function ReaderPage() {
         aria-label="Reader toolbar"
         className={`sticky top-16 z-30 px-2.5 sm:px-6 py-2 border-b transition-colors shadow-2xs w-full max-w-full overflow-x-hidden ${
           isDarkMode
-            ? 'bg-[#0F1E36] border-slate-700/80 text-white'
-            : 'bg-white border-[#CFDBE5] text-[#0F2837]'
+            ? 'bg-[#12152E] border-slate-700/80 text-white'
+            : 'bg-white border-[#DDE1F2] text-[#171B35]'
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3 w-full">
@@ -623,7 +623,7 @@ export function ReaderPage() {
               className={`p-1.5 rounded transition-colors text-xs font-semibold flex items-center gap-1 shrink-0 ${
                 isDarkMode
                   ? 'hover:bg-slate-800 text-slate-300'
-                  : 'hover:bg-[#E8EEF3] text-[#1B8E8E]'
+                  : 'hover:bg-[#F0F1FA] text-[#6366F1]'
               }`}
               title="Back to Curriculum"
               aria-label="Back to Curriculum"
@@ -639,11 +639,11 @@ export function ReaderPage() {
               className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors shrink-0 ${
                 isDarkMode
                   ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                  : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]'
+                  : 'bg-[#F0F1FA] hover:bg-[#DDE1F2] text-[#171B35]'
               }`}
               title={isTocOpenDesktop ? 'Collapse Table of Contents' : 'Expand Table of Contents'}
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#1B8E8E]" />
+              <BookOpen className="w-3.5 h-3.5 text-[#6366F1]" />
               <span>{isTocOpenDesktop ? 'Hide Outline' : 'Show Outline'}</span>
             </button>
 
@@ -654,12 +654,12 @@ export function ReaderPage() {
               className={`md:hidden p-1.5 rounded text-xs font-medium transition-colors shrink-0 ${
                 isDarkMode
                   ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                  : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]'
+                  : 'bg-[#F0F1FA] hover:bg-[#DDE1F2] text-[#171B35]'
               }`}
               aria-label="Open Table of Contents"
               title="Open Outline"
             >
-              <Menu className="w-4 h-4 shrink-0 text-[#1B8E8E]" />
+              <Menu className="w-4 h-4 shrink-0 text-[#6366F1]" />
             </button>
           </div>
 
@@ -741,22 +741,22 @@ export function ReaderPage() {
           <aside
             className={`hidden md:block w-72 shrink-0 border-r py-8 px-5 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto transition-colors ${
               isDarkMode
-                ? 'border-slate-800 bg-[#0B1526]/80'
-                : 'border-[#CFDBE5] bg-white/40'
+                ? 'border-slate-800 bg-[#111329]/80'
+                : 'border-[#DDE1F2] bg-white/40'
             }`}
           >
             <div className="space-y-6">
               <div>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-wider ${
-                    isDarkMode ? 'text-[#25A8A8]' : 'text-[#1B8E8E]'
+                    isDarkMode ? 'text-[#818CF8]' : 'text-[#6366F1]'
                   }`}
                 >
                   Table of Contents
                 </span>
                 <h3
                   className={`font-serif-heading text-sm font-bold mt-1 line-clamp-2 ${
-                    isDarkMode ? 'text-white' : 'text-[#0F2837]'
+                    isDarkMode ? 'text-white' : 'text-[#171B35]'
                   }`}
                 >
                   {subject.name}
@@ -789,11 +789,11 @@ export function ReaderPage() {
                         } ${
                           isActive
                             ? isDarkMode
-                              ? 'bg-[#1B8E8E]/30 text-white font-bold border-l-2 border-[#1B8E8E]'
-                              : 'bg-[#E8EEF3] text-[#0F2837] font-bold border-l-2 border-[#1B8E8E]'
+                              ? 'bg-[#6366F1]/30 text-white font-bold border-l-2 border-[#6366F1]'
+                              : 'bg-[#F0F1FA] text-[#171B35] font-bold border-l-2 border-[#6366F1]'
                             : isDarkMode
                             ? 'hover:bg-slate-800 text-slate-300 hover:text-white'
-                            : 'hover:bg-[#E8EEF3] text-slate-700 hover:text-[#0F2837]'
+                            : 'hover:bg-[#F0F1FA] text-slate-700 hover:text-[#171B35]'
                         }`}
                       >
                         <span className="text-slate-400 font-mono text-[10px] shrink-0">
@@ -831,11 +831,11 @@ export function ReaderPage() {
             />
 
             {/* Drawer Panel */}
-            <div className="relative w-72 max-w-[80vw] bg-[#0F2837] text-white p-6 h-full flex flex-col justify-between overflow-y-auto shadow-xl">
+            <div className="relative w-72 max-w-[80vw] bg-[#171B35] text-white p-6 h-full flex flex-col justify-between overflow-y-auto shadow-xl">
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
                   <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-[#1B8E8E]" />
+                    <BookOpen className="w-4 h-4 text-[#6366F1]" />
                     <span className="font-serif-heading font-bold text-sm text-white">
                       Table of Contents
                     </span>
@@ -871,11 +871,11 @@ export function ReaderPage() {
                             item.level === 3 ? 'pl-4 text-[11px]' : item.level === 4 ? 'pl-6 text-[10px]' : ''
                           } ${
                             isActive
-                              ? 'bg-[#1B8E8E] text-white font-bold'
+                              ? 'bg-[#6366F1] text-white font-bold'
                               : 'text-slate-300 hover:bg-white/10 hover:text-white'
                           }`}
                         >
-                          <span className="text-[#1B8E8E] font-mono text-[10px] shrink-0">
+                          <span className="text-[#6366F1] font-mono text-[10px] shrink-0">
                             {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
                           </span>
                           <span className="truncate">{item.text}</span>
@@ -900,7 +900,7 @@ export function ReaderPage() {
           {/* Header Metadata */}
           <header className="mb-8 pb-6 border-b border-slate-300 dark:border-slate-800">
             {/* Subject / Block breadcrumb */}
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#1B8E8E] uppercase tracking-wider">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#6366F1] uppercase tracking-wider">
               <span>{year ? year.name : 'MBBS'}</span>
               <span>·</span>
               <span>{block ? block.name : 'Modular Syllabus'}</span>
@@ -909,7 +909,7 @@ export function ReaderPage() {
             {/* Subject Title */}
             <h1
               className={`font-serif-heading text-2xl sm:text-4xl font-bold tracking-tight mb-3 break-words hyphens-auto ${
-                isDarkMode ? 'text-white' : 'text-[#0F2837]'
+                isDarkMode ? 'text-white' : 'text-[#171B35]'
               }`}
             >
               {subject.name}
@@ -953,7 +953,7 @@ export function ReaderPage() {
                 {/* Background parts loading skeleton placeholder */}
                 {loadingParts && contentMeta && loadedPartCount < contentMeta.partCount && (
                   <div className="pt-8 pb-12 space-y-4 border-t border-dashed border-slate-300 dark:border-slate-800 animate-pulse">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#1B8E8E]">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[#6366F1]">
                       <Layers className="w-4 h-4 animate-spin" />
                       <span>
                         Loading remaining sections (Part {loadedPartCount + 1} of {contentMeta.partCount})...
@@ -974,7 +974,7 @@ export function ReaderPage() {
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] rounded transition-colors"
+                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] rounded transition-colors"
                   >
                     <span>Upload Word (.docx) content in Admin</span>
                     <ChevronRight className="w-3.5 h-3.5" />

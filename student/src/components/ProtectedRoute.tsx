@@ -10,7 +10,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1B8E8E] mb-3" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#6366F1] mb-3" />
         <p className="text-xs font-medium text-slate-500">Checking authentication...</p>
       </div>
     );

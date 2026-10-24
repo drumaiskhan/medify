@@ -8,7 +8,7 @@ export function TermsPage() {
       
       {/* Top Breadcrumb & Tag */}
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-xs text-[#1B8E8E] hover:underline">
+        <Link to="/" className="text-xs text-[#6366F1] hover:underline">
           ← Home
         </Link>
         <DemoBadge subtext="Legal Document" />
@@ -28,9 +28,9 @@ export function TermsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-xl border border-[#CFDBE5] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
-        <div className="border-b border-[#E8EEF3] pb-4">
-          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837]">
+      <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
+        <div className="border-b border-[#F0F1FA] pb-4">
+          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
             Terms and Conditions
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -39,7 +39,7 @@ export function TermsPage() {
         </div>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             1. Acceptance of Terms (Draft)
           </h2>
           <p>
@@ -48,7 +48,7 @@ export function TermsPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             2. Educational Purpose & Disclaimer
           </h2>
           <p>
@@ -57,7 +57,7 @@ export function TermsPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             3. Intellectual Property & Prohibited Redistribution
           </h2>
           <p>
@@ -66,7 +66,7 @@ export function TermsPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             4. Subscription Durations & Billing
           </h2>
           <p>
@@ -75,7 +75,7 @@ export function TermsPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#0F2837]">
+          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
             5. Modifications to Curriculum Content
           </h2>
           <p>
