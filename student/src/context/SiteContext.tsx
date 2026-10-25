@@ -11,7 +11,7 @@ const defaults = {
   siteName: "MEDIFY",
   tagline: "Your space to learn medicine.",
   logoUrl: "/assets/aistudio/logo_d0f8a6a4.png",
-  accent: "#4F46E5",
+  accent: "#147273",
   announcement: "",
   booksEnabled: true,
   registrationOpen: true,

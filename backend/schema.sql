@@ -102,3 +102,8 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 CREATE INDEX IF NOT EXISTS notifications_owner ON notifications(account_id,created_at DESC);
 CREATE INDEX IF NOT EXISTS notifications_batch ON notifications(batch_id);
+
+-- AI provider settings (key stored encrypted; never returned to browsers).
+CREATE TABLE IF NOT EXISTS ai_config (
+ id integer PRIMARY KEY CHECK(id=1), data jsonb NOT NULL DEFAULT '{}'::jsonb
+);

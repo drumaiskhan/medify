@@ -72,7 +72,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#171B35] text-white border-b border-[#171B35]/60 shadow-sm w-full max-w-full overflow-x-hidden">
+    <header className="sticky top-0 z-50 bg-[#0f2837] text-white border-b border-[#0f2837]/60 shadow-sm w-full max-w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -91,7 +91,7 @@ export function Navbar() {
               <span className="font-serif-heading text-lg sm:text-xl font-bold tracking-tight text-white leading-none">
                 {site.siteName}
               </span>
-              <span className="text-[10px] text-[#DDE1F2] font-sans tracking-wider uppercase mt-0.5">
+              <span className="text-[10px] text-[#cfdbe5] font-sans tracking-wider uppercase mt-0.5">
                 KMU MBBS Notes
               </span>
             </div>
@@ -105,8 +105,8 @@ export function Navbar() {
                 to={link.path}
                 className={`transition-colors whitespace-nowrap py-1 border-b-2 ${
                   isActive(link.path)
-                    ? 'text-white border-[#6366F1] font-semibold'
-                    : 'text-[#F0F1FA]/80 border-transparent hover:text-white hover:border-[#6366F1]/60'
+                    ? 'text-white border-[#1b8e8e] font-semibold'
+                    : 'text-[#e8eef3]/80 border-transparent hover:text-white hover:border-[#1b8e8e]/60'
                 }`}
               >
                 {link.label}
@@ -119,7 +119,7 @@ export function Navbar() {
           <div className="hidden sm:flex items-center gap-3 shrink-0">
             {user ? (
               <div className="flex items-center gap-2.5">
-                <span className="text-xs font-medium text-[#F0F1FA] truncate max-w-[130px]" title={user.email || ''}>
+                <span className="text-xs font-medium text-[#e8eef3] truncate max-w-[130px]" title={user.email || ''}>
                   {firstName || 'Student'}
                 </span>
                 {isAdmin && (
@@ -139,7 +139,7 @@ export function Navbar() {
                   to="/dashboard"
                   className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors border whitespace-nowrap ${
                     location.pathname === '/dashboard'
-                      ? 'bg-[#6366F1] text-white border-[#6366F1]'
+                      ? 'bg-[#1b8e8e] text-white border-[#1b8e8e]'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
                   }`}
                 >
@@ -164,7 +164,7 @@ export function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] rounded transition-colors shadow-xs whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors shadow-xs whitespace-nowrap"
                 >
                   Register
                 </Link>
@@ -192,7 +192,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded text-white hover:bg-white/10 transition-colors focus:ring-2 focus:ring-[#6366F1] focus:outline-hidden"
+              className="p-2 rounded text-white hover:bg-white/10 transition-colors focus:ring-2 focus:ring-[#1b8e8e] focus:outline-hidden"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
             >
@@ -204,7 +204,7 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-[#171B35] px-4 pt-3 pb-6 space-y-3">
+        <div className="lg:hidden border-t border-white/10 bg-[#0f2837] px-4 pt-3 pb-6 space-y-3">
           <nav className="flex flex-col space-y-1">
             {navLinks.filter(link=>link.path!=='/books'||site.booksEnabled).map((link) => (
               <Link
@@ -213,8 +213,8 @@ export function Navbar() {
                 onClick={closeMenu}
                 className={`px-3 py-2.5 rounded text-sm font-medium transition-colors ${
                   isActive(link.path)
-                    ? 'bg-[#6366F1] text-white'
-                    : 'text-[#F0F1FA]/90 hover:bg-white/5 hover:text-white'
+                    ? 'bg-[#1b8e8e] text-white'
+                    : 'text-[#e8eef3]/90 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -225,7 +225,7 @@ export function Navbar() {
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
             {user ? (
               <>
-                <div className="px-3 py-1.5 text-xs text-[#F0F1FA]/80 flex items-center justify-between">
+                <div className="px-3 py-1.5 text-xs text-[#e8eef3]/80 flex items-center justify-between">
                   <span>Signed in as <span className="font-semibold text-white">{firstName || user.email}</span></span>
                   {isAdmin && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-900 uppercase">
@@ -246,7 +246,7 @@ export function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={closeMenu}
-                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] rounded transition-colors"
+                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors"
                 >
                   Dashboard
                 </Link>
@@ -271,7 +271,7 @@ export function Navbar() {
                 <Link
                   to="/register"
                   onClick={closeMenu}
-                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] rounded transition-colors"
+                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors"
                 >
                   Create Student Account
                 </Link>

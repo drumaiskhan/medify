@@ -61,9 +61,9 @@ function AppContent() {
   if (!loading && user && location.pathname === '/') return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#6366F1] selection:text-white w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#1b8e8e] selection:text-white w-full max-w-full overflow-x-hidden">
       <ScrollToTop />
-      {!isBookReader&&!isWorkspace&&<Navbar />}
+      {!isReaderView&&!isWorkspace&&<Navbar />}
       {!isReaderView&&!isWorkspace&&site.announcement&&<div className="library-announcement">{site.announcement}</div>}
 
       {isWorkspace ? <StudentWorkspace>

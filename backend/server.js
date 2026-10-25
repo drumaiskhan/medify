@@ -453,6 +453,7 @@ function createApp(pool, { sendMail } = {}) {
   require("./coupons").installCoupons(app, pool);
   require("./inbox").installInbox(app, pool);
   require("./registrations").installRegistrations(app,pool);
+  require("./ai").installAi(app, pool);
   app.use((req, res) => res.status(404).json({ error: "Route not found" }));
   app.use((err, req, res, next) => {
     const status = err.status || 500;

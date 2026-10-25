@@ -23,22 +23,22 @@ export function ContactPage() {
       
       {/* Top Breadcrumb & Tag */}
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-xs text-[#6366F1] hover:underline">
+        <Link to="/" className="text-xs text-[#1b8e8e] hover:underline">
           ← Home
         </Link>
         <DemoBadge subtext="Placeholder Form" />
       </div>
 
       {/* Hero Header */}
-      <div className="bg-[#171B35] text-white rounded-xl p-8 sm:p-12 mb-10 shadow-sm">
+      <div className="bg-[#0f2837] text-white rounded-xl p-8 sm:p-12 mb-10 shadow-sm">
         <div className="max-w-3xl space-y-3">
-          <span className="text-xs font-bold text-[#6366F1] uppercase tracking-wider">
+          <span className="text-xs font-bold text-[#1b8e8e] uppercase tracking-wider">
             Student Support & Inquiries
           </span>
           <h1 className="font-serif-heading text-3xl sm:text-4xl font-bold tracking-tight text-white">
             Contact {site.siteName}
           </h1>
-          <p className="text-base sm:text-lg text-[#F0F1FA]/80 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#e8eef3]/80 leading-relaxed">
             Have questions about your MBBS year package, syllabus alignment, or institutional access? Reach out to our team.
           </p>
         </div>
@@ -48,35 +48,35 @@ export function ContactPage() {
         
         {/* Contact Info Column */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 shadow-xs space-y-4">
-            <h2 className="font-serif-heading text-lg font-bold text-[#171B35]">
+          <div className="bg-white rounded-xl border border-[#cfdbe5] p-6 shadow-xs space-y-4">
+            <h2 className="font-serif-heading text-lg font-bold text-[#0f2837]">
               Direct Inquiries
             </h2>
             
             <div className="space-y-3 text-xs text-slate-600">
               <div className="flex items-start gap-3">
-                <Mail className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" />
+                <Mail className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-[#171B35] block">Email Support</span>
+                  <span className="font-semibold text-[#0f2837] block">Email Support</span>
                   <span>{site.supportEmail || 'Support email not configured'}</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-[#171B35] block">Location</span>
+                  <span className="font-semibold text-[#0f2837] block">Location</span>
                   <span>{site.contactLocation || 'Location not configured'}</span>
                 </div>
               </div>
 
-              {site.contactPhone && <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" /><a href={`tel:${site.contactPhone.replace(/[^+0-9]/g,'')}`}>{site.contactPhone}</a></div>}
-              {site.contactWhatsApp && <div className="flex items-start gap-3"><MessageSquare className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" /><a href={`https://wa.me/${site.contactWhatsApp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer">WhatsApp: {site.contactWhatsApp}</a></div>}
-              {site.contactWebsite && <div className="flex items-start gap-3"><Globe className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" /><a href={site.contactWebsite} target="_blank" rel="noopener noreferrer">Official website</a></div>}
+              {site.contactPhone && <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" /><a href={`tel:${site.contactPhone.replace(/[^+0-9]/g,'')}`}>{site.contactPhone}</a></div>}
+              {site.contactWhatsApp && <div className="flex items-start gap-3"><MessageSquare className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" /><a href={`https://wa.me/${site.contactWhatsApp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer">WhatsApp: {site.contactWhatsApp}</a></div>}
+              {site.contactWebsite && <div className="flex items-start gap-3"><Globe className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" /><a href={site.contactWebsite} target="_blank" rel="noopener noreferrer">Official website</a></div>}
               <div className="flex items-start gap-3">
-                <MessageSquare className="w-4 h-4 text-[#6366F1] shrink-0 mt-0.5" />
+                <MessageSquare className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-[#171B35] block">Founder</span>
+                  <span className="font-semibold text-[#0f2837] block">Founder</span>
                   <span>{site.founderName || 'Not specified'}</span>
                 </div>
               </div>
@@ -90,13 +90,13 @@ export function ContactPage() {
 
         {/* Contact Form Column */}
         <div className="md:col-span-2">
-          <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-8 shadow-xs">
+          <div className="bg-white rounded-xl border border-[#cfdbe5] p-6 sm:p-8 shadow-xs">
             {submitted ? (
               <div className="text-center py-10 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-[#F0F1FA] text-[#6366F1] flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[#e8eef3] text-[#1b8e8e] flex items-center justify-center mx-auto">
                   <Send className="w-6 h-6" />
                 </div>
-                <h3 className="font-serif-heading text-xl font-bold text-[#171B35]">
+                <h3 className="font-serif-heading text-xl font-bold text-[#0f2837]">
                   Thank You for Your Feedback
                 </h3>
                 <p className="text-xs text-slate-600 max-w-md mx-auto">
@@ -105,7 +105,7 @@ export function ContactPage() {
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="mt-2 text-xs font-semibold text-[#6366F1] hover:underline"
+                  className="mt-2 text-xs font-semibold text-[#1b8e8e] hover:underline"
                 >
                   Send another inquiry
                 </button>
@@ -114,47 +114,47 @@ export function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-[#171B35] mb-1">
+                    <label className="block text-xs font-semibold text-[#0f2837] mb-1">
                       Your Full Name
                     </label>
                     <input
                       type="text" name="name"
                       required
                       placeholder="e.g. Dr. Ahmed Khan"
-                      className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-slate-50/50 focus:bg-white text-slate-800"
+                      className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-slate-50/50 focus:bg-white text-slate-800"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#171B35] mb-1">
+                    <label className="block text-xs font-semibold text-[#0f2837] mb-1">
                       Email Address
                     </label>
                     <input
                       type="email" name="email"
                       required
                       placeholder="name@college.edu.pk"
-                      className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-slate-50/50 focus:bg-white text-slate-800"
+                      className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-slate-50/50 focus:bg-white text-slate-800"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-[#171B35] mb-1">
+                    <label className="block text-xs font-semibold text-[#0f2837] mb-1">
                       Medical College
                     </label>
                     <input
                       type="text"
                       name="college" placeholder="e.g. Khyber Medical College (KMC)"
-                      className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-slate-50/50 focus:bg-white text-slate-800"
+                      className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-slate-50/50 focus:bg-white text-slate-800"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#171B35] mb-1">
+                    <label className="block text-xs font-semibold text-[#0f2837] mb-1">
                       Inquiry Category
                     </label>
-                    <select name="category" className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-slate-50/50 focus:bg-white text-slate-800">
+                    <select name="category" className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-slate-50/50 focus:bg-white text-slate-800">
                       <option>General Curriculum Question</option>
                       <option>Subscription & Pricing</option>
                       <option>Block Content Feedback</option>
@@ -164,7 +164,7 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#171B35] mb-1">
+                  <label className="block text-xs font-semibold text-[#0f2837] mb-1">
                     Your Message
                   </label>
                   <textarea
@@ -172,7 +172,7 @@ export function ContactPage() {
                     name="message"
                     required
                     placeholder="Describe your inquiry, suggestion, or question regarding KMU modular notes..."
-                    className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-slate-50/50 focus:bg-white text-slate-800"
+                    className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-slate-50/50 focus:bg-white text-slate-800"
                   />
                 </div>
 
@@ -183,7 +183,7 @@ export function ContactPage() {
                   <button
                     type="submit"
                     disabled={!site.supportEmail}
-                    className="px-5 py-2.5 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
+                    className="px-5 py-2.5 rounded text-xs font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>Send Message</span>

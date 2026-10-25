@@ -87,14 +87,14 @@ export function LoginPage() {
       <div className="mb-6 flex items-center justify-between">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6366F1] hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1b8e8e] hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="bg-white rounded-xl border border-[#cfdbe5] p-6 sm:p-8 shadow-xs space-y-6">
         
         {/* Header with Official Logo */}
         <div className="text-center space-y-3">
@@ -105,7 +105,7 @@ export function LoginPage() {
               className="h-16 w-auto object-contain"
             />
           </div>
-          <h1 className="font-serif-heading text-2xl font-bold text-[#171B35]">
+          <h1 className="font-serif-heading text-2xl font-bold text-[#0f2837]">
             Log in to MEDIFY
           </h1>
           <p className="text-xs text-slate-500">
@@ -131,7 +131,7 @@ export function LoginPage() {
         {/* Form fields */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#171B35] mb-1">
+            <label className="block text-xs font-semibold text-[#0f2837] mb-1">
               Email Address
             </label>
             <input
@@ -140,20 +140,20 @@ export function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-white text-slate-800 focus:border-[#6366F1] focus:outline-hidden"
+              className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-white text-slate-800 focus:border-[#1b8e8e] focus:outline-hidden"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-[#171B35]">
+              <label className="block text-xs font-semibold text-[#0f2837]">
                 Password
               </label>
               <button
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={isResetting}
-                className="text-xs font-semibold text-[#6366F1] hover:underline focus:outline-hidden cursor-pointer"
+                className="text-xs font-semibold text-[#1b8e8e] hover:underline focus:outline-hidden cursor-pointer"
               >
                 {isResetting ? 'Sending link...' : 'Forgot password?'}
               </button>
@@ -165,7 +165,7 @@ export function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full px-3 py-2 text-xs rounded border border-[#DDE1F2] bg-white text-slate-800 focus:border-[#6366F1] focus:outline-hidden pr-9"
+                className="w-full px-3 py-2 text-xs rounded border border-[#cfdbe5] bg-white text-slate-800 focus:border-[#1b8e8e] focus:outline-hidden pr-9"
               />
               <button
                 type="button"
@@ -183,7 +183,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 rounded text-xs font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="w-full py-2.5 px-4 rounded text-xs font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
             >
               {isSubmitting ? (
                 <>
@@ -198,9 +198,9 @@ export function LoginPage() {
         </form>
 
         {/* Bottom Switch to Register */}
-        <div className="pt-4 border-t border-[#F0F1FA] text-center text-xs text-slate-600">
+        <div className="pt-4 border-t border-[#e8eef3] text-center text-xs text-slate-600">
           <span>Don't have a student account? </span>
-          <Link to="/register" className="font-semibold text-[#6366F1] hover:underline">
+          <Link to="/register" className="font-semibold text-[#1b8e8e] hover:underline">
             Register here
           </Link>
         </div>

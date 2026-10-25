@@ -7,8 +7,10 @@ import {
   ShieldCheck,
   Server,
   Save,
+  Sparkles,
 } from "lucide-react";
 import { api } from "../lib/client";
+import { AiSettingsPanel } from "./AiSettingsPanel";
 export function SettingsPage() {
   const [form, setForm] = useState<any>(null),
     [tab, setTab] = useState("general"),
@@ -72,6 +74,7 @@ export function SettingsPage() {
               { id: "reader", label: "Reader", icon: BookOpen },
               { id: "communication", label: "Communication", icon: Settings },
               { id: "payments", label: "Payments", icon: Settings },
+              { id: "ai", label: "AI", icon: Sparkles },
               { id: "system", label: "System", icon: Server },
             ].map(({ id, label, icon: Icon }) => (
               <button
@@ -279,6 +282,7 @@ export function SettingsPage() {
                 </div>;
               })}
               <h2 style={{marginTop:22}}>Payment details & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
+            {tab === "ai" && <AiSettingsPanel />}
             {tab === "system" && (
               <>
                 <h2 style={{ fontWeight: 750, marginBottom: 18 }}>

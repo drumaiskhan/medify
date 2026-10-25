@@ -8,7 +8,7 @@ export function RefundPage() {
       
       {/* Top Breadcrumb & Tag */}
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-xs text-[#6366F1] hover:underline">
+        <Link to="/" className="text-xs text-[#1b8e8e] hover:underline">
           ← Home
         </Link>
         <DemoBadge subtext="Legal Document" />
@@ -28,9 +28,9 @@ export function RefundPage() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-xl border border-[#DDE1F2] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
-        <div className="border-b border-[#F0F1FA] pb-4">
-          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#171B35]">
+      <div className="bg-white rounded-xl border border-[#cfdbe5] p-6 sm:p-10 shadow-xs space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed">
+        <div className="border-b border-[#e8eef3] pb-4">
+          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0f2837]">
             Refund & Cancellation Policy
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -39,7 +39,7 @@ export function RefundPage() {
         </div>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
+          <h2 className="font-serif-heading text-base font-bold text-[#0f2837]">
             1. Digital Educational Content Policy
           </h2>
           <p>
@@ -48,7 +48,7 @@ export function RefundPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
+          <h2 className="font-serif-heading text-base font-bold text-[#0f2837]">
             2. Grace Period & Technical Dissatisfaction (Draft)
           </h2>
           <p>
@@ -57,7 +57,7 @@ export function RefundPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
+          <h2 className="font-serif-heading text-base font-bold text-[#0f2837]">
             3. Free Sample Notes Review
           </h2>
           <p>
@@ -66,12 +66,12 @@ export function RefundPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-serif-heading text-base font-bold text-[#171B35]">
+          <h2 className="font-serif-heading text-base font-bold text-[#0f2837]">
             4. Refund Inquiries
           </h2>
           <p>
             For inquiries regarding billing adjustments, students may contact the support desk at{' '}
-            <span className="font-semibold text-[#171B35]">refunds@medify.pk</span> (sample address).
+            <span className="font-semibold text-[#0f2837]">refunds@medify.pk</span> (sample address).
           </p>
         </section>
       </div>
