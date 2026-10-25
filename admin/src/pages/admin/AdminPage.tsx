@@ -446,11 +446,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
       if(!targetSubjectId)throw new Error('Select the academic year and module before uploading a Word file.');
       const result = /\.docx$/i.test(file.name)
         ? await convertAndProcessSubjectDocx(file, targetSubjectId)
-<<<<<<< HEAD
         : await convertAndProcessAdditionalNotes(file, targetSubjectId);
-=======
-        : await convertAndProcessAdditionalNotes(file);
->>>>>>> 8befc49841f9fa01bd7bee2c88455c7c9a20b9e5
       setProcessedDocx(result);
       setConvertedSubjectId(targetSubjectId);
       addToast(
