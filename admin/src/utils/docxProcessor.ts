@@ -462,6 +462,7 @@ export function prepareHtmlForReader(html: string): string {
 }
 
 
+<<<<<<< HEAD
 /** One line of text pulled out of a PDF page, with the font height it was set in. */
 interface PdfLine { text: string; height: number; y: number }
 
@@ -858,4 +859,59 @@ export async function convertAndProcessAdditionalNotes(file: File, subjectId?: s
   return {parts, toc, totalBytes, totalSizeKb: Math.ceil(totalBytes / 1024), partCount: parts.length,
     headingCount: toc.length, imageNotice: pdfNote,
     imageCount: st.saved, imagesFailed: st.failed + st.skipped, hasNoH1: !toc.some(t => t.level === 2), sourceFormat, firstPartHtml: parts[0]?.html || ''};
+=======
+/** Import PDF text, plain text, Markdown or HTML as protected, sanitized note parts.
+ * PDF import extracts selectable text; scanned pages require OCR and visual PDF
+ * page layout is not retained. For original PDF layout, use the Books uploader.
+ */
+export async function convertAndProcessAdditionalNotes(file: File): Promise<ProcessedSubjectDocx> {
+  if (!file.size || file.size > 60 * 1024 * 1024) throw Error('File must be between 1 byte and 60 MB.');
+  const ext = file.name.toLowerCase().split('.').pop();
+  const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  let pages: string[] = [];
+  if (ext === 'pdf') {
+    const { pdfjs } = await import('../lib/pdf');
+    const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
+    try {
+      const doc = await task.promise;
+      if (doc.numPages > 300) throw Error('PDF exceeds 300 pages; split it first.');
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        const text = content.items.map(item => ('str' in item ? String(item.str) : '')).join(' ').trim();
+        if (text) pages.push(`<h2>Page ${i}</h2><p>${escapeHtml(text)}</p>`);
+        page.cleanup();
+      }
+    } finally { await task.destroy(); }
+    if (!pages.length) throw Error('No selectable PDF text found. For scanned PDFs, use OCR first, or upload the original PDF under Books.');
+  } else if (ext === 'txt' || ext === 'md') {
+    const text = await file.text();
+    if (!text.trim()) throw Error('Empty text file.');
+    pages = text.split(/\n\s*\n/).map(x => `<p>${escapeHtml(x).replace(/\n/g, '<br>')}</p>`);
+  } else if (ext === 'html' || ext === 'htm') {
+    const safe = sanitizeSubjectHtml(await file.text());
+    pages = [safe];
+  } else {
+    throw Error('Unsupported notes format. Use DOCX, PDF, TXT, MD or HTML.');
+  }
+  const parts: SubjectPartData[] = [];
+  let buffer = '';
+  for (const block of pages) {
+    // Keep markup intact. Large sanitized blocks remain whole and the existing
+    // note-part size limit is enforced by the upload service.
+    const segments = [block];
+    for (const segment of segments) {
+      if (buffer && getUtf8Bytes(buffer + segment) > 450000) {
+        parts.push({partNumber: parts.length + 1, html: sanitizeSubjectHtml(buffer), sizeBytes: getUtf8Bytes(buffer)});
+        buffer = '';
+      }
+      buffer += segment;
+    }
+  }
+  if (buffer) parts.push({partNumber: parts.length + 1, html: sanitizeSubjectHtml(buffer), sizeBytes: getUtf8Bytes(buffer)});
+  const totalBytes = parts.reduce((n, part) => n + part.sizeBytes, 0);
+  return {parts, toc: [], totalBytes, totalSizeKb: Math.ceil(totalBytes / 1024), partCount: parts.length,
+    headingCount: 0, imageNotice: ext === 'pdf' ? 'PDF text was imported. Images and scanned pages are not included.' : null,
+    imageCount: 0, imagesFailed: 0, hasNoH1: true, firstPartHtml: parts[0]?.html || ''};
+>>>>>>> 8befc49841f9fa01bd7bee2c88455c7c9a20b9e5
 }
