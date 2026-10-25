@@ -15,6 +15,7 @@ import {
   Users,
   Settings,
   CreditCard,
+  Crown,
   Ticket,
   MessageSquare,
   Bell,
@@ -30,6 +31,7 @@ import { AuthActionPage } from "./pages/AuthActionPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CouponsPage } from "./pages/CouponsPage";
+import { PlansPage } from "./pages/PlansPage";
 import { api } from "./lib/client";
 import "./studio.css";
 const BooksPage = lazy(() =>
@@ -46,6 +48,7 @@ const links = [
   { to: "/notes", title: "Subject notes", icon: FileText },
   { to: "/curriculum", title: "Curriculum", icon: Layers },
   { to: "/students", title: "Students & payments", icon: Users },
+  { to: "/plans", title: "Membership plans", icon: Crown },
   { to: "/payment-details", title: "Payment details", icon: CreditCard },
   { to: "/coupons", title: "Discount coupons", icon: Ticket },
   { to: "/feedback", title: "Feedback inbox", icon: MessageSquare },
@@ -167,6 +170,7 @@ function Workspace() {
               <Route path="/books" element={<BooksPage />} />
               <Route path="/feedback" element={<FeedbackPage admin />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/plans" element={<PlansPage />} />
               <Route path="/coupons" element={<CouponsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               {[

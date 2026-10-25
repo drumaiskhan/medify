@@ -21,6 +21,7 @@ const defaults = {
   contactPhone: "",
   contactWhatsApp: "",
   contactWebsite: "",
+  mcqAppUrl: "",
   founderName: "",
   footerDescription: "",
   footerCopyright: "",

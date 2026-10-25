@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc } from '../lib/data';
 import { sendEmailVerification } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
+import { useSite } from '../context/SiteContext';
 import { db } from '../lib/client';
 import {
   User,
@@ -79,6 +80,7 @@ interface UserProfile {
 
 export function DashboardPage() {
   const { user, isAdmin, logout, reloadUser } = useAuth();
+  const site = useSite();
   const navigate = useNavigate();
   const location = useLocation();
   const selectedPanel = location.hash === '#membership' ? 'membership' : location.hash === '#my-notes' ? 'notes' : location.hash === '#account' ? 'account' : 'overview';
@@ -288,6 +290,24 @@ export function DashboardPage() {
       </>}
       {selectedPanel === 'membership' && <>
         <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR SUBSCRIPTION</span><h2>Membership & access</h2></div></div>
+
+      {site.mcqAppUrl && (
+        <a
+          href={site.mcqAppUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-teal-50 border border-teal-200 hover:bg-teal-100/70 transition-colors no-underline"
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-[#1b8e8e] shrink-0" />
+            <div>
+              <h3 className="font-semibold text-sm text-[#0f2837]">Try our other app for MCQs</h3>
+              <p className="text-xs text-slate-600 mt-0.5">Practise high-yield questions on MedschoolProffs.</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#147273] shrink-0">Open <ArrowRight className="w-4 h-4" /></span>
+        </a>
+      )}
 
       {/* Email Verification Banner */}
       {user && user.emailVerificationRequired && !user.emailVerified && (
