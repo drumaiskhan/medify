@@ -12,12 +12,40 @@ function createApp(pool, { sendMail } = {}) {
   const app = express();
   app.disable("x-powered-by");
   app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS || 0));
-  const origins = (
-    process.env.FRONTEND_ORIGINS ||
-    "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
-  )
-    .split(",")
-    .map((s) => s.trim());
+  // Allowed browser origins. Tolerant of trailing slashes, upper-case letters and
+  // the www / non-www form of the same site, and always includes STUDENT_URL
+  // (and ADMIN_URL when set), so a small typo in FRONTEND_ORIGINS cannot silently
+  // lock the website out of its own API.
+  const normalizeOrigin = (value) => {
+    const text = String(value || "").trim();
+    try { return new URL(text).origin.toLowerCase(); }
+    catch { return text.replace(/\/+$/, "").toLowerCase(); }
+  };
+  const wwwTwin = (origin) => {
+    try {
+      const u = new URL(origin);
+      if (u.hostname === "localhost" || /^[\d.]+$/.test(u.hostname) || u.hostname.includes(":")) return [];
+      if (u.hostname.startsWith("www.")) return [`${u.protocol}//${u.host.slice(4)}`];
+      if (u.hostname.split(".").length === 2) return [`${u.protocol}//www.${u.host}`];
+    } catch {}
+    return [];
+  };
+  const origins = [
+    ...new Set(
+      [
+        ...(
+          process.env.FRONTEND_ORIGINS ||
+          "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
+        ).split(","),
+        process.env.STUDENT_URL,
+        process.env.ADMIN_URL,
+      ]
+        .filter((v) => v && String(v).trim())
+        .map(normalizeOrigin)
+        .flatMap((o) => [o, ...wwwTwin(o)]),
+    ),
+  ];
+  const warnedOrigins = new Set();
   const production = process.env.NODE_ENV === "production";
   const secure = production || process.env.COOKIE_SECURE === "true";
   const cookie = `Path=/api; HttpOnly; SameSite=Lax${secure ? "; Secure" : ""}`;
@@ -30,8 +58,13 @@ function createApp(pool, { sendMail } = {}) {
       "Cache-Control": "no-store",
     });
     const origin = req.headers.origin;
-    if (origin && !origins.includes(origin))
+    if (origin && !origins.includes(normalizeOrigin(origin))) {
+      if (!warnedOrigins.has(origin)) {
+        warnedOrigins.add(origin);
+        console.warn(`[Medify] Blocked a request from ${origin}: add it to FRONTEND_ORIGINS (allowed: ${origins.join(", ")})`);
+      }
       return res.status(403).json({ error: "Origin not allowed" });
+    }
     if (origin) {
       res.set("Access-Control-Allow-Origin", origin);
       res.vary("Origin");
@@ -154,6 +187,11 @@ function createApp(pool, { sendMail } = {}) {
       fail(503, "Email could not be delivered. Contact the administrator.");
     }
   }
+  // Friendly answer for the bare API address, so opening it in a browser shows
+  // the service is running instead of "Route not found". No database access.
+  app.get(["/", "/api"], (req, res) =>
+    res.json({ service: "MEDIFY API", status: "running", health: "/api/health" }),
+  );
   app.get(
     "/api/health",
     asyncRoute(async (req, res) => {

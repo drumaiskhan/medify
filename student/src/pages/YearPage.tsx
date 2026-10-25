@@ -301,7 +301,7 @@ export function YearPage() {
                       Order #{block.order}
                     </span>
                     <span className="text-[11px] text-slate-500 bg-[#e8eef3] px-2 py-0.5 rounded font-medium">
-                      {block.subjects.length} {block.subjects.length === 1 ? 'Note' : 'Notes'}
+                      {block.subjects.length} {block.subjects.length === 1 ? 'Subject' : 'Subjects'}
                     </span>
                   </div>
 

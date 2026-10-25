@@ -14,6 +14,8 @@
     "build": "npm run build --prefix student && npm run build --prefix admin",
     "test": "npm test --prefix backend",
     "storage:check": "npm run storage:check --prefix backend",
-    "admin:reset": "npm run admin --prefix backend"
+    "admin:reset": "npm run admin --prefix backend",
+    "check:live": "node scripts/check-live.cjs",
+    "check:cert": "node scripts/check-cert-files.cjs"
   }
 }

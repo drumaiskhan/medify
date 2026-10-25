@@ -209,6 +209,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
   const [selectedBlockId, setSelectedBlockId] = useState<string>('');
   const [newBlockName, setNewBlockName] = useState<string>('');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
+  const [newSubjectName, setNewSubjectName] = useState<string>('');
 
   // Subject flags
   const [subjectPublished, setSubjectPublished] = useState<boolean>(true);
@@ -345,12 +346,13 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     return subjects.filter((s) => s.blockId === selectedBlockId);
   }, [subjects, selectedBlockId]);
 
-  // Each module holds one set of notes. It is picked automatically: the module's existing note,
-  // or a new one (named like the module) created on the first save.
+  // A module holds several subjects, each with its own notes. Opening a module selects its first
+  // subject; a module without subjects (or the Add subject button) switches to "new subject" mode.
   useEffect(() => {
+    if (!selectedBlockId) return;
     if (selectedBlockId === '__new__' || availableSubjects.length === 0) {
       setSelectedSubjectId('__new__');
-    } else if (!availableSubjects.some((s) => s.id === selectedSubjectId)) {
+    } else if (selectedSubjectId !== '__new__' && !availableSubjects.some((s) => s.id === selectedSubjectId)) {
       setSelectedSubjectId(availableSubjects[0].id);
     }
   }, [availableSubjects, selectedBlockId, selectedSubjectId]);
@@ -360,6 +362,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     setProcessedDocx(null);
     setConversionError(null);
     setFileName('');
+    setNewSubjectName('');
   }, [selectedBlockId]);
 
   // Active selected subject document (if existing)
@@ -367,6 +370,9 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
     if (selectedSubjectId === '__new__' || !selectedSubjectId) return null;
     return subjects.find((s) => s.id === selectedSubjectId) || null;
   }, [subjects, selectedSubjectId]);
+
+  // Upload controls appear once a subject is chosen, or a new subject has been named
+  const subjectReady = Boolean(currentSubject) || (selectedSubjectId === '__new__' && newSubjectName.trim().length > 0);
 
   // Sync flags when existing subject selected
   useEffect(() => {
@@ -441,9 +447,10 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
 
     try {
       const targetBlockId=currentBlock?.id || (selectedYearId && newBlockName.trim() ? `${selectedYearId}-${slugify(newBlockName.trim())}` : '');
-      const targetName=(currentBlock?.name || newBlockName).trim();
+      const targetName=newSubjectName.trim();
       const targetSubjectId=currentSubject?.id || (targetBlockId && targetName ? `${targetBlockId}-${slugify(targetName)}` : '');
-      if(!targetSubjectId)throw new Error('Select the academic year and module before uploading a Word file.');
+      if(!targetSubjectId)throw new Error('Select the year and module, then pick a subject (or name a new one) before uploading.');
+      if(!currentSubject && availableSubjects.some((x)=>x.id===targetSubjectId))throw new Error('A subject with this name already exists in this module. Select it above instead.');
       const result = /\.docx$/i.test(file.name)
         ? await convertAndProcessSubjectDocx(file, targetSubjectId)
         : await convertAndProcessAdditionalNotes(file, targetSubjectId);
@@ -523,16 +530,20 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
       addToast('error', 'Please enter a name for the new module.');
       return;
     }
-    const noteTitle = (isNewBlock ? newBlockName : currentBlock?.name || '').trim();
+    const noteTitle = newSubjectName.trim();
     if (isNewSubject && !noteTitle) {
-      addToast('error', 'Open a module first.');
+      addToast('error', 'Enter a name for the new subject.');
       return;
     }
 
     const finalBlockId = isNewBlock ? `${selectedYearId}-${slugify(newBlockName.trim())}` : selectedBlockId;
     const finalSubjectId = isNewSubject ? `${finalBlockId}-${slugify(noteTitle)}` : selectedSubjectId;
+    if (isNewSubject && availableSubjects.some((x) => x.id === finalSubjectId)) {
+      addToast('error', 'A subject with this name already exists in this module. Select it above instead.');
+      return;
+    }
     if (convertedSubjectId !== finalSubjectId) {
-      addToast('error', 'The destination changed. Please upload the notes file again for this module.');
+      addToast('error', 'The destination changed. Please upload the notes file again for this subject.');
       return;
     }
     setIsSavingSubject(true);
@@ -554,13 +565,14 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
 
       addToast(
         'success',
-        `Note saved to the module! "${res.subjectId}" (${processedDocx.totalSizeKb} KB in ${res.partCount} part${
+        `Notes saved to the subject! "${res.subjectId}" (${processedDocx.totalSizeKb} KB in ${res.partCount} part${
           res.partCount > 1 ? 's' : ''
         }).`
       );
 
       // Reset new input fields if they were used
       if (isNewBlock) setNewBlockName('');
+      setNewSubjectName('');
 
       // Refresh curriculum data from database
       await loadCurriculum();
@@ -1168,7 +1180,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                   <span>Section 2: Upload Notes</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Pick the year, click a module, then upload its Word (.docx) notes in the section that opens below. Students who bought that year see them in the module straight away, and you see them in your own student account.
+                  Pick the year, click a module, then pick (or add) a subject and upload that subject's notes in the section that opens below. Students who bought that year see each subject inside its module straight away, and you see them in your own student account.
                 </p>
               </div>
 
@@ -1177,12 +1189,12 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                 {!showUploadPanel ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-medium border border-slate-200">
                     <Info className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Click a module to upload its notes</span>
+                    <span>Click a module, then pick a subject</span>
                   </span>
                 ) : selectedSubjectId === '__new__' ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Nothing uploaded for this module yet</span>
+                    <span>New subject: nothing uploaded yet</span>
                   </span>
                 ) : loadingContent ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
@@ -1204,7 +1216,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-medium border border-slate-200">
                     <Info className="w-3.5 h-3.5 text-slate-400" />
-                    <span>No notes uploaded yet for this module</span>
+                    <span>No notes uploaded yet for this subject</span>
                   </span>
                 )}
               </div>
@@ -1282,10 +1294,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                           </span>
                           <span className="block text-[11px] text-slate-500 mt-1.5">
                             {moduleSubjects.length === 0
-                              ? 'No notes uploaded yet'
-                              : publishedCount > 0
-                                ? '✓ Notes uploaded · Published'
-                                : '✓ Notes uploaded · Draft (hidden)'}
+                              ? 'No subjects yet'
+                              : `${moduleSubjects.length} ${moduleSubjects.length === 1 ? 'subject' : 'subjects'} · ${publishedCount} published`}
                           </span>
                         </button>
                       );
@@ -1385,21 +1395,79 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                 </div>
               )}
 
-              {/* Only for older modules that already hold several notes */}
-              {availableSubjects.length > 1 && (
-                <div className="p-3 rounded-lg border border-amber-200 bg-amber-50/60 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center gap-2">
-                  <span className="font-semibold">This module has {availableSubjects.length} older notes. Editing:</span>
-                  <select
-                    value={selectedSubjectId}
-                    onChange={(e) => setSelectedSubjectId(e.target.value)}
-                    className="px-2 py-1.5 rounded-md border border-amber-300 bg-white text-xs font-semibold"
+              {/* STEP 3: Subjects of this module */}
+              <div>
+                <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  3. Subject ({currentBlock ? currentBlock.name : newBlockName.trim()})
+                </span>
+                <div className="flex flex-wrap gap-2" role="tablist" aria-label="Subjects in this module">
+                  {availableSubjects.map((sub) => {
+                    const active = sub.id === selectedSubjectId;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => {
+                          setSelectedSubjectId(sub.id);
+                          setNewSubjectName('');
+                          setProcessedDocx(null);
+                          setConversionError(null);
+                          setFileName('');
+                        }}
+                        className={`px-3.5 py-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                          active
+                            ? 'bg-[#0F2837] border-[#0F2837] text-white shadow-xs'
+                            : 'bg-white border-slate-300 text-slate-700 hover:border-[#1B8E8E] hover:bg-teal-50/40'
+                        }`}
+                      >
+                        <span className="block text-sm font-bold">{sub.name}</span>
+                        <span className={`block text-[11px] ${active ? 'text-teal-100' : 'text-slate-500'}`}>
+                          {sub.published ? 'Published' : 'Draft (hidden)'}{sub.isFreeSample ? ' · Free sample' : ''}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedSubjectId('__new__');
+                      setProcessedDocx(null);
+                      setConversionError(null);
+                      setFileName('');
+                    }}
+                    aria-pressed={selectedSubjectId === '__new__'}
+                    className={`px-3.5 py-2 rounded-lg border-2 border-dashed text-left transition-colors cursor-pointer flex items-center gap-2 ${
+                      selectedSubjectId === '__new__'
+                        ? 'border-amber-400 bg-amber-50/60'
+                        : 'border-slate-300 bg-white hover:border-amber-400 hover:bg-amber-50/40'
+                    }`}
                   >
-                    {availableSubjects.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                    <Plus className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-semibold text-slate-700">Add subject</span>
+                  </button>
                 </div>
-              )}
+
+                {selectedSubjectId === '__new__' && (
+                  <div className="mt-3 max-w-md">
+                    <input
+                      type="text"
+                      placeholder="Subject name (e.g. Anatomy, Physiology, Biochemistry)..."
+                      value={newSubjectName}
+                      onChange={(e) => { setNewSubjectName(e.target.value); setProcessedDocx(null); }}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-amber-300 bg-amber-50/40 focus:ring-2 focus:ring-amber-400 outline-hidden"
+                    />
+                    {newSubjectName.trim() ? (
+                      <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
+                        ID: {(currentBlock ? currentBlock.id : `${selectedYearId}-${slugify(newBlockName)}`)}-{slugify(newSubjectName)}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-500 block mt-1">The upload controls appear once you type a name.</span>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {currentSubject && (
                 <div className="flex flex-wrap items-center gap-3 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
@@ -1409,6 +1477,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                 </div>
               )}
 
+              {subjectReady && (
+              <>
               {/* Subject Flags (Published & Free Sample) */}
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white cursor-pointer hover:bg-slate-50 transition-colors">
@@ -1586,7 +1656,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                 <div className="text-xs text-slate-500">
                   {processedDocx ? (
                     <span>
-                      Ready to save {processedDocx.partCount} part{processedDocx.partCount > 1 ? 's' : ''} into this module.
+                      Ready to save {processedDocx.partCount} part{processedDocx.partCount > 1 ? 's' : ''} into {currentSubject ? currentSubject.name : newSubjectName.trim()}.
                     </span>
                   ) : (
                     <span>Select a Word file to preview and save.</span>
@@ -1671,6 +1741,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
                     />
                   </div>
                 </div>
+              )}
+              </>
               )}
               </div>
               )}

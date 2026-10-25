@@ -49,3 +49,11 @@ npm run admin:reset
 ```
 
 This revokes this account's existing sessions. Credentials are embedded only in backend setup code; database passwords remain hashed. Change the administrator password before making the site public. Database connection settings are still required.
+
+## "Failed to fetch" or "Failed to Load Curriculum" on localhost
+
+When opened from `localhost` or `127.0.0.1`, the student and admin apps call `/api` on their own address, and the Vite dev server forwards it to the backend on port 3002 (set `MEDIFY_API_TARGET` to change that). On your real domains, `public/config.js` still points to the live API. If you see the error locally:
+
+1. The **backend must be running** as well as the website. Starting only the student site (for example with "run app in browser") is not enough. Run `npm run dev` from the project folder and keep it open; it starts the API, student and admin together.
+2. Open http://localhost:3002/api/health. It should respond. If it does not, the backend is not running or `backend/.env` is missing: run `npm run setup`, then `npm run db:init`, then `npm run dev`. Read the backend lines in the terminal for the real error (for example a database problem).
+3. After updating files, stop `npm run dev`, start it again, and hard-refresh the page (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows).

@@ -12,12 +12,13 @@
 
 1. **Year:** click the year tab (2nd, 3rd or 4th Year MBBS).
 2. **Module:** click the module card, e.g. *Renal Module*. The upload section opens directly below it. (**Add a module** creates a new one; type its name and the section opens.)
-3. Choose the `.docx`. Each picture is shrunk to at most 1400 px, converted to WebP and stored privately.
-4. Check the preview. Fix anything in Word and upload again if needed.
-5. **Save Notes.** *Published* is on by default, so the notes appear at once in the module for students who bought that year, and in your own admin student account (Dashboard → All Notes Library). Untick *Published* to keep them hidden from students; they still show in your admin library marked *Draft*.
-6. Optionally tick *Free Sample* so students without a subscription can read these notes.
+3. **Subject:** each module can hold several subjects (e.g. Anatomy, Physiology, Biochemistry). Click an existing subject, or **Add subject** and type its name. The upload controls appear once a subject is chosen.
+4. Choose the `.docx` for that subject. Each picture is shrunk to at most 1400 px, converted to WebP and stored privately.
+5. Check the preview. Fix anything in Word and upload again if needed.
+6. **Save Notes.** *Published* is on by default, so the notes appear at once under that subject in the module for students who bought that year, and in your own admin student account (Dashboard → All Notes Library). Untick *Published* to keep that subject hidden from students; it still shows in your admin library marked *Draft*.
+7. Optionally tick *Free Sample* so students without a subscription can read that subject's notes.
 
-Each module holds one set of notes. Uploading again into the same module replaces its text.
+Each subject holds one set of notes. Uploading again into the same subject replaces its text. Repeat steps 3 to 7 for the module's other subjects. Existing modules that already have one note keep working: that note shows up as a subject with the module's name.
 
 Modules in the starter curriculum:
 
