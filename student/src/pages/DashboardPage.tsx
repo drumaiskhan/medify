@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc } from '../lib/data';
 import { sendEmailVerification } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
+import { useSite } from '../context/SiteContext';
 import { db } from '../lib/client';
 import {
   User,
@@ -20,7 +21,9 @@ import {
   Clock,
   Layers,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  FileText
 } from 'lucide-react';
 import {
   PaymentRequestDoc,
@@ -77,7 +80,10 @@ interface UserProfile {
 
 export function DashboardPage() {
   const { user, isAdmin, logout, reloadUser } = useAuth();
+  const site = useSite();
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectedPanel = location.hash === '#membership' ? 'membership' : location.hash === '#my-notes' ? 'notes' : location.hash === '#account' ? 'account' : 'overview';
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -253,41 +259,55 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8">
-      <Link to="/books" className="library-resume" style={{margin:'24px 0'}}><div><div className="library-kicker">YOUR PERSONAL LIBRARY</div><h2>Pick up your next chapter</h2><p style={{fontSize:12}}>Books, bookmarks, and your saved reading progress.</p></div><span className="library-btn primary">Open library →</span></Link>
-
-      
-      {/* Top Welcome Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#CFDBE5]">
+    <div className="sw-dashboard min-h-screen w-full space-y-7 pb-12">
+      {selectedPanel === 'overview' && <>
+      <section className="sw-dashboard-intro">
         <div>
-          <span className="text-xs font-bold text-[#1B8E8E] uppercase tracking-wider">
-            Student Portal
-          </span>
-          <h1 className="font-serif-heading text-2xl sm:text-3xl font-bold text-[#0F2837] mt-1">
-            Welcome, {profile?.fullName || user?.displayName || 'Student'}
-          </h1>
+          <div className="sw-eyebrow"><span className="sw-eyebrow-dot" /> YOUR PERSONAL WORKSPACE</div>
+          <h1>Good to see you, <span>{(profile?.fullName || user?.displayName || 'Student').split(' ')[0]}</span></h1>
+          <p>Everything you need to stay focused and make progress, all in one place.</p>
         </div>
+      </section>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsPaymentModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-2xs cursor-pointer"
-          >
-            <CreditCard className="w-3.5 h-3.5" />
-            <span>Subscribe / Pay</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-[#CFDBE5] hover:bg-slate-50 hover:text-red-600 transition-colors shadow-2xs cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Log out</span>
-          </button>
+      <section className="sw-dashboard-highlight" aria-label="My learning library">
+        <div className="sw-highlight-content">
+          <div className="sw-highlight-kicker"><Sparkles size={15}/> YOUR LEARNING HUB</div>
+          <h2>Your next chapter starts here.</h2>
+          <p>Jump back into your books, explore curated notes, and keep your learning moving forward.</p>
+          <Link to="/books" className="sw-highlight-button">Explore your library <ArrowRight size={17}/></Link>
         </div>
-      </div>
+        <div className="sw-highlight-art" aria-hidden="true"><div className="sw-art-orbit"><BookOpen size={67} strokeWidth={1.25} /></div><span className="sw-art-star sw-art-star-one">✦</span><span className="sw-art-star sw-art-star-two">✧</span></div>
+      </section>
+
+      <section className="sw-dashboard-quicklinks" aria-label="Quick access">
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">QUICK ACCESS</span><h2>Your essentials</h2></div><span>Pick up where you left off</span></div>
+        <div className="sw-quicklink-grid">
+          <Link to="/books" className="sw-quick-card"><span className="sw-quick-icon sw-quick-purple"><BookOpen size={23}/></span><span className="sw-quick-title">My Library</span><span className="sw-quick-copy">Books, bookmarks and your reading progress.</span><span className="sw-quick-go">Open library <ArrowRight size={15}/></span></Link>
+          <Link to="/dashboard#my-notes" className="sw-quick-card"><span className="sw-quick-icon sw-quick-blue"><FileText size={23}/></span><span className="sw-quick-title">My Notes</span><span className="sw-quick-copy">Explore the modules for your academic year.</span><span className="sw-quick-go">Browse notes <ArrowRight size={15}/></span></Link>
+          <Link to="/visualizer" className="sw-quick-card"><span className="sw-quick-icon sw-quick-pink"><Sparkles size={23}/></span><span className="sw-quick-title">Study Visualizer</span><span className="sw-quick-copy">Turn complex topics into connected concepts.</span><span className="sw-quick-go">Start visualizing <ArrowRight size={15}/></span></Link>
+        </div>
+      </section>
+      </>}
+      {selectedPanel === 'membership' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR SUBSCRIPTION</span><h2>Membership & access</h2></div></div>
+
+      {site.mcqAppUrl && (
+        <a
+          href={site.mcqAppUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-teal-50 border border-teal-200 hover:bg-teal-100/70 transition-colors no-underline"
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-[#1b8e8e] shrink-0" />
+            <div>
+              <h3 className="font-semibold text-sm text-[#0f2837]">Try our other app for MCQs</h3>
+              <p className="text-xs text-slate-600 mt-0.5">Practise high-yield questions on MedschoolProffs.</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#147273] shrink-0">Open <ArrowRight className="w-4 h-4" /></span>
+        </a>
+      )}
 
       {/* Email Verification Banner */}
       {user && user.emailVerificationRequired && !user.emailVerified && (
@@ -324,7 +344,7 @@ export function DashboardPage() {
                 type="button"
                 onClick={handleRefreshVerification}
                 disabled={isRefreshing}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-[#1B8E8E] hover:bg-[#147273] text-white disabled:opacity-50 transition-colors cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-[#1b8e8e] hover:bg-[#147273] text-white disabled:opacity-50 transition-colors cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
                 <span>I've verified – refresh</span>
@@ -348,6 +368,7 @@ export function DashboardPage() {
         </div>
       )}
 
+      <div id="membership" className="scroll-mt-28" />
       {/* =========================================================
           ACCOUNT APPROVAL & ACCESS STATUS CARD
           ========================================================= */}
@@ -367,13 +388,13 @@ export function DashboardPage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">Subscription expired</span>
-                  <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-2">Your access has ended</h2>
+                  <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-2">Your access has ended</h2>
                   <p className="text-xs text-slate-600 mt-0.5 leading-relaxed max-w-xl">
                     {access?.years?.[0]?.yearName ? `Your ${access.years[0].yearName} plan ended` : 'Your plan ended'}
                     {access?.expiresAt ? ` on ${new Date(access.expiresAt * 1000).toLocaleDateString()}` : ''}. Renew to open your notes again. Highlights you saved are kept.
                   </p>
                 </div>
-                <button type="button" onClick={() => setIsPaymentModalOpen(true)} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0 cursor-pointer">
+                <button type="button" onClick={() => setIsPaymentModalOpen(true)} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0 cursor-pointer">
                   <RefreshCw className="w-4 h-4" />
                   <span>Renew subscription</span>
                 </button>
@@ -399,7 +420,7 @@ export function DashboardPage() {
                         Active Subscriber
                       </span>
                     </div>
-                    <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">
+                    <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">
                       Full Curriculum Access Granted
                     </h2>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed max-w-xl">
@@ -418,7 +439,7 @@ export function DashboardPage() {
 
                 <Link
                   to={libraryYear ? `/year/${libraryYear.id}` : "/#years"}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>Open {libraryYear?.name || 'Curriculum'} Notes</span>
@@ -442,7 +463,7 @@ export function DashboardPage() {
                         Approval Declined
                       </span>
                     </div>
-                    <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">
+                    <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">
                       Registration / Payment Not Approved
                     </h2>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed max-w-xl">
@@ -483,7 +504,7 @@ export function DashboardPage() {
                         Payment Under Review
                       </span>
                     </div>
-                    <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">
+                    <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">
                       Payment Verification In Progress
                     </h2>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed max-w-xl">
@@ -531,10 +552,10 @@ export function DashboardPage() {
 
         // Default: Registration Received, Unpaid
         return (
-          <div className="p-6 rounded-2xl bg-teal-50/40 border border-[#1B8E8E]/30 shadow-xs space-y-4">
+          <div className="p-6 rounded-2xl bg-teal-50/40 border border-[#1b8e8e]/30 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#1B8E8E]/10 border border-[#1B8E8E]/20 text-[#1B8E8E] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#1b8e8e]/10 border border-[#1b8e8e]/20 text-[#1b8e8e] flex items-center justify-center shrink-0 mt-0.5">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
@@ -546,7 +567,7 @@ export function DashboardPage() {
                       Admin Approval Required
                     </span>
                   </div>
-                  <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">
+                  <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">
                     Submit Payment for Admin Activation
                   </h2>
                   <p className="text-xs text-slate-600 mt-0.5 leading-relaxed max-w-xl">
@@ -563,7 +584,7 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setIsPaymentModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full sm:w-auto shrink-0 cursor-pointer"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Submit Payment Now</span>
@@ -576,13 +597,16 @@ export function DashboardPage() {
       {/* =========================================================
           ADMIN VIEW: all uploaded notes, by year and module
           ========================================================= */}
+      </>}
+      {selectedPanel === 'notes' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR LEARNING</span><h2>My notes library</h2></div></div>
       {isAdmin && (
-        <div className="bg-white rounded-xl border border-[#1B8E8E]/40 p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="border-b border-[#E8EEF3] pb-4">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1B8E8E]/10 text-[#147273] border border-[#1B8E8E]/30 uppercase tracking-wider">
+        <div id="my-notes" className="bg-white rounded-xl border border-[#1b8e8e]/40 p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="border-b border-[#e8eef3] pb-4">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1b8e8e]/10 text-[#147273] border border-[#1b8e8e]/30 uppercase tracking-wider">
               Administrator view
             </span>
-            <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">All Notes Library</h2>
+            <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">All Notes Library</h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Every module and the notes uploaded into it. Subscribed students see the published ones inside their year.
             </p>
@@ -590,7 +614,7 @@ export function DashboardPage() {
 
           {loadingAdminLibrary ? (
             <div className="py-8 flex flex-col items-center justify-center text-slate-400">
-              <Loader2 className="w-5 h-5 animate-spin text-[#1B8E8E] mb-2" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#1b8e8e] mb-2" />
               <p className="text-xs">Loading all modules...</p>
             </div>
           ) : (
@@ -607,10 +631,10 @@ export function DashboardPage() {
                     {yearBlocks.map((b) => {
                       const notes = adminSubjects.filter((s) => s.blockId === b.id).sort((a, c) => a.order - c.order);
                       return (
-                        <div key={b.id} className="p-4 rounded-xl border border-[#CFDBE5] bg-[#F8FAFC] flex flex-col justify-between gap-3">
+                        <div key={b.id} className="p-4 rounded-xl border border-[#cfdbe5] bg-[#F8FAFC] flex flex-col justify-between gap-3">
                           <div className="space-y-2">
                             <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-serif-heading text-sm font-bold text-[#0F2837]">{b.name}</h4>
+                              <h4 className="font-serif-heading text-sm font-bold text-[#0f2837]">{b.name}</h4>
                               {!b.published && <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">Hidden</span>}
                             </div>
                             {notes.length === 0 ? (
@@ -619,7 +643,7 @@ export function DashboardPage() {
                               <ul className="space-y-1">
                                 {notes.map((n) => (
                                   <li key={n.id}>
-                                    <Link to={`/read/subject/${n.id}`} className="text-xs font-semibold text-[#1B8E8E] hover:text-[#147273] inline-flex items-center gap-1.5">
+                                    <Link to={`/read/subject/${n.id}`} className="text-xs font-semibold text-[#1b8e8e] hover:text-[#147273] inline-flex items-center gap-1.5">
                                       <BookOpen className="w-3.5 h-3.5" />
                                       <span>Read {notes.length > 1 ? n.name : 'notes'}</span>
                                       {!n.published && <span className="text-[10px] px-1 rounded bg-amber-100 text-amber-800 font-semibold">Draft</span>}
@@ -629,7 +653,7 @@ export function DashboardPage() {
                               </ul>
                             )}
                           </div>
-                          <Link to={`/block/${b.id}`} className="pt-2 border-t border-[#E8EEF3] flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-[#1B8E8E]">
+                          <Link to={`/block/${b.id}`} className="pt-2 border-t border-[#e8eef3] flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-[#1b8e8e]">
                             <span>Open as a student sees it</span>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </Link>
@@ -654,8 +678,8 @@ export function DashboardPage() {
         if (!isApproved) return null;
 
         return (
-          <div className="bg-white rounded-xl border border-[#CFDBE5] p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8EEF3] pb-4">
+          <div id="my-notes" className="bg-white rounded-xl border border-[#cfdbe5] p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#e8eef3] pb-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wider">
@@ -665,7 +689,7 @@ export function DashboardPage() {
                     {libraryYear ? libraryYear.name : profile?.academicYear || 'MBBS'}
                   </span>
                 </div>
-                <h2 className="font-serif-heading text-lg font-bold text-[#0F2837] mt-1">
+                <h2 className="font-serif-heading text-lg font-bold text-[#0f2837] mt-1">
                   My Notes Library — {libraryYear?.name || profile?.academicYear || 'MBBS Year'}
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -676,7 +700,7 @@ export function DashboardPage() {
               {libraryYear && (
                 <Link
                   to={`/year/${libraryYear.id}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#1B8E8E] bg-[#1B8E8E]/10 hover:bg-[#1B8E8E]/20 transition-colors w-fit"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#1b8e8e] bg-[#1b8e8e]/10 hover:bg-[#1b8e8e]/20 transition-colors w-fit"
                 >
                   <span>View All Year Modules</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -686,7 +710,7 @@ export function DashboardPage() {
 
             {loadingLibrary ? (
               <div className="py-8 flex flex-col items-center justify-center text-slate-400">
-                <Loader2 className="w-5 h-5 animate-spin text-[#1B8E8E] mb-2" />
+                <Loader2 className="w-5 h-5 animate-spin text-[#1b8e8e] mb-2" />
                 <p className="text-xs">Loading modules from your library...</p>
               </div>
             ) : libraryBlocks.length === 0 ? (
@@ -703,18 +727,18 @@ export function DashboardPage() {
                   <Link
                     key={block.id}
                     to={`/block/${block.id}`}
-                    className="group p-4 rounded-xl border border-[#CFDBE5] hover:border-[#1B8E8E] hover:shadow-xs bg-[#F8FAFC] transition-all flex flex-col justify-between"
+                    className="group p-4 rounded-xl border border-[#cfdbe5] hover:border-[#1b8e8e] hover:shadow-xs bg-[#F8FAFC] transition-all flex flex-col justify-between"
                   >
                     <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-[#1B8E8E] uppercase tracking-wider block">
+                      <span className="text-[10px] font-bold text-[#1b8e8e] uppercase tracking-wider block">
                         Order #{block.order}
                       </span>
-                      <h3 className="font-serif-heading text-sm font-bold text-[#0F2837] group-hover:text-[#1B8E8E] transition-colors">
+                      <h3 className="font-serif-heading text-sm font-bold text-[#0f2837] group-hover:text-[#1b8e8e] transition-colors">
                         {block.name}
                       </h3>
                     </div>
 
-                    <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#1B8E8E]">
+                    <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#1b8e8e]">
                       <span>Open Block Notes</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -726,10 +750,15 @@ export function DashboardPage() {
         );
       })()}
 
+      {!isAdmin && !loadingProfile && !(profile?.approvalStatus === 'APPROVED' || paymentRequests.some((r) => r.status === 'VERIFIED')) && <div className="rounded-xl bg-white border border-teal-100 p-5 text-sm text-slate-600">Your subscribed-year notes will appear here after your membership is approved.</div>}
+      </>}
+      {selectedPanel === 'account' && <>
+        <div className="sw-section-heading"><div><span className="sw-eyebrow">YOUR PROFILE</span><h2>Account details</h2></div></div>
+      <div id="account" className="scroll-mt-28" />
       {/* Profile Details Card */}
-      <div className="bg-white rounded-xl border border-[#CFDBE5] p-6 sm:p-8 shadow-xs">
-        <div className="border-b border-[#E8EEF3] pb-4 mb-6">
-          <h2 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+      <div className="bg-white rounded-xl border border-[#cfdbe5] p-6 sm:p-8 shadow-xs">
+        <div className="border-b border-[#e8eef3] pb-4 mb-6">
+          <h2 className="font-serif-heading text-lg font-bold text-[#0f2837]">
             Student Account Profile
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -739,7 +768,7 @@ export function DashboardPage() {
 
         {loadingProfile ? (
           <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-            <Loader2 className="w-6 h-6 animate-spin text-[#1B8E8E] mb-2" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#1b8e8e] mb-2" />
             <p className="text-xs">Loading profile from database...</p>
           </div>
         ) : profileError ? (
@@ -750,75 +779,75 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             
             {/* Full Name */}
-            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#CFDBE5]/60">
-              <div className="w-8 h-8 rounded bg-[#E8EEF3] text-[#0F2837] flex items-center justify-center shrink-0 mt-0.5">
-                <User className="w-4 h-4 text-[#1B8E8E]" />
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#cfdbe5]/60">
+              <div className="w-8 h-8 rounded bg-[#e8eef3] text-[#0f2837] flex items-center justify-center shrink-0 mt-0.5">
+                <User className="w-4 h-4 text-[#1b8e8e]" />
               </div>
               <div className="min-w-0">
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Full Name
                 </span>
-                <span className="text-sm font-bold text-[#0F2837] truncate block">
+                <span className="text-sm font-bold text-[#0f2837] truncate block">
                   {profile?.fullName || 'Not recorded'}
                 </span>
               </div>
             </div>
 
             {/* Email Address */}
-            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#CFDBE5]/60">
-              <div className="w-8 h-8 rounded bg-[#E8EEF3] text-[#0F2837] flex items-center justify-center shrink-0 mt-0.5">
-                <Mail className="w-4 h-4 text-[#1B8E8E]" />
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#cfdbe5]/60">
+              <div className="w-8 h-8 rounded bg-[#e8eef3] text-[#0f2837] flex items-center justify-center shrink-0 mt-0.5">
+                <Mail className="w-4 h-4 text-[#1b8e8e]" />
               </div>
               <div className="min-w-0">
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Email Address
                 </span>
-                <span className="text-sm font-bold text-[#0F2837] truncate block">
+                <span className="text-sm font-bold text-[#0f2837] truncate block">
                   {profile?.email || user?.email || 'Not recorded'}
                 </span>
               </div>
             </div>
 
             {/* Medical College */}
-            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#CFDBE5]/60">
-              <div className="w-8 h-8 rounded bg-[#E8EEF3] text-[#0F2837] flex items-center justify-center shrink-0 mt-0.5">
-                <GraduationCap className="w-4 h-4 text-[#1B8E8E]" />
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#cfdbe5]/60">
+              <div className="w-8 h-8 rounded bg-[#e8eef3] text-[#0f2837] flex items-center justify-center shrink-0 mt-0.5">
+                <GraduationCap className="w-4 h-4 text-[#1b8e8e]" />
               </div>
               <div className="min-w-0">
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Medical College
                 </span>
-                <span className="text-sm font-bold text-[#0F2837] truncate block">
+                <span className="text-sm font-bold text-[#0f2837] truncate block">
                   {profile?.college || 'Not specified'}
                 </span>
               </div>
             </div>
 
             {/* Academic Year */}
-            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#CFDBE5]/60">
-              <div className="w-8 h-8 rounded bg-[#E8EEF3] text-[#0F2837] flex items-center justify-center shrink-0 mt-0.5">
-                <Calendar className="w-4 h-4 text-[#1B8E8E]" />
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#cfdbe5]/60">
+              <div className="w-8 h-8 rounded bg-[#e8eef3] text-[#0f2837] flex items-center justify-center shrink-0 mt-0.5">
+                <Calendar className="w-4 h-4 text-[#1b8e8e]" />
               </div>
               <div className="min-w-0">
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Academic Year
                 </span>
-                <span className="text-sm font-bold text-[#0F2837] truncate block">
+                <span className="text-sm font-bold text-[#0f2837] truncate block">
                   {profile?.academicYear || 'Not specified'}
                 </span>
               </div>
             </div>
 
             {/* Curriculum */}
-            <div className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#CFDBE5]/60">
-              <div className="w-8 h-8 rounded bg-[#E8EEF3] text-[#0F2837] flex items-center justify-center shrink-0 mt-0.5">
-                <BookOpen className="w-4 h-4 text-[#1B8E8E]" />
+            <div className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#cfdbe5]/60">
+              <div className="w-8 h-8 rounded bg-[#e8eef3] text-[#0f2837] flex items-center justify-center shrink-0 mt-0.5">
+                <BookOpen className="w-4 h-4 text-[#1b8e8e]" />
               </div>
               <div className="min-w-0">
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Curriculum Board
                 </span>
-                <span className="text-sm font-bold text-[#0F2837] truncate block">
+                <span className="text-sm font-bold text-[#0f2837] truncate block">
                   {profile?.curriculum || 'KMU'}
                 </span>
               </div>
@@ -828,18 +857,7 @@ export function DashboardPage() {
         )}
       </div>
 
-      {/* Navigation Footer */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#CFDBE5]">
-        <Link
-          to="/#years"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#1B8E8E] hover:underline"
-        >
-          ← Browse MBBS Curriculum Blocks
-        </Link>
-        <span className="text-xs text-slate-400">
-          User ID: <span className="font-mono text-[11px]">{user?.uid}</span>
-        </span>
-      </div>
+      </>}
 
       {/* Payment Checkout Modal */}
       <PaymentModal

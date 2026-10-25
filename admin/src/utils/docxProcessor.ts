@@ -30,6 +30,8 @@ export interface ProcessedSubjectDocx {
   imageCount: number;
   imagesFailed: number;
   hasNoH1: boolean;
+  /** Set by the non-Word importer so the UI can word its notices for that format. */
+  sourceFormat?: 'docx' | 'pdf' | 'txt' | 'md' | 'html';
   firstPartHtml: string;
 }
 
@@ -457,4 +459,403 @@ export function prepareHtmlForReader(html: string): string {
   } catch {
     return clean;
   }
+}
+
+
+/** One line of text pulled out of a PDF page, with the font height it was set in. */
+interface PdfLine { text: string; height: number; y: number }
+
+/**
+ * Rebuild readable lines from pdf.js text items. Items on (almost) the same
+ * baseline are joined; the tallest font on the line is kept so headings can be
+ * recognised by size later.
+ */
+function pdfLinesFromItems(items: any[]): PdfLine[] {
+  const lines: PdfLine[] = [];
+  let cur: PdfLine | null = null;
+  for (const item of items) {
+    if (!('str' in item)) continue;
+    const str = String(item.str);
+    const y = Number(item.transform?.[5] ?? 0);
+    const height = Math.abs(Number(item.transform?.[3] ?? item.height ?? 0)) || Number(item.height) || 0;
+    if (cur && Math.abs(cur.y - y) > Math.max(2, cur.height * 0.4)) { lines.push(cur); cur = null; }
+    if (!cur) cur = { text: '', height: 0, y };
+    if (str.trim()) cur.text += (cur.text && !/\s$/.test(cur.text) && !/^\s/.test(str) ? ' ' : '') + str;
+    cur.height = Math.max(cur.height, height);
+    if (item.hasEOL) { lines.push(cur); cur = null; }
+  }
+  if (cur) lines.push(cur);
+  return lines.map(l => ({ ...l, text: l.text.replace(/\s+/g, ' ').trim() })).filter(l => l.text);
+}
+
+/** Running totals for pictures imported from PDF, Markdown and HTML notes. */
+interface ImageImportState {
+  subjectId?: string; seen: number; saved: number; failed: number; skipped: number;
+  reasons: Set<string>; cache: Map<string, string>;
+}
+
+/** Turn an <img src> (data: URI or web link) into base64 bytes the shared image pipeline understands. */
+async function readImageSource(src: string): Promise<{ base64: string; contentType: string }> {
+  const data = src.match(/^data:(image\/[a-z0-9.+-]+)((?:;[a-z0-9=_.+-]+)*?)(;base64)?,([\s\S]*)$/i);
+  if (data) {
+    const contentType = data[1].toLowerCase();
+    if (data[3]) return { base64: data[4].replace(/\s+/g, ''), contentType };
+    const text = decodeURIComponent(data[4]);
+    return { base64: await blobToBase64(new Blob([text], { type: contentType })), contentType };
+  }
+  if (/^https?:\/\//i.test(src)) {
+    let res: Response;
+    try {
+      res = await fetch(src, { credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(20000) });
+    } catch {
+      throw new Error('a linked picture could not be downloaded (its website blocks it) — embed the picture inside the file instead');
+    }
+    if (!res.ok) throw new Error(`a linked picture could not be downloaded (HTTP ${res.status})`);
+    const blob = await res.blob();
+    if (blob.size > 20 * 1024 * 1024) throw new Error('a linked picture is larger than 20 MB');
+    return { base64: await blobToBase64(blob), contentType: blob.type || 'image/png' };
+  }
+  throw new Error('a picture points to a separate file on your computer — embed it in the file, or use DOCX or PDF');
+}
+
+/**
+ * Upload every picture found in an HTML string through the same pipeline as Word
+ * images (resize, compress, store privately) and rewrite src to the stored copy.
+ * Pictures that cannot be imported are removed and counted. Must run on the RAW
+ * html: the sanitizer deletes any image that is not already a stored note image.
+ * The html is only parsed (never rendered), so nothing in it can execute.
+ */
+async function embedHtmlImages(html: string, st: ImageImportState): Promise<string> {
+  if (!/<img[\s>]/i.test(html)) return html;
+  const dom = new DOMParser().parseFromString(html, 'text/html');
+  for (const img of Array.from(dom.body.querySelectorAll('img'))) {
+    const src = (img.getAttribute('src') || '').trim();
+    if (!src) { img.remove(); continue; }
+    if (NOTE_IMAGE_SRC.test(src)) continue; // already one of ours
+    if (!st.subjectId) { st.skipped++; img.remove(); continue; }
+    const hit = st.cache.get(src);
+    if (hit) { img.setAttribute('src', hit); img.removeAttribute('srcset'); continue; }
+    if (++st.seen > MAX_IMAGES_PER_UPLOAD) { st.failed++; st.reasons.add(`more than ${MAX_IMAGES_PER_UPLOAD} images`); img.remove(); continue; }
+    try {
+      const { base64, contentType } = await readImageSource(src);
+      const prepared = await prepareImage(base64, contentType);
+      const url = await uploadNoteImage(st.subjectId, prepared.blob);
+      st.cache.set(src, url); st.saved++;
+      img.setAttribute('src', url);
+      img.removeAttribute('srcset'); img.removeAttribute('sizes');
+      if (prepared.width) img.setAttribute('width', String(prepared.width)); else img.removeAttribute('width');
+      if (prepared.height) img.setAttribute('height', String(prepared.height)); else img.removeAttribute('height');
+    } catch (err: any) {
+      st.failed++; st.reasons.add(err?.message || 'unknown error'); img.remove();
+    }
+  }
+  return dom.body.innerHTML;
+}
+
+/** An image found on a PDF page, cropped from the rendered page and ready to upload. */
+interface PdfImage { y: number; blob: Blob; width?: number; height?: number; key: string; src?: string }
+interface PdfPageData { lines: PdfLine[]; images: PdfImage[] }
+
+const mulMatrix = (m: number[], t: number[]) => [
+  m[0] * t[0] + m[2] * t[1], m[1] * t[0] + m[3] * t[1],
+  m[0] * t[2] + m[2] * t[3], m[1] * t[2] + m[3] * t[3],
+  m[0] * t[4] + m[2] * t[5] + m[4], m[1] * t[4] + m[3] * t[5] + m[5],
+];
+
+const blobToBase64 = (blob: Blob) => new Promise<string>((resolve, reject) => {
+  const r = new FileReader();
+  r.onload = () => resolve(String(r.result).split(',')[1] || '');
+  r.onerror = () => reject(new Error('Could not read the image data'));
+  r.readAsDataURL(blob);
+});
+
+/** Tiny fingerprint so a logo repeated on every page can be recognised and skipped. */
+function thumbKey(c: HTMLCanvasElement): string {
+  const t = document.createElement('canvas'); t.width = 8; t.height = 8;
+  const x = t.getContext('2d');
+  if (!x) return Math.random().toString(36);
+  x.drawImage(c, 0, 0, 8, 8);
+  const d = x.getImageData(0, 0, 8, 8).data;
+  let k = '';
+  for (let i = 0; i < d.length; i += 4) k += Math.min(15, Math.round((d[i] + d[i + 1] + d[i + 2]) / 3 / 16)).toString(16);
+  return k + ':' + Math.round((c.width / Math.max(1, c.height)) * 5);
+}
+
+/**
+ * Find the pictures placed on a PDF page and cut each one out of a rendered copy
+ * of the page. Cropping the render (rather than decoding raw image streams)
+ * keeps masks, colour spaces, rotation and overlaid labels exactly as shown.
+ */
+async function extractPdfPageImages(
+  pdfjs: any, page: any, textChars: number, limit: number, fail: (reason: string) => void
+): Promise<PdfImage[]> {
+  if (limit <= 0) return [];
+  const OPS = pdfjs.OPS;
+  const base = page.getViewport({ scale: 1 });
+  const pageArea = base.width * base.height;
+  const ops = await page.getOperatorList();
+  let ctm = [1, 0, 0, 1, 0, 0];
+  const stack: number[][] = [];
+  const boxes: { x0: number; y0: number; x1: number; y1: number; top: number }[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < ops.fnArray.length; i++) {
+    const fn = ops.fnArray[i];
+    const args = ops.argsArray[i];
+    if (fn === OPS.save) stack.push(ctm);
+    else if (fn === OPS.restore) { if (stack.length) ctm = stack.pop()!; }
+    else if (fn === OPS.transform) ctm = mulMatrix(ctm, args as number[]);
+    else if (fn === OPS.paintFormXObjectBegin) { stack.push(ctm); if (Array.isArray(args?.[0])) ctm = mulMatrix(ctm, args[0]); }
+    else if (fn === OPS.paintFormXObjectEnd) { if (stack.length) ctm = stack.pop()!; }
+    else if (fn === OPS.paintImageXObject || fn === OPS.paintInlineImageXObject) {
+      const corners = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([u, v]) => [
+        ctm[0] * u + ctm[2] * v + ctm[4], ctm[1] * u + ctm[3] * v + ctm[5],
+      ]);
+      const vp = corners.map(([x, y]) => base.convertToViewportPoint(x, y) as number[]);
+      const x0 = Math.max(0, Math.min(...vp.map(p => p[0])));
+      const y0 = Math.max(0, Math.min(...vp.map(p => p[1])));
+      const x1 = Math.min(base.width, Math.max(...vp.map(p => p[0])));
+      const y1 = Math.min(base.height, Math.max(...vp.map(p => p[1])));
+      const w = x1 - x0, h = y1 - y0;
+      if (w < 40 || h < 40 || w * h < 4000) continue;                 // icons, bullets, rules
+      if (Math.max(w / h, h / w) > 12) continue;                      // thin decorative strips
+      if (w * h > pageArea * 0.85 && textChars >= 30) continue;       // page background / watermark
+      const id = [x0, y0, x1, y1].map(n => Math.round(n)).join(',');
+      if (seen.has(id)) continue;
+      seen.add(id);
+      boxes.push({ x0, y0, x1, y1, top: Math.max(...corners.map(c => c[1])) });
+    }
+  }
+  if (!boxes.length) return [];
+  let scale = Math.min(2.5, Math.max(1.25, 1800 / base.width));
+  while (base.width * scale * base.height * scale > 20_000_000 && scale > 0.5) scale *= 0.85;
+  const viewport = page.getViewport({ scale });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) { fail('Canvas unavailable'); return []; }
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const out: PdfImage[] = [];
+  try {
+    await page.render({ canvas, viewport }).promise;
+    for (const b of boxes.slice(0, limit)) {
+      const sx = Math.floor(b.x0 * scale), sy = Math.floor(b.y0 * scale);
+      const sw = Math.min(canvas.width - sx, Math.ceil((b.x1 - b.x0) * scale));
+      const sh = Math.min(canvas.height - sy, Math.ceil((b.y1 - b.y0) * scale));
+      if (sw < 8 || sh < 8) continue;
+      const crop = document.createElement('canvas'); crop.width = sw; crop.height = sh;
+      try {
+        const cctx = crop.getContext('2d');
+        if (!cctx) throw new Error('Canvas unavailable');
+        cctx.fillStyle = '#ffffff'; cctx.fillRect(0, 0, sw, sh);
+        cctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+        const blob: Blob | null = await new Promise(r => crop.toBlob(r, 'image/png'));
+        if (!blob) throw new Error('Could not encode a PDF image');
+        const prepared = await prepareImage(await blobToBase64(blob), 'image/png');
+        out.push({ y: b.top, blob: prepared.blob, width: prepared.width, height: prepared.height, key: thumbKey(crop) });
+      } catch (err: any) {
+        fail(err?.message || 'unknown error');
+      } finally { crop.width = 0; crop.height = 0; }
+    }
+  } catch (err: any) {
+    fail(err?.message || 'could not render a PDF page');
+  } finally { canvas.width = 0; canvas.height = 0; }
+  return out;
+}
+
+/** Import PDF text, plain text, Markdown or HTML as protected, sanitized note parts.
+ * PDF import extracts selectable text and detects headings from font size;
+ * scanned pages require OCR and visual PDF page layout is not retained.
+ * For original PDF layout, use the Books uploader.
+ */
+export async function convertAndProcessAdditionalNotes(file: File, subjectId?: string): Promise<ProcessedSubjectDocx> {
+  if (!file.size || file.size > 60 * 1024 * 1024) throw Error('File must be between 1 byte and 60 MB.');
+  const ext = (file.name.toLowerCase().split('.').pop() || '') as string;
+  const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  let pages: string[] = [];
+  let sourceFormat: ProcessedSubjectDocx['sourceFormat'] = 'html';
+  let pdfHeadingsFound = false;
+  const st: ImageImportState = { subjectId, seen: 0, saved: 0, failed: 0, skipped: 0, reasons: new Set(), cache: new Map() };
+  if (ext === 'pdf') {
+    sourceFormat = 'pdf';
+    const { pdfjs, pdfOptions } = await import('../lib/pdf');
+    const task = pdfjs.getDocument({ ...pdfOptions, data: new Uint8Array(await file.arrayBuffer()) });
+    try {
+      const doc = await task.promise;
+      if (doc.numPages > 300) throw Error('PDF exceeds 300 pages; split it first.');
+      const pageData: PdfPageData[] = [];
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        const lines = pdfLinesFromItems(content.items as any[]);
+        let images: PdfImage[] = [];
+        if (subjectId) {
+          const textChars = lines.reduce((n, l) => n + l.text.length, 0);
+          images = await extractPdfPageImages(pdfjs, page, textChars, MAX_IMAGES_PER_UPLOAD - st.seen, (r) => { st.failed++; st.reasons.add(r); });
+          st.seen += images.length;
+          if (st.seen >= MAX_IMAGES_PER_UPLOAD) st.reasons.add(`more than ${MAX_IMAGES_PER_UPLOAD} images`);
+        }
+        pageData.push({ lines, images });
+        page.cleanup();
+      }
+
+      // A picture that shows up on 3+ pages (logo, header banner) is decoration — drop it.
+      if (doc.numPages >= 3) {
+        const pagesByKey = new Map<string, Set<number>>();
+        pageData.forEach((p, pi) => p.images.forEach(im => {
+          if (!pagesByKey.has(im.key)) pagesByKey.set(im.key, new Set());
+          pagesByKey.get(im.key)!.add(pi);
+        }));
+        pageData.forEach(p => { p.images = p.images.filter(im => (pagesByKey.get(im.key)?.size || 0) < 3); });
+      }
+      // Upload the kept pictures one at a time, exactly like Word images.
+      for (const p of pageData) for (const im of p.images) {
+        try { im.src = await uploadNoteImage(subjectId!, im.blob); st.saved++; }
+        catch (err: any) { st.failed++; st.reasons.add(err?.message || 'unknown error'); }
+      }
+
+      // Body text size = the font height carrying the most characters.
+      const weight = new Map<number, number>();
+      for (const { lines } of pageData) for (const l of lines) {
+        const h = Math.round(l.height * 2) / 2;
+        weight.set(h, (weight.get(h) || 0) + l.text.length);
+      }
+      let body = 0, best = -1;
+      weight.forEach((w, h) => { if (w > best && h > 0) { best = w; body = h; } });
+      const levelFor = (l: PdfLine): 2 | 3 | 4 | null => {
+        if (!body || l.text.length > 120 || l.text.length < 2) return null;
+        if (/^\d+$/.test(l.text) || /^page \d+( of \d+)?$/i.test(l.text)) return null; // page numbers
+        const r = l.height / body;
+        if (r >= 1.6) return 2;
+        if (r >= 1.35) return 3;
+        if (r >= 1.18) return 4;
+        return null;
+      };
+
+      const built: { no: number; html: string }[] = [];
+      pageData.forEach(({ lines, images }, idx) => {
+        // Text lines and pictures in top-to-bottom reading order.
+        type Item = { y: number; line?: PdfLine; img?: PdfImage };
+        const items: Item[] = [
+          ...lines.map(l => ({ y: l.y, line: l } as Item)),
+          ...images.filter(im => im.src).map(im => ({ y: im.y, img: im } as Item)),
+        ].sort((p, q) => q.y - p.y);
+        if (!items.length) return;
+        let html = '';
+        let para: string[] = [];
+        let prev: PdfLine | null = null;
+        const flush = () => { if (para.length) html += `<p>${escapeHtml(para.join(' '))}</p>`; para = []; };
+        for (const it of items) {
+          if (it.img) {
+            flush();
+            const im = it.img;
+            html += `<img src="${escapeHtml(im.src!)}" alt=""${im.width ? ` width="${im.width}"` : ''}${im.height ? ` height="${im.height}"` : ''}>`;
+            prev = null;
+            continue;
+          }
+          const l = it.line!;
+          const level = levelFor(l);
+          if (level) {
+            flush();
+            // Merge a heading that wraps over two lines of the same size.
+            const last = html.match(/<h([234])>([^<]*)<\/h\1>$/);
+            if (last && prev && Math.abs(prev.height - l.height) < 0.5 && Number(last[1]) === level && prev.y - l.y < l.height * 1.6) {
+              html = html.slice(0, last.index) + `<h${level}>${last[2]} ${escapeHtml(l.text)}</h${level}>`;
+            } else {
+              html += `<h${level}>${escapeHtml(l.text)}</h${level}>`;
+              pdfHeadingsFound = true;
+            }
+          } else {
+            if (prev && prev.y - l.y > Math.max(prev.height, l.height) * 1.9) flush(); // blank-line gap = new paragraph
+            para.push(l.text);
+          }
+          prev = l;
+        }
+        flush();
+        if (html) built.push({ no: idx + 1, html });
+      });
+      // No real headings in the file: fall back to one section per page so the
+      // notes still get a table of contents and clean part boundaries.
+      pages = built.map(b => pdfHeadingsFound ? b.html : `<h2>Page ${b.no}</h2>${b.html}`);
+    } finally { await task.destroy(); }
+    if (!pages.length) throw Error('No selectable PDF text or images found. For scanned PDFs, use OCR first, or upload the original PDF under Books.');
+  } else if (ext === 'txt' || ext === 'md') {
+    sourceFormat = ext === 'md' ? 'md' : 'txt';
+    const text = await file.text();
+    if (!text.trim()) throw Error('Empty text file.');
+    // Markdown pictures: ![alt](src "title") and raw <img src="..."> tags.
+    const mdInline = (x: string) => {
+      const re = /!\[([^\]]*)\]\(\s*<?([^)\s>]+)>?(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)|<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
+      let out = '', last = 0, m: RegExpExecArray | null;
+      while ((m = re.exec(x))) {
+        out += escapeHtml(x.slice(last, m.index)).replace(/\n/g, '<br>');
+        const src = m[2] ?? m[3];
+        const alt = m[1] ?? (m[0].match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? '');
+        out += `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}">`;
+        last = m.index + m[0].length;
+      }
+      return out + escapeHtml(x.slice(last)).replace(/\n/g, '<br>');
+    };
+    pages = text.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).map(x => {
+      // Markdown headings: # → h2, ## → h3, ### and deeper → h4
+      const m = ext === 'md' ? x.match(/^(#{1,6})\s+(.+)$/) : null;
+      if (m && !m[2].includes('\n')) { const lvl = m[1].length === 1 ? 2 : m[1].length === 2 ? 3 : 4; return `<h${lvl}>${escapeHtml(m[2].trim())}</h${lvl}>`; }
+      return `<p>${ext === 'md' ? mdInline(x) : escapeHtml(x).replace(/\n/g, '<br>')}</p>`;
+    });
+    if (ext === 'md') for (let i = 0; i < pages.length; i++) pages[i] = await embedHtmlImages(pages[i], st);
+  } else if (ext === 'html' || ext === 'htm') {
+    sourceFormat = 'html';
+    const withImages = await embedHtmlImages(await file.text(), st);
+    pages = [sanitizeSubjectHtml(withImages)];
+  } else {
+    throw Error('Unsupported notes format. Use DOCX, PDF, TXT, MD or HTML.');
+  }
+
+  // Give every heading a stable id and remember it for the table of contents.
+  let headingCounter = 0;
+  const blockHeadings: TocItem[][] = pages.map((block, bi) => {
+    const dom = new DOMParser().parseFromString(block, 'text/html');
+    const found: TocItem[] = [];
+    dom.body.querySelectorAll('h2, h3, h4').forEach((hEl) => {
+      headingCounter++;
+      const text = hEl.textContent?.trim() || `Section ${headingCounter}`;
+      const id = `s-${headingCounter}-${slugify(text) || `section-${headingCounter}`}`;
+      hEl.setAttribute('id', id);
+      found.push({ id, level: Number(hEl.tagName[1]) as 2 | 3 | 4, text, part: 0 });
+    });
+    if (found.length) pages[bi] = dom.body.innerHTML;
+    return found;
+  });
+
+  const parts: SubjectPartData[] = [];
+  const toc: TocItem[] = [];
+  let buffer = '';
+  pages.forEach((block, bi) => {
+    // Keep markup intact. Large sanitized blocks remain whole and the existing
+    // note-part size limit is enforced by the upload service.
+    if (buffer && getUtf8Bytes(buffer + block) > 450000) {
+      parts.push({partNumber: parts.length + 1, html: sanitizeSubjectHtml(buffer), sizeBytes: getUtf8Bytes(buffer)});
+      buffer = '';
+    }
+    buffer += block;
+    for (const h of blockHeadings[bi]) toc.push({ ...h, part: parts.length + 1 });
+  });
+  if (buffer) parts.push({partNumber: parts.length + 1, html: sanitizeSubjectHtml(buffer), sizeBytes: getUtf8Bytes(buffer)});
+  const totalBytes = parts.reduce((n, part) => n + part.sizeBytes, 0);
+  const pdfNoteParts: string[] = [];
+  if (sourceFormat === 'pdf') {
+    pdfNoteParts.push('PDF text was imported.');
+    if (!subjectId) pdfNoteParts.push('Images were NOT imported because no subject is selected. Select the subject, then upload again.');
+    else if (st.saved === 0 && st.failed === 0) pdfNoteParts.push('No embedded images were found.');
+    if (st.failed > 0) pdfNoteParts.push(`${st.failed} image${st.failed > 1 ? 's' : ''} could not be saved (${Array.from(st.reasons).join('; ')}).`);
+    else if (st.reasons.size) pdfNoteParts.push(`Some images were skipped (${Array.from(st.reasons).join('; ')}).`);
+    if (!pdfHeadingsFound) pdfNoteParts.push('No headings were detected in the PDF, so sections are split by page.');
+  }
+  if (sourceFormat === 'md' || sourceFormat === 'html') {
+    if (st.skipped > 0) pdfNoteParts.push(`${st.skipped} image${st.skipped > 1 ? 's were' : ' was'} NOT imported because no subject is selected. Select the subject, then upload again.`);
+    if (st.failed > 0) pdfNoteParts.push(`${st.failed} image${st.failed > 1 ? 's' : ''} could not be imported (${Array.from(st.reasons).join('; ')}).`);
+  }
+  const pdfNote = pdfNoteParts.length ? pdfNoteParts.join(' ') : null;
+  return {parts, toc, totalBytes, totalSizeKb: Math.ceil(totalBytes / 1024), partCount: parts.length,
+    headingCount: toc.length, imageNotice: pdfNote,
+    imageCount: st.saved, imagesFailed: st.failed + st.skipped, hasNoH1: !toc.some(t => t.level === 2), sourceFormat, firstPartHtml: parts[0]?.html || ''};
 }

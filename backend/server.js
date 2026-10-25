@@ -173,7 +173,7 @@ function createApp(pool, { sendMail } = {}) {
   );
   const proofs=require('./payment-proof').proofTools();
   require('./payment-proof').installProofRoutes(app,pool,proofs,tx);
-  app.get('/api/registration/options',asyncRoute(async(req,res)=>res.json({planPrices:require('./coupons').planPrices()})));
+  app.get('/api/registration/options',asyncRoute(async(req,res)=>res.json({planPrices:await require('./coupons').planPrices(pool)})));
   app.post('/api/registration/quote',asyncRoute(async(req,res)=>{
     await throttle('signup-coupon:'+req.ip,20);
     const r=await require('./coupons').evaluate(pool,{code:req.body.code,planId:req.body.planId,yearId:req.body.yearId,userId:'signup-preview'});
@@ -428,11 +428,32 @@ function createApp(pool, { sendMail } = {}) {
       res.json({ ok: true });
     }),
   );
+  require("./admin-content").installAdminContent(app, pool);
+  app.get("/api/deployed-commit", (req, res) => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    try {
+      const commit = fs.readFileSync(path.join(__dirname, "deployed-commit.txt"), "utf8").trim();
+      if (!/^[0-9a-f]{40}$/.test(commit)) return res.status(503).json({ error: "Deployment stamp invalid" });
+      res.json({ commit });
+    } catch (_) {
+      res.status(503).json({ error: "Deployment stamp unavailable" });
+    }
+  });
+  console.log("[MEDIFY] Admin content deletion routes installed");
+  app.get("/api/deployment-check", (req, res) => {
+    res.json({
+      app: "medify",
+      adminContentRoutes: true,
+      deployment: "admin-delete-fix-20261024"
+    });
+  });
   require("./library").installLibrary(app, pool);
   require("./notes").installNotes(app, pool);
   require("./coupons").installCoupons(app, pool);
   require("./inbox").installInbox(app, pool);
   require("./registrations").installRegistrations(app,pool);
+  require("./ai").installAi(app, pool);
   app.use((req, res) => res.status(404).json({ error: "Route not found" }));
   app.use((err, req, res, next) => {
     const status = err.status || 500;

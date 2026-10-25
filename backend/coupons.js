@@ -3,19 +3,27 @@ const crypto = require("node:crypto");
 const { fail } = require("./security");
 const DEFAULT_PRICES = { quarterly: 1000, "half-yearly": 2000, annual: 3500 };
 // Optional override, e.g. PLAN_PRICES="quarterly=1200,half-yearly=2200,annual=4000"
-function planPrices() {
+async function planPrices(db) {
   const prices = { ...DEFAULT_PRICES };
   for (const part of String(process.env.PLAN_PRICES || "").split(",")) {
-    const [k, v] = part.split("=").map((s) => s.trim());
+    const [k, v] = part.split("=").map((x) => x.trim());
     if (Object.hasOwn(prices, k) && Number(v) > 0) prices[k] = Math.round(Number(v));
+  }
+  // Admin Settings is the persistent, authoritative source when set.
+  if (db) {
+    const cfg = (await db.query('SELECT data FROM site_settings WHERE id=1')).rows[0]?.data || {};
+    for (const k of Object.keys(prices)) {
+      const value = Number(cfg.planPrices?.[k]);
+      if (Number.isInteger(value) && value >= 0 && value <= 1000000) prices[k] = value;
+    }
   }
   return prices;
 }
-const priceFor = (planId) => {
-  const p = planPrices();
+async function priceFor(db, planId) {
+  const p = await planPrices(db);
   if (!Object.hasOwn(p, planId)) fail(400, "Select a valid plan");
   return p[planId];
-};
+}
 const normalize = (c) => String(c ?? "").trim().toUpperCase();
 const CODE = /^[A-Z0-9_-]{3,40}$/;
 const num = (v) => Number(v);
@@ -41,7 +49,7 @@ function discountFor(coupon, listPrice) {
 }
 // Checks a code for one student/plan/year. Does not consume a use.
 async function evaluate(db, { code, planId, yearId, userId }) {
-  const listPrice = priceFor(planId);
+  const listPrice = await priceFor(db, planId);
   const c = normalize(code);
   if (!c) fail(400, "Enter a coupon code");
   const coupon = (await db.query("SELECT * FROM coupons WHERE code=$1", [c])).rows[0];
@@ -124,7 +132,7 @@ function installCoupons(app, pool) {
     wrap(async (req, res) => {
       admin(req);
       const rows = (await pool.query("SELECT * FROM coupons ORDER BY created_at DESC")).rows;
-      res.json({ coupons: rows.map(publicCoupon), planPrices: planPrices() });
+      res.json({ coupons: rows.map(publicCoupon), planPrices: await planPrices(pool) });
     }),
   );
   app.post(
@@ -143,7 +151,7 @@ function installCoupons(app, pool) {
         fail(400, "Maximum uses must be a whole number above 0");
       const expiresAt = b.expiresAt ? new Date(b.expiresAt) : null;
       if (expiresAt && Number.isNaN(expiresAt.getTime())) fail(400, "Invalid expiry date");
-      const prices = planPrices();
+      const prices = await planPrices(pool);
       const planIds = (Array.isArray(b.planIds) ? b.planIds : []).filter((p) => Object.hasOwn(prices, p));
       const yearIds = (Array.isArray(b.yearIds) ? b.yearIds : []).map(String).slice(0, 20);
       const note = String(b.note || "").slice(0, 200);

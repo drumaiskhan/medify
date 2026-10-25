@@ -43,7 +43,7 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Home', path: '/' },
-    ...(user ? [{label:'Feedback',path:'/feedback'}] : []),
+    ...(user ? [{label:'Feedback',path:'/feedback'},{label:'Visualizer',path:'/visualizer'}] : []),
     { label: 'Books', path: '/books' },
     { label: 'Years', path: '/#years' },
     { label: 'Plans', path: '/#plans' },
@@ -72,7 +72,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0F2837] text-white border-b border-[#0F2837]/60 shadow-sm w-full max-w-full overflow-x-hidden">
+    <header className="sticky top-0 z-50 bg-[#0f2837] text-white border-b border-[#0f2837]/60 shadow-sm w-full max-w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
@@ -83,15 +83,15 @@ export function Navbar() {
             className="flex items-center gap-2.5 text-white hover:opacity-90 transition-opacity shrink-0 py-1"
           >
             <img
-              src="/assets/aistudio/logo_d0f8a6a4.png"
-              alt="MEDIFY — Smart Notes for Med Students"
+              src={site.logoUrl}
+              alt={`${site.siteName} — ${site.tagline}`}
               className="h-9 sm:h-10 w-auto object-contain"
             />
             <div className="flex flex-col">
               <span className="font-serif-heading text-lg sm:text-xl font-bold tracking-tight text-white leading-none">
                 {site.siteName}
               </span>
-              <span className="text-[10px] text-[#CFDBE5] font-sans tracking-wider uppercase mt-0.5">
+              <span className="text-[10px] text-[#cfdbe5] font-sans tracking-wider uppercase mt-0.5">
                 KMU MBBS Notes
               </span>
             </div>
@@ -105,8 +105,8 @@ export function Navbar() {
                 to={link.path}
                 className={`transition-colors whitespace-nowrap py-1 border-b-2 ${
                   isActive(link.path)
-                    ? 'text-white border-[#1B8E8E] font-semibold'
-                    : 'text-[#E8EEF3]/80 border-transparent hover:text-white hover:border-[#1B8E8E]/60'
+                    ? 'text-white border-[#1b8e8e] font-semibold'
+                    : 'text-[#e8eef3]/80 border-transparent hover:text-white hover:border-[#1b8e8e]/60'
                 }`}
               >
                 {link.label}
@@ -119,7 +119,7 @@ export function Navbar() {
           <div className="hidden sm:flex items-center gap-3 shrink-0">
             {user ? (
               <div className="flex items-center gap-2.5">
-                <span className="text-xs font-medium text-[#E8EEF3] truncate max-w-[130px]" title={user.email || ''}>
+                <span className="text-xs font-medium text-[#e8eef3] truncate max-w-[130px]" title={user.email || ''}>
                   {firstName || 'Student'}
                 </span>
                 {isAdmin && (
@@ -139,7 +139,7 @@ export function Navbar() {
                   to="/dashboard"
                   className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors border whitespace-nowrap ${
                     location.pathname === '/dashboard'
-                      ? 'bg-[#1B8E8E] text-white border-[#1B8E8E]'
+                      ? 'bg-[#1b8e8e] text-white border-[#1b8e8e]'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
                   }`}
                 >
@@ -164,7 +164,7 @@ export function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] rounded transition-colors shadow-xs whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors shadow-xs whitespace-nowrap"
                 >
                   Register
                 </Link>
@@ -192,7 +192,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded text-white hover:bg-white/10 transition-colors focus:ring-2 focus:ring-[#1B8E8E] focus:outline-hidden"
+              className="p-2 rounded text-white hover:bg-white/10 transition-colors focus:ring-2 focus:ring-[#1b8e8e] focus:outline-hidden"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
             >
@@ -204,7 +204,7 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-[#0F2837] px-4 pt-3 pb-6 space-y-3">
+        <div className="lg:hidden border-t border-white/10 bg-[#0f2837] px-4 pt-3 pb-6 space-y-3">
           <nav className="flex flex-col space-y-1">
             {navLinks.filter(link=>link.path!=='/books'||site.booksEnabled).map((link) => (
               <Link
@@ -213,8 +213,8 @@ export function Navbar() {
                 onClick={closeMenu}
                 className={`px-3 py-2.5 rounded text-sm font-medium transition-colors ${
                   isActive(link.path)
-                    ? 'bg-[#1B8E8E] text-white'
-                    : 'text-[#E8EEF3]/90 hover:bg-white/5 hover:text-white'
+                    ? 'bg-[#1b8e8e] text-white'
+                    : 'text-[#e8eef3]/90 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -225,7 +225,7 @@ export function Navbar() {
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
             {user ? (
               <>
-                <div className="px-3 py-1.5 text-xs text-[#E8EEF3]/80 flex items-center justify-between">
+                <div className="px-3 py-1.5 text-xs text-[#e8eef3]/80 flex items-center justify-between">
                   <span>Signed in as <span className="font-semibold text-white">{firstName || user.email}</span></span>
                   {isAdmin && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-900 uppercase">
@@ -246,7 +246,7 @@ export function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={closeMenu}
-                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] rounded transition-colors"
+                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors"
                 >
                   Dashboard
                 </Link>
@@ -266,12 +266,12 @@ export function Navbar() {
                   onClick={closeMenu}
                   className="w-full text-center px-4 py-2.5 text-sm font-medium text-white border border-white/20 rounded hover:bg-white/5 transition-colors"
                 >
-                  Log in to MEDIFY
+                  Log in to {site.siteName}
                 </Link>
                 <Link
                   to="/register"
                   onClick={closeMenu}
-                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] rounded transition-colors"
+                  className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] rounded transition-colors"
                 >
                   Create Student Account
                 </Link>

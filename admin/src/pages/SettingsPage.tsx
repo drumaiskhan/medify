@@ -7,8 +7,10 @@ import {
   ShieldCheck,
   Server,
   Save,
+  Sparkles,
 } from "lucide-react";
 import { api } from "../lib/client";
+import { AiSettingsPanel } from "./AiSettingsPanel";
 export function SettingsPage() {
   const [form, setForm] = useState<any>(null),
     [tab, setTab] = useState("general"),
@@ -72,6 +74,7 @@ export function SettingsPage() {
               { id: "reader", label: "Reader", icon: BookOpen },
               { id: "communication", label: "Communication", icon: Settings },
               { id: "payments", label: "Payments", icon: Settings },
+              { id: "ai", label: "AI", icon: Sparkles },
               { id: "system", label: "System", icon: Server },
             ].map(({ id, label, icon: Icon }) => (
               <button
@@ -106,6 +109,35 @@ export function SettingsPage() {
                     onChange={(e) => set("supportEmail", e.target.value)}
                   />
                 </label>
+                <label className="studio-field">Contact phone
+                  <input type="tel" maxLength={35} value={form.contactPhone || ''} onChange={e=>set('contactPhone',e.target.value)} placeholder="+92..." />
+                </label>
+                <label className="studio-field">WhatsApp number
+                  <input type="tel" maxLength={35} value={form.contactWhatsApp || ''} onChange={e=>set('contactWhatsApp',e.target.value)} placeholder="+92..." />
+                </label>
+                <label className="studio-field">Public website
+                  <input type="url" maxLength={350} value={form.contactWebsite || ''} onChange={e=>set('contactWebsite',e.target.value)} placeholder="https://med-ify.live" />
+                </label>
+                <label className="studio-field full">MCQ app link (MedschoolProffs)
+                  <input type="url" maxLength={500} value={form.mcqAppUrl || ''} onChange={e=>set('mcqAppUrl',e.target.value)} placeholder="https://your-mcq-website.com" />
+                  <span className="studio-small">Shown to students in Membership as “Try our other app for MCQs”. Leave blank to hide it.</span>
+                </label>
+                <label className="studio-field">
+                  Contact location
+                  <input maxLength={180} value={form.contactLocation || ''} onChange={(e) => set('contactLocation', e.target.value)} placeholder="City, province, country" />
+                </label>
+                <label className="studio-field">
+                  Founder / organization
+                  <input maxLength={120} value={form.founderName || ''} onChange={(e) => set('founderName', e.target.value)} />
+                </label>
+                <label className="studio-field full">
+                  Footer description
+                  <textarea maxLength={450} rows={3} value={form.footerDescription || ''} onChange={(e) => set('footerDescription', e.target.value)} />
+                </label>
+                <label className="studio-field full">
+                  Copyright / footer location
+                  <input maxLength={180} value={form.footerCopyright || ''} onChange={(e) => set('footerCopyright', e.target.value)} placeholder="All rights reserved." />
+                </label>
                 <label className="studio-field full">
                   Library tagline
                   <input
@@ -131,6 +163,11 @@ export function SettingsPage() {
             )}
             {tab === "branding" && (
               <div className="studio-form">
+                <label className="studio-field full">
+                  Site logo (HTTPS URL or site asset path)
+                  <input maxLength={500} value={form.logoUrl || ''} onChange={(e) => set('logoUrl', e.target.value)} placeholder="/assets/logo.png or https://..." />
+                  <span className="studio-small">For an uploaded logo, host the image at a trusted HTTPS URL; it is displayed in the student navigation, homepage and footer.</span>
+                </label>
                 <label className="studio-field">
                   Accent colour
                   <input
@@ -221,7 +258,12 @@ export function SettingsPage() {
               </div>
             )}
             {tab === "communication" && <div><h2>Student communication</h2><p className="studio-muted">Announcements below navigation are managed in Platform. Use notifications for targeted updates and feedback for private support conversations.</p><div className="studio-actions" style={{marginTop:20}}><Link className="studio-btn" to="/notifications" onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>Manage notifications</Link><Link className="studio-btn" to="/feedback" onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>Feedback inbox</Link></div></div>}
-            {tab === "payments" && <div><h2>Payments & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
+            {tab === "payments" && <div>
+              <h2>Membership plans</h2>
+              <p className="studio-muted">Plan prices, names and benefits now have their own page.</p>
+              <div className="studio-actions" style={{marginTop:14,marginBottom:10}}><Link className="studio-btn primary" to="/plans" onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>Manage membership plans</Link></div>
+              <h2 style={{marginTop:22}}>Payment details & discounts</h2><p className="studio-muted">Manage bank details, payment instructions, discount coupons, and student transactions in their dedicated screens.</p><div className="studio-actions" style={{marginTop:20}}>{[['/payment-details','Payment details'],['/coupons','Discount coupons'],['/students','Transactions']].map(([to,label])=><Link key={to} className="studio-btn" to={to} onClick={e=>{if(dirty&&!window.confirm('Leave without saving settings?'))e.preventDefault();}}>{label}</Link>)}</div></div>}
+            {tab === "ai" && <AiSettingsPanel />}
             {tab === "system" && (
               <>
                 <h2 style={{ fontWeight: 750, marginBottom: 18 }}>

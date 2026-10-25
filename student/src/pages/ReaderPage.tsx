@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import '../notesReader.css';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -100,6 +101,11 @@ export function ReaderPage() {
 
   // Light / Dark reader mode
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // The notes scroll inside their own pane (not the whole page)
+  const scrollRef = useRef<HTMLElement | null>(null);
+  const progressRef = useRef<HTMLDivElement | null>(null);
+  const tocScrollRef = useRef<HTMLDivElement | null>(null);
 
   // 1. Fetch Subject metadata, parent block/year, and content metadata + Part 1
   useEffect(() => {
@@ -335,9 +341,10 @@ export function ReaderPage() {
     return contentMeta?.toc || [];
   }, [contentMeta]);
 
-  // ScrollSpy with IntersectionObserver to highlight current heading in TOC
+  // ScrollSpy: highlight the current heading while the notes pane scrolls
   useEffect(() => {
-    if (tocList.length === 0) return;
+    const root = scrollRef.current;
+    if (tocList.length === 0 || !root) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -346,10 +353,7 @@ export function ReaderPage() {
           setActiveHeadingId(visible.target.id);
         }
       },
-      {
-        rootMargin: '-80px 0px -60% 0px',
-        threshold: 0
-      }
+      { root, rootMargin: '0px 0px -75% 0px', threshold: 0 }
     );
 
     tocList.forEach((item) => {
@@ -360,18 +364,38 @@ export function ReaderPage() {
     return () => observer.disconnect();
   }, [tocList, combinedHtml]);
 
+  // Keep the active chapter visible inside the chapter list
+  useEffect(() => {
+    const list = tocScrollRef.current;
+    if (!list || !activeHeadingId) return;
+    const btn = list.querySelector<HTMLElement>('[data-toc-active="true"]');
+    if (!btn) return;
+    const top = btn.offsetTop - list.offsetTop;
+    if (top < list.scrollTop + 40 || top + btn.offsetHeight > list.scrollTop + list.clientHeight - 40) {
+      list.scrollTo({ top: Math.max(0, top - list.clientHeight / 3), behavior: 'smooth' });
+    }
+  }, [activeHeadingId]);
+
+  const onNotesScroll = () => {
+    const el = scrollRef.current;
+    const bar = progressRef.current;
+    if (!el || !bar) return;
+    const max = el.scrollHeight - el.clientHeight;
+    bar.style.width = `${max > 0 ? Math.min(100, Math.max(0, (el.scrollTop / max) * 100)) : 0}%`;
+  };
+
   // Font size mapping
   const getProseFontSizeClass = () => {
     switch (fontSizeLevel) {
       case -1:
-        return 'text-sm leading-relaxed';
+        return 'nr-fs-sm';
       case 1:
-        return 'text-lg leading-relaxed';
+        return 'nr-fs-lg';
       case 2:
-        return 'text-xl leading-relaxed';
+        return 'nr-fs-xl';
       case 0:
       default:
-        return 'text-base leading-relaxed';
+        return 'nr-fs-md';
     }
   };
 
@@ -408,7 +432,7 @@ export function ReaderPage() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col">
         {/* Skeleton Toolbar */}
-        <div className="h-14 bg-white border-b border-[#CFDBE5] px-6 flex items-center justify-between">
+        <div className="h-14 bg-white border-b border-[#cfdbe5] px-6 flex items-center justify-between">
           <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
           <div className="h-6 w-40 bg-slate-200 rounded animate-pulse" />
           <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
@@ -448,15 +472,15 @@ export function ReaderPage() {
           </div>
 
           <div className="space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B8E8E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1b8e8e]">
               Package Restricted
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#0f2837]">
               Note Not in Your Package
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Your active MEDIFY package is for <strong className="text-[#0F2837]">{studentAccess?.purchasedYearName}</strong>.
-              This note ({subject.name}) belongs to <strong className="text-[#0F2837]">{year?.name || 'another academic year'}</strong>.
+              Your active MEDIFY package is for <strong className="text-[#0f2837]">{studentAccess?.purchasedYearName}</strong>.
+              This note ({subject.name}) belongs to <strong className="text-[#0f2837]">{year?.name || 'another academic year'}</strong>.
               Only notes for your purchased academic year are unlocked in your library.
             </p>
           </div>
@@ -464,7 +488,7 @@ export function ReaderPage() {
           <div className="pt-4 space-y-2.5">
             <Link
               to={studentAccess?.purchasedYearId ? `/year/${studentAccess.purchasedYearId}` : '/#years'}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full"
             >
               <BookOpen className="w-4 h-4" />
               <span>Open My Notes ({studentAccess?.purchasedYearName || 'My Year'})</span>
@@ -488,7 +512,7 @@ export function ReaderPage() {
 
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#CFDBE5] shadow-lg p-8 sm:p-10 space-y-5">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[#cfdbe5] shadow-lg p-8 sm:p-10 space-y-5">
           <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-300 text-amber-700 flex items-center justify-center mx-auto">
             {isRejectedApproval ? (
               <ShieldAlert className="w-8 h-8 text-rose-600" />
@@ -500,14 +524,14 @@ export function ReaderPage() {
           </div>
 
           <div className="space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B8E8E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1b8e8e]">
               {isRejectedApproval
                 ? 'Approval Declined'
                 : isPendingApproval
                 ? 'Approval Pending'
                 : 'Subscriber Access Required'}
             </span>
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#0f2837]">
               {isRejectedApproval
                 ? 'Account Not Approved'
                 : isPendingApproval
@@ -532,7 +556,7 @@ export function ReaderPage() {
               <>
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>Register & Choose Plan</span>
@@ -548,7 +572,7 @@ export function ReaderPage() {
             ) : (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors shadow-xs w-full"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors shadow-xs w-full"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Go to Student Dashboard</span>
@@ -572,13 +596,13 @@ export function ReaderPage() {
   if (notFound || !subject) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#CFDBE5] shadow-lg p-8 sm:p-10 space-y-5">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[#cfdbe5] shadow-lg p-8 sm:p-10 space-y-5">
           <div className="w-16 h-16 rounded-full bg-slate-100 border border-slate-300 text-slate-500 flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="font-serif-heading text-2xl font-bold text-[#0F2837]">
+            <h1 className="font-serif-heading text-2xl font-bold text-[#0f2837]">
               Subject not found
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed">
@@ -589,7 +613,7 @@ export function ReaderPage() {
           <div className="pt-4">
             <Link
               to="/"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#0F2837] hover:bg-[#1E293B] transition-colors shadow-xs w-full"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-xs font-bold text-white bg-[#0f2837] hover:bg-[#1E293B] transition-colors shadow-xs w-full"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Curriculum</span>
@@ -600,389 +624,201 @@ export function ReaderPage() {
     );
   }
 
-  return (
-    <div
-      className={`min-h-screen flex flex-col transition-colors duration-200 max-w-full overflow-x-hidden ${
-        isDarkMode ? 'dark bg-[#0B1526] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'
-      }`}
-    >
-      {/* 1. Reader Top Toolbar (Sticky, 360px mobile safe, zero horizontal scroll) */}
-      <nav
-        aria-label="Reader toolbar"
-        className={`sticky top-16 z-30 px-2.5 sm:px-6 py-2 border-b transition-colors shadow-2xs w-full max-w-full overflow-x-hidden ${
-          isDarkMode
-            ? 'bg-[#0F1E36] border-slate-700/80 text-white'
-            : 'bg-white border-[#CFDBE5] text-[#0F2837]'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3 w-full">
-          {/* Left: Back & Outline Toggle Buttons */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            <Link
-              to={backUrl}
-              className={`p-1.5 rounded transition-colors text-xs font-semibold flex items-center gap-1 shrink-0 ${
-                isDarkMode
-                  ? 'hover:bg-slate-800 text-slate-300'
-                  : 'hover:bg-[#E8EEF3] text-[#1B8E8E]'
-              }`}
-              title="Back to Curriculum"
-              aria-label="Back to Curriculum"
-            >
-              <ArrowLeft className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline">Back</span>
-            </Link>
+  const fontLabel = ['Small', 'Normal', 'Large', 'XL'][fontSizeLevel + 1];
 
-            {/* Desktop TOC Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsTocOpenDesktop(!isTocOpenDesktop)}
-              className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors shrink-0 ${
-                isDarkMode
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                  : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]'
-              }`}
-              title={isTocOpenDesktop ? 'Collapse Table of Contents' : 'Expand Table of Contents'}
-            >
-              <BookOpen className="w-3.5 h-3.5 text-[#1B8E8E]" />
-              <span>{isTocOpenDesktop ? 'Hide Outline' : 'Show Outline'}</span>
-            </button>
-
-            {/* Mobile TOC Drawer Trigger */}
-            <button
-              type="button"
-              onClick={() => setIsTocOpenMobile(true)}
-              className={`md:hidden p-1.5 rounded text-xs font-medium transition-colors shrink-0 ${
-                isDarkMode
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                  : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]'
-              }`}
-              aria-label="Open Table of Contents"
-              title="Open Outline"
-            >
-              <Menu className="w-4 h-4 shrink-0 text-[#1B8E8E]" />
-            </button>
-          </div>
-
-          {/* Center: Title & Sample Indicator */}
-          <div className="flex items-center gap-2 text-xs shrink-0 max-w-[200px] sm:max-w-sm truncate">
-            <span className="font-semibold truncate hidden lg:inline">
-              {subject.name}
-            </span>
-            {subject.isFreeSample && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border border-amber-300 bg-amber-50 text-amber-800 shrink-0">
-                <span>Free Sample</span>
-              </span>
-            )}
-          </div>
-
-          {/* Right: Typography Controls & Dark/Light Mode */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Font Size Adjuster */}
-            <div
-              className={`flex items-center rounded border p-0.5 text-xs shrink-0 ${
-                isDarkMode
-                  ? 'border-slate-700 bg-slate-800 text-slate-200'
-                  : 'border-slate-300 bg-slate-50 text-slate-700'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={decreaseFontSize}
-                disabled={fontSizeLevel <= -1}
-                className="w-6 h-6 flex items-center justify-center rounded font-bold hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
-                title="Decrease font size"
-                aria-label="Decrease font size"
-              >
-                A-
-              </button>
-              <span className="hidden sm:inline px-1 text-[11px] font-mono select-none font-medium">
-                {fontSizeLevel === -1
-                  ? 'Small'
-                  : fontSizeLevel === 0
-                  ? 'Normal'
-                  : fontSizeLevel === 1
-                  ? 'Large'
-                  : 'XL'}
-              </span>
-              <button
-                type="button"
-                onClick={increaseFontSize}
-                disabled={fontSizeLevel >= 2}
-                className="w-6 h-6 flex items-center justify-center rounded font-bold hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
-                title="Increase font size"
-                aria-label="Increase font size"
-              >
-                A+
-              </button>
-            </div>
-
-            {/* Dark / Light Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-1.5 rounded transition-colors border shrink-0 ${
-                isDarkMode
-                  ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-amber-300'
-                  : 'bg-slate-50 hover:bg-slate-100 border-slate-300 text-slate-700'
-              }`}
-              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 shrink-0" /> : <Moon className="w-4 h-4 shrink-0" />}
-            </button>
-          </div>
+  const renderToc = () => (
+    <>
+      <div className="nr-toc-head">
+        <span className="nr-toc-kicker">Chapters · {tocList.length}</span>
+        <h3 className="nr-toc-title">{subject.name}</h3>
+        <div className="nr-toc-meta">
+          <Clock className="w-3 h-3" />
+          <span>{estimatedReadMinutes} min read</span>
         </div>
-      </nav>
+      </div>
 
-      {/* 2. Reader Main Body */}
-      <div className="flex-1 max-w-7xl mx-auto w-full flex relative min-w-0">
-        {/* Desktop Collapsible Table of Contents Sidebar */}
-        {isTocOpenDesktop && (
-          <aside
-            className={`hidden md:block w-72 shrink-0 border-r py-8 px-5 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto transition-colors ${
-              isDarkMode
-                ? 'border-slate-800 bg-[#0B1526]/80'
-                : 'border-[#CFDBE5] bg-white/40'
-            }`}
-          >
-            <div className="space-y-6">
-              <div>
-                <span
-                  className={`text-[10px] font-bold uppercase tracking-wider ${
-                    isDarkMode ? 'text-[#25A8A8]' : 'text-[#1B8E8E]'
-                  }`}
-                >
-                  Table of Contents
-                </span>
-                <h3
-                  className={`font-serif-heading text-sm font-bold mt-1 line-clamp-2 ${
-                    isDarkMode ? 'text-white' : 'text-[#0F2837]'
-                  }`}
-                >
-                  {subject.name}
-                </h3>
-                <div
-                  className={`flex items-center gap-1.5 text-[11px] mt-1 ${
-                    isDarkMode ? 'text-slate-400' : 'text-[#4A5B70]'
-                  }`}
-                >
-                  <Clock className="w-3 h-3" />
-                  <span>{estimatedReadMinutes} min read</span>
-                </div>
-              </div>
-
-              {tocList.length > 0 ? (
-                <nav className="space-y-1 text-xs">
-                  {tocList.map((item, idx) => {
-                    const isActive = activeHeadingId === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => scrollToSection(item.id)}
-                        className={`w-full text-left py-1.5 px-2 rounded transition-colors font-medium flex items-start gap-2 cursor-pointer ${
-                          item.level === 3
-                            ? 'pl-4 text-[11px]'
-                            : item.level === 4
-                            ? 'pl-6 text-[10px]'
-                            : ''
-                        } ${
-                          isActive
-                            ? isDarkMode
-                              ? 'bg-[#1B8E8E]/30 text-white font-bold border-l-2 border-[#1B8E8E]'
-                              : 'bg-[#E8EEF3] text-[#0F2837] font-bold border-l-2 border-[#1B8E8E]'
-                            : isDarkMode
-                            ? 'hover:bg-slate-800 text-slate-300 hover:text-white'
-                            : 'hover:bg-[#E8EEF3] text-slate-700 hover:text-[#0F2837]'
-                        }`}
-                      >
-                        <span className="text-slate-400 font-mono text-[10px] shrink-0">
-                          {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                        </span>
-                        <span className="leading-snug line-clamp-2">{item.text}</span>
-                      </button>
-                    );
-                  })}
-                </nav>
-              ) : (
-                <p className="text-xs text-slate-400 italic">No section headings found.</p>
-              )}
-
-              <div className="pt-4 border-t border-slate-300/40 dark:border-slate-800 text-[11px] text-slate-500 space-y-1">
-                <div>Curriculum: {block ? block.name : 'KMU Modular Syllabus'}</div>
-                {year && <div>Academic Year: {year.name}</div>}
-                {contentMeta && contentMeta.partCount > 1 && (
-                  <div className="text-[10px] text-slate-400 pt-1">
-                    Continuous document: {loadedPartCount} of {contentMeta.partCount} parts loaded
-                  </div>
-                )}
-              </div>
-            </div>
-          </aside>
+      <div className="nr-toc-list" ref={tocScrollRef}>
+        {tocList.length > 0 ? (
+          tocList.map((item, idx) => {
+            const isActive = activeHeadingId === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                data-toc-active={isActive ? 'true' : undefined}
+                onClick={() => scrollToSection(item.id)}
+                className={`nr-toc-item nr-lvl-${Math.min(Math.max(item.level, 2), 4)} ${isActive ? 'is-active' : ''}`}
+              >
+                <span className="nr-toc-num">{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}</span>
+                <span className="nr-toc-text">{item.text}</span>
+              </button>
+            );
+          })
+        ) : (
+          <p className="nr-toc-empty">No section headings found.</p>
         )}
+      </div>
 
-        {/* Mobile Slide-Over Drawer for Table of Contents */}
+      <div className="nr-toc-foot">
+        <div>{block ? block.name : 'KMU Modular Syllabus'}</div>
+        {year && <div>{year.name}</div>}
+        {contentMeta && contentMeta.partCount > 1 && (
+          <div>
+            {loadedPartCount} of {contentMeta.partCount} parts loaded
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <div className={`nr-root ${isDarkMode ? 'dark' : ''}`} data-theme={isDarkMode ? 'dark' : 'light'}>
+      {/* Compact top bar */}
+      <header className="nr-top" aria-label="Reader toolbar">
+        <div className="nr-top-left">
+          <Link to={backUrl} className="nr-btn" title="Back to Curriculum" aria-label="Back to Curriculum">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="nr-hide-sm">Back</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsTocOpenDesktop(!isTocOpenDesktop)}
+            className={`nr-btn nr-desktop-only ${isTocOpenDesktop ? 'is-on' : ''}`}
+            title={isTocOpenDesktop ? 'Hide chapters' : 'Show chapters'}
+            aria-pressed={isTocOpenDesktop}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Chapters</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsTocOpenMobile(true)}
+            className="nr-btn nr-mobile-only"
+            aria-label="Open chapters"
+            title="Chapters"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="nr-top-title">
+          <strong>{subject.name}</strong>
+          <small>
+            {year ? year.name : 'MBBS'} · {block ? block.name : 'Modular Syllabus'} · {estimatedReadMinutes} min
+          </small>
+        </div>
+
+        <div className="nr-top-right">
+          {subject.isFreeSample && <span className="nr-badge">Free Sample</span>}
+          <div className="nr-group" title={`Text size: ${fontLabel}`}>
+            <button
+              type="button"
+              onClick={decreaseFontSize}
+              disabled={fontSizeLevel <= -1}
+              className="nr-btn nr-btn-sq"
+              title="Decrease font size"
+              aria-label="Decrease font size"
+            >
+              A-
+            </button>
+            <button
+              type="button"
+              onClick={increaseFontSize}
+              disabled={fontSizeLevel >= 2}
+              className="nr-btn nr-btn-sq"
+              title="Increase font size"
+              aria-label="Increase font size"
+            >
+              A+
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="nr-btn nr-btn-sq"
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+        </div>
+        <div className="nr-progress" aria-hidden="true">
+          <div ref={progressRef} className="nr-progress-bar" />
+        </div>
+      </header>
+
+      <div className="nr-body">
+        {/* Desktop chapter list: full height, scrolls on its own */}
+        {isTocOpenDesktop && <aside className="nr-toc nr-desktop-only">{renderToc()}</aside>}
+
+        {/* Mobile chapter drawer */}
         {isTocOpenMobile && (
-          <div className="fixed inset-0 z-50 md:hidden flex">
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-2xs"
+          <div className="nr-drawer nr-mobile-only" role="dialog" aria-label="Chapters">
+            <button
+              type="button"
+              className="nr-drawer-backdrop"
+              aria-label="Close chapters"
               onClick={() => setIsTocOpenMobile(false)}
             />
-
-            {/* Drawer Panel */}
-            <div className="relative w-72 max-w-[80vw] bg-[#0F2837] text-white p-6 h-full flex flex-col justify-between overflow-y-auto shadow-xl">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-[#1B8E8E]" />
-                    <span className="font-serif-heading font-bold text-sm text-white">
-                      Table of Contents
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsTocOpenMobile(false)}
-                    className="p-1 rounded text-slate-400 hover:text-white"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-slate-300 line-clamp-2">
-                    {subject.name}
-                  </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {block ? block.name : 'KMU Modular Syllabus'}
-                  </p>
-                </div>
-
-                {tocList.length > 0 ? (
-                  <nav className="space-y-1 text-xs">
-                    {tocList.map((item, idx) => {
-                      const isActive = activeHeadingId === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => scrollToSection(item.id)}
-                          className={`w-full text-left py-1.5 px-2 rounded transition-colors flex items-center gap-2 ${
-                            item.level === 3 ? 'pl-4 text-[11px]' : item.level === 4 ? 'pl-6 text-[10px]' : ''
-                          } ${
-                            isActive
-                              ? 'bg-[#1B8E8E] text-white font-bold'
-                              : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                          }`}
-                        >
-                          <span className="text-[#1B8E8E] font-mono text-[10px] shrink-0">
-                            {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                          </span>
-                          <span className="truncate">{item.text}</span>
-                        </button>
-                      );
-                    })}
-                  </nav>
-                ) : (
-                  <p className="text-xs text-slate-400 italic">No headings in note.</p>
-                )}
-              </div>
-
-              <div className="pt-4 border-t border-white/10 text-[11px] text-slate-400">
-                MEDIFY Reader · KMU Modular Syllabus
-              </div>
-            </div>
+            <aside className="nr-toc nr-toc-drawer">
+              <button
+                type="button"
+                className="nr-drawer-close"
+                onClick={() => setIsTocOpenMobile(false)}
+                aria-label="Close chapters"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              {renderToc()}
+            </aside>
           </div>
         )}
 
-        {/* Main Subject Note Content Area */}
-        <main className="flex-1 py-8 px-4 sm:px-8 lg:px-12 max-w-4xl mx-auto w-full min-w-0">
-          {/* Header Metadata */}
-          <header className="mb-8 pb-6 border-b border-slate-300 dark:border-slate-800">
-            {/* Subject / Block breadcrumb */}
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#1B8E8E] uppercase tracking-wider">
-              <span>{year ? year.name : 'MBBS'}</span>
-              <span>·</span>
-              <span>{block ? block.name : 'Modular Syllabus'}</span>
+        {/* Notes: only this pane scrolls */}
+        <main className="nr-scroll" data-reader-scroll ref={scrollRef} onScroll={onNotesScroll}>
+          <div className="nr-page">
+            <div className="nr-doc-head">
+              <span className="nr-crumb">
+                {year ? year.name : 'MBBS'} · {block ? block.name : 'Modular Syllabus'}
+              </span>
+              <h1>{subject.name}</h1>
             </div>
 
-            {/* Subject Title */}
-            <h1
-              className={`font-serif-heading text-2xl sm:text-4xl font-bold tracking-tight mb-3 break-words hyphens-auto ${
-                isDarkMode ? 'text-white' : 'text-[#0F2837]'
-              }`}
-            >
-              {subject.name}
-            </h1>
-
-            {/* Metadata Line */}
-            <div
-              className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium ${
-                isDarkMode ? 'text-slate-300' : 'text-[#4A5B70]'
-              }`}
-            >
-              <span>KMU Modular Syllabus</span>
-              <span className={isDarkMode ? 'text-slate-600' : 'text-[#4A5B70]/60'}>·</span>
-              <span>{block ? block.name : 'Integrated Notes'}</span>
-              <span className={isDarkMode ? 'text-slate-600' : 'text-[#4A5B70]/60'}>·</span>
-              <span>{estimatedReadMinutes} min read</span>
-              {subject.isFreeSample && (
+            <article className={`nr-article ${getProseFontSizeClass()}`}>
+              {combinedHtml ? (
                 <>
-                  <span className={isDarkMode ? 'text-slate-600' : 'text-[#4A5B70]/60'}>·</span>
-                  <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                    Free Sample
-                  </span>
-                </>
-              )}
-            </div>
-          </header>
+                  <NoteBody
+                    html={combinedHtml}
+                    subjectId={subjectId || ''}
+                    userId={user?.uid}
+                    watermarkText={user ? `${user.email} · MEDIFY` : 'MEDIFY free sample'}
+                    allLoaded={Boolean(contentMeta) && loadedPartCount >= (contentMeta?.partCount || 0)}
+                    isDark={isDarkMode}
+                  />
 
-          {/* Sequential Render of Parts */}
-          <article className={`space-y-6 ${getProseFontSizeClass()}`}>
-            {combinedHtml ? (
-              <>
-                <NoteBody
-                  html={combinedHtml}
-                  subjectId={subjectId || ''}
-                  userId={user?.uid}
-                  watermarkText={user ? `${user.email} · MEDIFY` : 'MEDIFY free sample'}
-                  allLoaded={Boolean(contentMeta) && loadedPartCount >= (contentMeta?.partCount || 0)}
-                  isDark={isDarkMode}
-                />
-
-                {/* Background parts loading skeleton placeholder */}
-                {loadingParts && contentMeta && loadedPartCount < contentMeta.partCount && (
-                  <div className="pt-8 pb-12 space-y-4 border-t border-dashed border-slate-300 dark:border-slate-800 animate-pulse">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#1B8E8E]">
+                  {loadingParts && contentMeta && loadedPartCount < contentMeta.partCount && (
+                    <div className="nr-loading">
                       <Layers className="w-4 h-4 animate-spin" />
                       <span>
                         Loading remaining sections (Part {loadedPartCount + 1} of {contentMeta.partCount})...
                       </span>
                     </div>
-                    <div className="h-4 w-full bg-slate-200 dark:bg-slate-800 rounded" />
-                    <div className="h-4 w-5/6 bg-slate-200 dark:bg-slate-800 rounded" />
-                    <div className="h-4 w-4/6 bg-slate-200 dark:bg-slate-800 rounded" />
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
-                <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">
-                  This subject note does not have content uploaded yet.
-                </p>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] rounded transition-colors"
-                  >
-                    <span>Upload Word (.docx) content in Admin</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                )}
-              </div>
-            )}
-          </article>
+                  )}
+                </>
+              ) : (
+                <div className="nr-empty">
+                  <FileText className="w-8 h-8 mx-auto mb-2" />
+                  <p>This subject note does not have content uploaded yet.</p>
+                  {isAdmin && (
+                    <Link to="/admin" className="nr-admin-link">
+                      <span>Upload Word (.docx) content in Admin</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  )}
+                </div>
+              )}
+            </article>
+          </div>
         </main>
       </div>
     </div>

@@ -27,35 +27,35 @@ export function PlanCard({ plan, yearTitle, onSelect }: PlanCardProps) {
     <div
       className={`relative rounded-xl p-6 sm:p-7 flex flex-col justify-between transition-all bg-white border ${
         plan.recommended
-          ? 'border-[#1B8E8E] shadow-md ring-1 ring-[#1B8E8E]'
-          : 'border-[#CFDBE5] shadow-xs hover:border-[#1B8E8E]/50'
+          ? 'border-[#1b8e8e] shadow-md ring-1 ring-[#1b8e8e]'
+          : 'border-[#cfdbe5] shadow-xs hover:border-[#1b8e8e]/50'
       }`}
     >
       {plan.recommended && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1B8E8E] text-white px-3 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider shadow-xs">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1b8e8e] text-white px-3 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider shadow-xs">
           Recommended Choice
         </div>
       )}
 
       <div>
         <div className="flex items-center justify-between gap-2 mb-2">
-          <h3 className="font-serif-heading text-lg font-bold text-[#0F2837]">
+          <h3 className="font-serif-heading text-lg font-bold text-[#0f2837]">
             {plan.name}
           </h3>
-          <span className="text-xs font-semibold text-[#1B8E8E] bg-[#E8EEF3] px-2 py-0.5 rounded">
+          <span className="text-xs font-semibold text-[#1b8e8e] bg-[#e8eef3] px-2 py-0.5 rounded">
             {plan.durationMonths} Months
           </span>
         </div>
 
         {yearTitle && (
-          <p className="text-xs text-[#0F2837]/70 mb-3">
-            Access to all modules in <span className="font-medium text-[#0F2837]">{yearTitle}</span>
+          <p className="text-xs text-[#0f2837]/70 mb-3">
+            Access to all modules in <span className="font-medium text-[#0f2837]">{yearTitle}</span>
           </p>
         )}
 
-        <div className="my-5 pb-5 border-b border-[#E8EEF3]">
+        <div className="my-5 pb-5 border-b border-[#e8eef3]">
           <div className="flex items-baseline gap-1">
-            <span className="font-serif-heading text-3xl font-extrabold text-[#0F2837] tracking-tight">
+            <span className="font-serif-heading text-3xl font-extrabold text-[#0f2837] tracking-tight">
               {plan.price}
             </span>
             <span className="text-xs text-slate-500 font-sans">
@@ -68,7 +68,7 @@ export function PlanCard({ plan, yearTitle, onSelect }: PlanCardProps) {
         <ul className="space-y-2.5 text-xs text-slate-700 mb-6">
           {plan.features.map((feature, idx) => (
             <li key={idx} className="flex items-start gap-2.5">
-              <Check className="w-4 h-4 text-[#1B8E8E] shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-[#1b8e8e] shrink-0 mt-0.5" />
               <span>{feature}</span>
             </li>
           ))}
@@ -79,7 +79,7 @@ export function PlanCard({ plan, yearTitle, onSelect }: PlanCardProps) {
         <button
           type="button"
           onClick={handleAction}
-          className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[#1B8E8E] hover:bg-[#147273] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+          className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[#1b8e8e] hover:bg-[#147273] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
         >
           <span>{user ? 'Subscribe / Pay Now' : 'Sign in to Subscribe'}</span>
           <ArrowRight className="w-3.5 h-3.5" />

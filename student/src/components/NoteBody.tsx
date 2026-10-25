@@ -258,30 +258,38 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
   };
 
   /* ---------- remember where the student stopped ---------- */
+  const getScroller = () => (ref.current?.closest('[data-reader-scroll]') as HTMLElement | null) || null;
+
   useEffect(() => {
     let t: number | undefined;
+    const scroller = getScroller();
+    const target: HTMLElement | Window = scroller || window;
     const onScroll = () => {
       window.clearTimeout(t);
       t = window.setTimeout(() => {
         const el = ref.current;
         if (!el) return;
+        const topEdge = scroller ? scroller.getBoundingClientRect().top : 0;
         let headingId = '';
-        el.querySelectorAll('h1[id],h2[id],h3[id],h4[id]').forEach((h) => { if (h.getBoundingClientRect().top <= 150) headingId = h.id; });
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const scroll = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        el.querySelectorAll('h1[id],h2[id],h3[id],h4[id]').forEach((h) => { if (h.getBoundingClientRect().top - topEdge <= 150) headingId = h.id; });
+        const max = scroller ? scroller.scrollHeight - scroller.clientHeight : document.documentElement.scrollHeight - window.innerHeight;
+        const y = scroller ? scroller.scrollTop : window.scrollY;
+        const scroll = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
         if (scroll < 0.01 && !headingId) return;
         saved.current.position = { headingId, scroll };
         persist();
       }, 2500);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { window.removeEventListener('scroll', onScroll); window.clearTimeout(t); };
+    target.addEventListener('scroll', onScroll, { passive: true });
+    return () => { target.removeEventListener('scroll', onScroll); window.clearTimeout(t); };
   }, [persist]);
 
   const jumpToResume = () => {
     if (!resume) return;
     const target = resume.headingId ? document.getElementById(resume.headingId) : null;
+    const scroller = getScroller();
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else if (scroller) scroller.scrollTo({ top: resume.scroll * (scroller.scrollHeight - scroller.clientHeight), behavior: 'smooth' });
     else window.scrollTo({ top: resume.scroll * (document.documentElement.scrollHeight - window.innerHeight), behavior: 'smooth' });
     setResume(null);
   };
@@ -294,13 +302,13 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
     setOffline({ busy: false, done: r.done, total: r.done + r.failed, saved: r.failed === 0, failed: r.failed });
   };
 
-  const bar = isDark ? 'bg-[#0F1E36] border-slate-700 text-slate-200' : 'bg-white border-[#CFDBE5] text-[#0F2837]';
-  const btn = isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-100' : 'bg-[#E8EEF3] hover:bg-[#CFDBE5] text-[#0F2837]';
+  const bar = isDark ? 'bg-[#0d2230] border-[#24404d] text-slate-200' : 'bg-white border-[#cfdbe5] text-[#0f2837]';
+  const btn = isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-100' : 'bg-[#e8eef3] hover:bg-[#cfdbe5] text-[#0f2837]';
 
   return (
     <div className="note-body-wrap">
-      <div className={`sticky top-[7.1rem] z-20 -mx-1 mb-4 px-2 py-1.5 rounded-lg border shadow-2xs flex flex-wrap items-center gap-2 text-xs ${bar}`}>
-        <button type="button" onClick={() => setSearchOpen((v) => !v)} className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-medium ${btn}`}>
+      <div className={`sticky top-0 z-20 mb-3 px-2 py-1 rounded-lg border shadow-2xs flex flex-wrap items-center gap-1.5 text-[11.5px] ${bar}`}>
+        <button type="button" onClick={() => setSearchOpen((v) => !v)} className={`inline-flex items-center gap-1.5 px-2 py-1 rounded font-medium ${btn}`}>
           <Search className="w-3.5 h-3.5" /> <span>Search notes</span>
         </button>
         {searchOpen && (
@@ -309,7 +317,7 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
               autoFocus value={query} onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') goToHit(hitIndex + (e.shiftKey ? -1 : 1)); }}
               placeholder="Find in this subject…" aria-label="Search within this subject"
-              className={`flex-1 min-w-0 px-2 py-1.5 rounded border text-xs ${isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-[#CFDBE5]'}`}
+              className={`flex-1 min-w-0 px-2 py-1.5 rounded border text-xs ${isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-[#cfdbe5]'}`}
             />
             <span className="tabular-nums opacity-70 w-14 text-center">{query.trim().length >= 2 ? `${hitCount ? hitIndex : 0}/${hitCount}` : ''}</span>
             <button type="button" aria-label="Previous match" onClick={() => goToHit(hitIndex - 1)} className={`p-1.5 rounded ${btn}`}><ChevronUp className="w-3.5 h-3.5" /></button>
@@ -318,7 +326,7 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
           </div>
         )}
         {resume && (
-          <button type="button" onClick={jumpToResume} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-semibold bg-[#1B8E8E] text-white hover:bg-[#147273]">
+          <button type="button" onClick={jumpToResume} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-semibold bg-[#1b8e8e] text-white hover:bg-[#147273]">
             <Bookmark className="w-3.5 h-3.5" /> <span>Continue where you left off</span>
           </button>
         )}
@@ -338,14 +346,14 @@ export function NoteBody({ html, subjectId, userId, watermarkText, allLoaded, is
       </div>
 
       {selBox && (
-        <div role="toolbar" aria-label="Highlight colours" className="fixed z-[70] flex items-center gap-2 px-3 py-2 rounded-full bg-[#0F2837] shadow-xl" style={{ left: selBox.x, top: selBox.y, transform: 'translateX(-50%)' }} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.stopPropagation()}>
+        <div role="toolbar" aria-label="Highlight colours" className="fixed z-[70] flex items-center gap-2 px-3 py-2 rounded-full bg-[#0f2837] shadow-xl" style={{ left: selBox.x, top: selBox.y, transform: 'translateX(-50%)' }} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.stopPropagation()}>
           {(Object.keys(SWATCH) as Color[]).map((c) => (
             <button key={c} type="button" aria-label={`Highlight ${c}`} onClick={() => addHighlight(c)} className="w-7 h-7 rounded-full border-2 border-white/70" style={{ background: SWATCH[c] }} />
           ))}
         </div>
       )}
       {activeHl && !selBox && (
-        <button type="button" onClick={() => removeHighlight(activeHl.id)} className="fixed z-[70] inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0F2837] text-white text-xs font-semibold shadow-xl" style={{ left: activeHl.x, top: activeHl.y, transform: 'translateX(-50%)' }}>
+        <button type="button" onClick={() => removeHighlight(activeHl.id)} className="fixed z-[70] inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0f2837] text-white text-xs font-semibold shadow-xl" style={{ left: activeHl.x, top: activeHl.y, transform: 'translateX(-50%)' }}>
           <Trash2 className="w-3.5 h-3.5" /> Remove highlight
         </button>
       )}

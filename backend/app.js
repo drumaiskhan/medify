@@ -36,12 +36,29 @@ if (process.env.MAIL_MODE === "local") {
     console.log(`Development email saved: ${file}`);
   };
 }
-const app = createApp(pool, { sendMail });
-const server = app.listen(process.env.PORT || 3002, () =>
-  console.log("MEDIFY API listening"),
-);
-// Passenger loads this CommonJS app.js directly; no TypeScript runtime needed.
-for (const signal of ["SIGTERM", "SIGINT"])
-  process.on(signal, () =>
-    server.close(() => pool.end().then(() => process.exit(0))),
+// Initialize missing PostgreSQL tables before accepting API traffic.
+// schema.sql uses CREATE TABLE IF NOT EXISTS and additive migrations;
+// existing account, curriculum and book records are retained.
+const fs = require("node:fs");
+const path = require("node:path");
+async function start() {
+  const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
+  if (pool.exec) await pool.exec(schema);
+  else await pool.query(schema);
+  console.log("[Medify] Database tables verified/created");
+  await require("./bootstrap-admin").provisionInitialAdmin(pool);
+  const app = createApp(pool, { sendMail });
+  const server = app.listen(process.env.PORT || 3002, () =>
+    console.log("MEDIFY API listening"),
   );
+  for (const signal of ["SIGTERM", "SIGINT"])
+    process.on(signal, () =>
+      server.close(() => pool.end().then(() => process.exit(0))),
+    );
+}
+start().catch(async (err) => {
+  console.error("[Medify] Database initialization failed:", err);
+  try { await pool.end(); } catch (_) {}
+  process.exitCode = 1;
+});
+// Passenger loads this CommonJS app.js directly; no TypeScript runtime needed.

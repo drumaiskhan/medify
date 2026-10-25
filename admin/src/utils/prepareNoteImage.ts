@@ -60,6 +60,6 @@ export async function prepareImage(base64: string, contentType: string) {
     if (canvas) { canvas.width = 0; canvas.height = 0; }
   }
   if (type && original.size > 0 && original.size <= MAX_BYTES) return { blob: original, width, height };
-  if (type) throw new Error('This image exceeds 4 MB and could not be resized. Save it as a smaller PNG/JPG in Word.');
-  throw new Error('Unsupported or damaged Word image. Replace this picture with a PNG/JPG in Word.');
+  if (type) throw new Error('This image exceeds 4 MB and could not be resized. Save it as a smaller PNG/JPG and try again.');
+  throw new Error('Unsupported or damaged image. Replace this picture with a PNG or JPG.');
 }

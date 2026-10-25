@@ -1,7 +1,7 @@
 // MEDIFY service worker: keeps the app itself available offline.
 // It deliberately NEVER touches API calls: notes and images are saved by the app
 // (see src/lib/offline.ts) so they can be wiped on logout and expire with the subscription.
-const VERSION = 'medify-shell-v1';
+const VERSION = 'medify-shell-v3-indigo-workspace';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/config.js'];
 
 self.addEventListener('install', (event) => {
@@ -53,16 +53,14 @@ self.addEventListener('fetch', (event) => {
   const isStatic = sameOrigin && (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/pdf-assets/') || /\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico|wasm|json|webmanifest)$/.test(url.pathname));
   if (!isStatic && !isFont) return;
 
-  // Static files: serve the saved copy instantly, refresh it in the background.
+  // Network first: update newly deployed JS/CSS immediately; cache is offline fallback only.
   event.respondWith(
-    caches.open(VERSION).then((cache) =>
-      cache.match(req).then((hit) => {
-        const refresh = fetch(req).then((res) => {
-          if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone());
-          return res;
-        }).catch(() => hit);
-        return hit || refresh;
-      })
-    )
+    fetch(req).then((res) => {
+      if (res && (res.ok || res.type === 'opaque')) {
+        const copy = res.clone();
+        event.waitUntil(caches.open(VERSION).then((cache) => cache.put(req, copy)));
+      }
+      return res;
+    }).catch(() => caches.match(req))
   );
 });
