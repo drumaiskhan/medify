@@ -109,7 +109,7 @@ export function BookReaderPage() {
     anchor = useRef({ page: 1, offset: 0 }),
     previousWidth = useRef(0);
   const width = Math.round(
-    Math.min(900, Math.max(220, containerWidth - 40)) * zoom,
+    Math.min(900, Math.max(220, containerWidth - (containerWidth <= 760 ? 14 : 40))) * zoom,
   );
   useEffect(() => {
     let alive = true;
@@ -205,6 +205,8 @@ export function BookReaderPage() {
       if (el) root.scrollTo({ top: el.offsetTop - 20, behavior: "auto" });
       setCurrent(page);
       setInputPage(String(page));
+      // On a phone the sidebar covers the page, so close it once the reader has jumped.
+      if (window.innerWidth <= 760) setPanel(null);
     },
     [pdf, root],
   );
@@ -866,6 +868,14 @@ export function BookReaderPage() {
               />
             ))}
           </div>
+        )}
+        {panel && (
+          <button
+            type="button"
+            className="reader-panel-backdrop"
+            aria-label="Close reader sidebar"
+            onClick={() => setPanel(null)}
+          />
         )}
         {panel && (
           <aside className="reader-panel">

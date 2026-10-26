@@ -943,7 +943,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 pb-24">
       {/* Toast Notifications Stack */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0">
+      <div className="admin-toasts fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((toast) => (
           <div
             key={toast.id}
@@ -2499,8 +2499,8 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
 
         {/* Modal: Reject Student Account & Payment */}
         {rejectingStudent && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4 my-auto">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-bold text-base text-slate-900">
@@ -2553,7 +2553,7 @@ export function AdminPage({section='year'}:{section?:'year'|'notes'|'settings'|'
           </div>
         )}
 
-        {showRulesModal && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"><div className="bg-white rounded-xl p-8 max-w-lg"><h2>Administrator access</h2><p>Your session may have expired. Sign out and sign back in. Ask the server owner to verify your administrator role if access remains denied.</p><button onClick={()=>setShowRulesModal(false)}>Close</button></div></div>}
+        {showRulesModal && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto"><div className="bg-white rounded-xl p-6 sm:p-8 max-w-lg w-full"><h2>Administrator access</h2><p>Your session may have expired. Sign out and sign back in. Ask the server owner to verify your administrator role if access remains denied.</p><button onClick={()=>setShowRulesModal(false)}>Close</button></div></div>}
 
       </div>
     </div>

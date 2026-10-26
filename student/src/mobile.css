@@ -1,0 +1,19 @@
+/* Phone-friendly touches shared by the student site. Loaded last. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (max-width: 760px) {
+  /* iOS zooms the page when a field is smaller than 16px; keep fields at 16px so the layout never jumps. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea { font-size: 16px !important; }
+  button, [role="button"], a.library-btn, .library-btn { touch-action: manipulation; }
+  /* Comfortable thumb targets in the workspace menu and top bar. */
+  .sw-nav-link { min-height: 46px; }
+  .sw-menu-toggle, .sw-mobile-close { width: 44px !important; height: 44px !important; }
+  .sw-topbar { padding-top: env(safe-area-inset-top, 0px); height: calc(66px + env(safe-area-inset-top, 0px)); }
+  .sw-sidebar { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .sw-endnote { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  /* Nothing in the page body should ever scroll sideways. */
+  .sw-page-column, .sw-content { min-width: 0; max-width: 100vw; overflow-x: clip; }
+  /* Wide tables inside notes scroll on their own. */
+  .table-scroll-container { -webkit-overflow-scrolling: touch; }
+}
