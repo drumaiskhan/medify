@@ -28,7 +28,7 @@ function installProofRoutes(app,pool,proofs,tx){
    await tx(async db=>{
     await records.write(db,req.user,{collection:'paymentRequests',id,data:b});
     const payment=await records.get(db,'paymentRequests',id);
-    if(payment.amountPKR>0&&!proof)fail(400,'Upload your payment screenshot or receipt.');
+    // Proof is sent on WhatsApp, so no file upload is required here.
     await proofs.attach(db,id,proof);
     await db.query("UPDATE records SET data=data || $2::jsonb WHERE collection='users' AND id=$1",[req.user.id,{selectedPlanId:payment.planId,selectedPlanName:payment.planName,planPrice:payment.amountPKR,selectedYearId:payment.yearId,selectedYearName:payment.yearName}]);
    });

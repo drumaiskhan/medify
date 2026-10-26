@@ -22,6 +22,7 @@ import {
   submitPaymentRequest,
   getPaymentMethodLabel,
   isValidWhatsAppNumber,
+  buildWhatsAppLink,
   validateCoupon,
   CouponCheck
 } from '../services/payments';
@@ -59,7 +60,6 @@ export function PaymentModal({
 
   // Form State: Only two allowed methods: 'jazzcash' | 'meezan'
   const [method, setMethod] = useState<'jazzcash' | 'meezan'>('jazzcash');
-  const [proof,setProof]=useState<File|null>(null);
   const [transactionId, setTransactionId] = useState<string>('');
   const [last4Digits, setLast4Digits] = useState<string>('');
   const [paymentTime, setPaymentTime] = useState<string>(() => {
@@ -202,6 +202,15 @@ export function PaymentModal({
     }
   }, [isOpen]);
 
+  // After submitting, open WhatsApp automatically so the student can send the proof.
+  useEffect(() => {
+    if (!submittedRequest || !paymentDetails || !isValidWhatsAppNumber(paymentDetails.whatsappNumber)) return;
+    const t = setTimeout(() => {
+      window.location.assign(buildWhatsAppLink(paymentDetails.whatsappNumber, submittedRequest));
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [submittedRequest, paymentDetails]);
+
   if (!isOpen) return null;
 
   const handleCopy = (text: string, key: string) => {
@@ -246,7 +255,6 @@ export function PaymentModal({
       return;
     }
 
-    if(!isFree&&!proof){setErrorMessage('Upload your payment screenshot or receipt.');return;}
     // Amount string or number (e.g. from plan price "PKR XXX" or numeric)
     const amountVal = String(payable);
 
@@ -266,7 +274,6 @@ export function PaymentModal({
         transactionId: cleanTxId,
         last4Digits: cleanLast4,
         paymentTime: paymentTime,
-        proof: proof || undefined,
         couponCode: coupon ? coupon.code : undefined
       });
 
@@ -377,7 +384,7 @@ export function PaymentModal({
               {paymentDetails?.whatsappNumber && (
                 <div className="pt-2 border-t border-slate-200">
                   <div className="text-xs font-semibold text-slate-700 mb-2">
-                    Speed up verification (Optional):
+                    Last step: opening WhatsApp in 3 seconds to send your payment screenshot.
                   </div>
                   <WhatsAppButton
                     whatsappNumber={paymentDetails.whatsappNumber}
@@ -401,7 +408,7 @@ export function PaymentModal({
                PAYMENT FORM
                ========================================================= */
             <form onSubmit={handleSubmit} className="space-y-6">
-{!isFree&&<label className="block text-xs font-semibold mb-4">Payment screenshot or receipt (required)<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="block w-full mt-2" onChange={e=>{const f=e.target.files?.[0];setProof(null);if(f&&f.size>5*1024*1024){setErrorMessage('Proof must be at most 5 MB.');return;}setProof(f||null);}}/><span className="text-slate-500">Maximum 5 MB · JPEG, PNG, WebP or PDF</span></label>}
+
 
               {errorMessage && (
                 <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 flex items-start gap-2.5">
