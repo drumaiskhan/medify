@@ -238,17 +238,9 @@ export function PaymentModal({
     }
 
     // A coupon that covers the whole fee needs no bank transfer, so a reference is generated.
-    const cleanTxId = isFree ? `FREE-${Date.now().toString(36).toUpperCase()}` : transactionId.trim();
-    if (!cleanTxId) {
-      setErrorMessage('Please enter the Transaction ID provided by your payment receipt.');
-      return;
-    }
-
-    const cleanLast4 = isFree ? '0000' : last4Digits.trim();
-    if (!cleanLast4) {
-      setErrorMessage('Please enter the last 4 digits of your account or mobile number.');
-      return;
-    }
+    // Proof is sent on WhatsApp, so a reference is generated instead of asking for a transaction ID.
+    const cleanTxId = `${isFree ? 'FREE' : 'WA'}-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+    const cleanLast4 = '';
 
     if (!selectedYearId) {
       setErrorMessage('Please select the MBBS Academic Year you wish to subscribe to.');
@@ -286,7 +278,7 @@ export function PaymentModal({
         durationMonths: selectedPlan.durationMonths,
         amountPKR: amountVal,
         method: method,
-        transactionId: cleanTxId
+        transactionId: ''
       });
 
       if (onSuccess) {
@@ -373,10 +365,6 @@ export function PaymentModal({
                   <span className="font-semibold text-[#0f2837]">
                     {getPaymentMethodLabel(submittedRequest.method)}
                   </span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-slate-500">Transaction ID:</span>
-                  <span className="font-mono font-bold text-[#1b8e8e]">{submittedRequest.transactionId}</span>
                 </div>
               </div>
 
@@ -739,48 +727,14 @@ export function PaymentModal({
                 </div>
                 <div className="relative flex justify-center text-xs">
                   <span className="bg-white px-3 text-slate-500 font-medium">
-                    Or Submit Transaction Details for Portal Verification
+                    Then Submit Your Request
                   </span>
                 </div>
               </div>
 
               {/* Transaction Proof Form Fields */}
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="tx-id-input" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Transaction ID / Reference Number <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="tx-id-input"
-                    type="text"
-                    required={!isFree}
-                    placeholder="e.g. TID123456789 or Bank Ref"
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#1b8e8e] focus:border-transparent outline-hidden bg-white"
-                  />
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Enter the exact transaction ID shown on your payment receipt or SMS notification.
-                  </p>
-                </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="last4-input" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Last 4 Digits of Sender Account / Phone <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      id="last4-input"
-                      type="text"
-                      required={!isFree}
-                      maxLength={10}
-                      placeholder="e.g. 4567"
-                      value={last4Digits}
-                      onChange={(e) => setLast4Digits(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-[#1b8e8e] focus:border-transparent outline-hidden bg-white"
-                    />
-                  </div>
-
                   <div>
                     <label htmlFor="payment-time-input" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Payment Date & Time <span className="text-rose-500">*</span>

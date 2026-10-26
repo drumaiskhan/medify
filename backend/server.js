@@ -271,11 +271,10 @@ function createApp(pool, { sendMail } = {}) {
           const clean=v=>String(v||'').trim().slice(0,200);
           await records.write(db,u,{collection:'users',id,data:{fullName:clean(profile.fullName),college:clean(profile.college),academicYear:year.name,selectedYearId:profile.yearId,selectedYearName:year.name,curriculum:clean(profile.curriculum)||'KMU',selectedPlanId:profile.planId,selectedPlanName:clean(profile.planName)}});
           const method=profile.method||'jazzcash';
-          const reference=clean(profile.transactionId)||('FREE-'+crypto.randomUUID());
+          const reference=clean(profile.transactionId)||('WA-'+crypto.randomUUID().slice(0,8).toUpperCase());
           paymentId=method+'_'+reference;
           await records.write(db,u,{collection:'paymentRequests',id:paymentId,data:{...profile,method,transactionId:reference,userName:clean(profile.fullName),yearName:year.name}});
           const payment=await records.get(db,'paymentRequests',paymentId);
-          if(payment.amountPKR>0 && (!proof || !clean(profile.transactionId)))fail(400,'Upload payment proof and enter the transaction ID.');
           await proofs.attach(db,paymentId,proof);
           await db.query("UPDATE records SET data=data || $2::jsonb WHERE collection='users' AND id=$1",[id,{planPrice:payment.amountPKR}]);
         } else if(proof)fail(400,'Payment proof requires registration payment details.');

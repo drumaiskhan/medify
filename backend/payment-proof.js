@@ -24,6 +24,7 @@ function installProofRoutes(app,pool,proofs,tx){
  app.post('/api/payments/submit',(req,res,next)=>req.user?next():res.status(401).json({error:'Sign in required'}),proofs.receive,wrap(async(req,res)=>{
   try{
    const proof=await proofs.validate(req.file),b=req.body;
+   if(!String(b.transactionId||'').trim())b.transactionId='WA-'+crypto.randomUUID().slice(0,8).toUpperCase();
    const id=String(b.method)+'_'+String(b.transactionId||'').trim();
    await tx(async db=>{
     await records.write(db,req.user,{collection:'paymentRequests',id,data:b});
