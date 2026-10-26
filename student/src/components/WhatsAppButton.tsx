@@ -32,8 +32,9 @@ export function WhatsAppButton({
   label = 'Send screenshot on WhatsApp',
   showHelpText = true
 }: WhatsAppButtonProps) {
-  // Normalize number (defaults to verified admin number if empty)
+  // Only the number saved in admin payment settings is used; hide the button if none is set.
   const targetNumber = normalizeWhatsAppNumber(whatsappNumber);
+  if (!isValidWhatsAppNumber(whatsappNumber) || !targetNumber) return null;
   const url = buildWhatsAppLink(targetNumber, request);
 
   return (

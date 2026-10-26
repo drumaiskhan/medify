@@ -77,15 +77,14 @@ export function getPaymentMethodLabel(method: string | undefined | null): string
   return method;
 }
 
-export const DEFAULT_ADMIN_WHATSAPP = '923279306001';
-
 /**
  * Normalizes a Pakistan WhatsApp number to international 92XXXXXXXXXX format.
  */
 export function normalizeWhatsAppNumber(number: string | undefined | null): string {
-  if (!number) return DEFAULT_ADMIN_WHATSAPP;
+  // No fallback: payment proofs only go to the number saved in Admin > Payment settings.
+  if (!number) return '';
   let cleaned = String(number).trim().replace(/\D/g, '');
-  if (!cleaned) return DEFAULT_ADMIN_WHATSAPP;
+  if (!cleaned) return '';
   if (cleaned.startsWith('03')) {
     cleaned = '92' + cleaned.slice(1);
   } else if (cleaned.startsWith('3') && cleaned.length === 10) {
@@ -101,7 +100,7 @@ export function normalizeWhatsAppNumber(number: string | undefined | null): stri
  * Accepts numbers with or without +92/03/92 prefix.
  */
 export function isValidWhatsAppNumber(number: string | undefined | null): boolean {
-  if (!number) return true; // Default fallback is always available
+  if (!number) return false; // Nothing configured in admin settings
   const cleaned = String(number).trim().replace(/\D/g, '');
   return cleaned.length >= 9;
 }
@@ -176,7 +175,7 @@ export const DEFAULT_PAYMENT_DETAILS: PaymentDetailsDoc = {
     accountNumber: '00300113961220',
     iban: ''
   },
-  whatsappNumber: '923279306001',
+  whatsappNumber: '',
   instructions: 'Please transfer the exact amount using JazzCash or Meezan Bank. After sending, enter your Transaction ID and the last 4 digits of your sending account below, or send proof directly via WhatsApp.'
 };
 

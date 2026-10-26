@@ -688,18 +688,19 @@ export function PaymentModal({
                 )}
               </div>
 
-              {/* WhatsApp Direct Option: Send Amount Proof directly to Admin WhatsApp */}
+              {/* WhatsApp option: payment proof goes to the WhatsApp number set in admin payment settings */}
+              {isValidWhatsAppNumber(paymentDetails?.whatsappNumber) && (
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#25D366] animate-pulse" />
                       <h3 className="text-xs font-bold text-emerald-950">
-                        Fast-Track: Send Amount to Admin WhatsApp
+                        Fast-Track: Send Payment Proof on WhatsApp
                       </h3>
                     </div>
                     <p className="text-[11px] text-emerald-800 leading-relaxed max-w-md">
-                      Sent the fee? Open WhatsApp to send your payment screenshot directly to admin for rapid manual verification and instant activation.
+                      Sent the fee? Open WhatsApp to send your payment screenshot directly to our payment WhatsApp number for rapid verification.
                     </p>
                   </div>
                   <WhatsAppButton
@@ -715,13 +716,14 @@ export function PaymentModal({
                       transactionId: transactionId.trim(),
                       last4Digits: last4Digits.trim()
                     }}
-                    label="Send Amount on WhatsApp"
+                    label="Send Payment Proof on WhatsApp"
                     compact={false}
                     showHelpText={false}
                     className="w-full sm:w-auto"
                   />
                 </div>
               </div>
+              )}
 
               {/* Form Divider */}
               <div className="relative py-1">
